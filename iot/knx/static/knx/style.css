@@ -1,0 +1,21 @@
+html, body{
+    margin:0;
+    padding: 0em;
+}
+body{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: [header] 5em [nav] 5em [content] auto [footer] 5em;
+}
+#header{
+    grid-area: 1 / 1 / 2 / 2;
+}
+#nav{
+    grid-area: 2 / 1 / 3 / 2;
+}
+#content{
+    grid-area: 3 / 1 / 4 / 2;
+}
+#footer{
+    grid-area: 4 / 1 / 5 / 2;
+}

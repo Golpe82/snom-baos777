@@ -1,0 +1,90 @@
+{% extends 'knx/base.html' %}
+
+{% load static %}
+
+{% block title %}|{{ app }}|{{ page }}{% endblock title %}
+{% block header %}- {{app }} - {{ page }}{% endblock header %}
+
+{% block content %}
+<div class="input">
+    <table>
+        <tr>
+            <th></th>
+        {% for head in header %}
+            <th>{{ head }}</th>
+        {% endfor %}
+        </tr>
+        {% for groupaddress in groupaddresses %}
+            {% if '/-/-' in groupaddress.1 %}
+            <tr bgcolor="grey">
+                <td></td>
+                <td>{{ groupaddress.0 }}</td>
+                <td></td>
+                <td></td>
+            {% elif '/-' in groupaddress.1 %}
+            <tr bgcolor="lightgrey">
+                <td></td>
+                <td>{{ groupaddress.0 }}</td>
+                <td></td>
+                <td></td>
+            {% elif groupaddress.2 != '' %}
+            <tr>
+                {% if 'DPT-1' in groupaddress.2 or 'DPST-1-' in groupaddress.2 %}
+                <td>
+                     <form method="get">
+                        <button id="on" formaction="{{ knx_gateway }}{{ groupaddress.1 }}-an" type="submit" name="{{groupaddress.0 }}" value="on">On</button>
+                        <button id="off" formaction="{{ knx_gateway }}{{ groupaddress.1 }}-aus" type="submit" name="{{groupaddress.0 }}" value="off">Off</button>
+                        
+                    </form>
+                    <button type="button" id="toggle{{ groupaddress.1 }}">toggle</button>
+                    <script>         
+                        function toggle(){
+                            'use strict';
+                            const element = document.getElementById('toggle{{ groupaddress.1 }}');
+                            
+                            if(element.classList.toggle('off')){
+                                element.classList.remove('on');
+                                element.innerHTML = 'off';
+                            }
+                            else {
+                                element.classList.remove('off');
+                                element.classList.add('on');
+                                element.innerHTML = 'on';
+                            }
+                            return element.innerHTML == 'on' ? 'an' : 'aus';
+                        }
+
+                        function sendUrl(){
+                            'use strict';
+                            let request = new Request('{{ knx_gateway }}{{ groupaddress.1 }}-' + toggle());
+                            fetch(request);
+                        }
+
+                        {
+                        'use strict';
+                        let button = document.getElementById('toggle{{ groupaddress.1 }}');
+                        button.addEventListener('click', toggle);
+                        button.addEventListener('click', sendUrl);
+                        }
+                    </script>
+
+                </td>
+                {% elif 'DPT-3' in groupaddress.2 or 'DPST-3-' in groupaddress.2 %}
+                <td>
+                    <form action="">
+                        <input type="range" min="0" max="100" value="50">
+                    </form>
+                </td>
+                {% else %}
+                <td></td>
+                {% endif %}        
+                <td>{{ groupaddress.0 }}</td>
+                <td>{{ groupaddress.1 }}</td>
+                <td>{{ groupaddress.2 }}</td>
+            {% endif %}    
+            </tr> 
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock content %}
