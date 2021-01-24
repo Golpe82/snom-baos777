@@ -1,8 +1,8 @@
-# Internet of Things projects
+# Internet of Things gateway
 
 ## KNX app
 The KNX app in this project allows you to upload your groupaddresses, create or modify your
-KNX Snom XML minibrowser and to control your KNX installation if you have the URL KNX-Gateway.
+KNX Snom XML minibrowser and to control your KNX installation through the URL KNX-Gateway.
 
 ### For local development
 1. Clone this project in any directory in your local machine
@@ -11,10 +11,14 @@ KNX Snom XML minibrowser and to control your KNX installation if you have the UR
 
 
 ### Installation in the KNX URL-Gateway
-1. Install first the [KNX URL-Gateway](https://gitlab.com/simon.golpe/iot_knx-gateway) and nginx in your Raspberry pi
-2. Go to the directory `/usr/local/gateway/`, type `git init` in your terminal and clone this project:  
-   `sudo git clone https://gitlab.com/simon.golpe/iot.git`
-3. Type `sudo crontab -e` and append this:  
+1. Install first nginx 
+2. Go to the directory `/usr/local/` of your KNX URL-Gateway, type `git init` in your terminal and clone this project:  
+   `sudo git clone https://gitlab.com/simon.golpe/gateway.git`
+3. Type this three commands on your terminal:  
+   `sudo chgrp -R pi gateway/`  
+   `sudo chown -R pi gateway/`  
+   `sudo chmod +x gateway/launcher.sh` 
+4. Type `sudo crontab -e` and append this:  
     ```
     # create symlinks for IoT GUI
     @reboot ln -s /usr/local/gateway/iot/knx/media/knx.xml /usr/local/gateway/iot/knx/templates/knx/minibrowser.xml
@@ -24,7 +28,7 @@ KNX Snom XML minibrowser and to control your KNX installation if you have the UR
     # start IoT GUI
     @reboot /usr/bin/python3 /usr/local/gateway/iot/manage.py runserver 0:8000
     ```
-4. Save the changes and reboot the system
+5. Save the changes and reboot the system
 
 ### Configure and usage
 1.  Export the KNX groupaddresses of your KNX project from the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool as .csv file or ask your KNX integrator for it
