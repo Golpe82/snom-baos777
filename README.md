@@ -1,4 +1,4 @@
-# Internet of Things projects
+# Internet of Things gateway
 
 ## KNX app
 The KNX app in this project allows you to upload your groupaddresses, create or modify your
