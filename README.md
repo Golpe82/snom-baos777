@@ -1,19 +1,34 @@
 # Internet of Things gateway
 
-## KNX app
-The KNX app in this project allows you to upload your groupaddresses, create or modify your
-KNX Snom XML minibrowser and to control your KNX installation through the URL KNX-Gateway.
+The purpose of this project is to implement differents IoT systems/services.  
+The first implemented service under development is the comunication with the [KNX system](https://www.knx.org/knx-en/for-professionals/index.php) over HTTP protocol.  
+Further services like the [DECT-Messaging](https://github.com/snom-project/DECTMessagingDemonstrator) / Bluetooth beacons app are also in progress.
 
-### For local development
-1. Clone this project in any directory in your local machine
-2. Create a symlink from the file `/path/to/project/iot/knx/media/knx.xml` to the file
-    `/path/to/project/iot/knx/templates/knx/minibrowser.xml` (as sudo)
+## KNX app
+The KNX URL-Gateway allows you to control your KNX system in a easy way.  
+You just need a device that sends HTTP-Requests like a webbrowser, an IP phone, a DECT basis station, an IP camera, an IP intercom, etc.  
+You can also build your own application that sends the requests.  
+
+That means you can change the functionality of the buttons of your IP device in order to control your KNX system without the need of hiring a KNX integrator.
+
+For example, using a [Snom IP phone](https://www.snom.com/en/), you can assign at each time, to each button in each room a new functionality without paying for this change.
+
+You only need to send an HTTP-Request with this pattern:  
+`http://ip.of.the.gateway:1234/knx/group/address-an` (will switch on your groupaddress)  
+or  
+`http://ip.of.the.gateway:1234/knx/group/address-aus` (will switch off your groupaddress)
+
+The KNX app allows you to upload your KNX groupaddresses and create or modify your
+KNX [Snom XML minibrowser](https://service.snom.com/display/wiki/XML+Minibrowser) for controlling your KNX installation.
+
+At this moment the KNX URL Gateway can only control boolean values (on/off) in one way (send).  
+That means reading values from the KNX Bus (e.g. to visualize stati) is still not possible. 
 
 ### Hardware needed for the KNX URL Gateway
 - Raspberry Pi 3B+
 - [KNX kBerry module](https://www.weinzierl.de/index.php/en/all-knx/knx-module-en/knx-baos-module-838-en)
 
-### Preparing the hardware
+### Preparing the KNX URL-Gateway
 1. Flash the Raspberry Pi with the Raspberry OS
 1. Assemble the kBerry with the Raspberry Pi and connect it to your LAN network and to your KNX-Bus.
 2. Add this in the `/boot/config.txt` of the raspberry pi:
@@ -53,6 +68,7 @@ KNX Snom XML minibrowser and to control your KNX installation through the URL KN
 4. Save the changes and reboot the system
 
 ### Configure and usage
+1. With the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool, integrate the KNX URL-Gateway in your system applying to it a KNX physical address
 1.  Export the KNX groupaddresses of your KNX project from the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool as .csv file or ask your KNX integrator for it
 2. From the webbrowser of a device in the same network as your KNX URL-Gateway call:  
     `http://192.168.178.47:8000/knx/`, where the IP address must be the address of the KNX URL-Gateway.
@@ -72,7 +88,12 @@ If you want to customize the minibrowser menu, navigate in the GUI to 'Minibrows
 
 Navigating to 'Start' in the GUI, you can also control your KNX system.
 
+## Developing the Internet of Things gateway in your local machine
+1. Clone this project in any directory in your local machine
+2. Create a symlink from the file `/path/to/project/iot/knx/media/knx.xml` to the file
+    `/path/to/project/iot/knx/templates/knx/minibrowser.xml` (as sudo)
+
 
 Mantainer: Golpe Varela, Simón
 
-2018 - current
+2018 - current 
