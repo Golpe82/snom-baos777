@@ -71,4 +71,8 @@ _Using a Snom M900 and Snom DECT handsets_
 If you want to customize the minibrowser menu, navigate in the GUI to 'Minibrowser', download the XML file and upload it again after customizing it.  
 
 Navigating to 'Start' in the GUI, you can also control your KNX system.
-    
+
+
+Mantainer: Golpe Varela, Simón
+
+2018 - current
