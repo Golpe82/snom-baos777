@@ -43,12 +43,12 @@ That means reading values from the KNX Bus (e.g. to visualize stati) is still no
     `chgrp dialout /dev/ttyAMA0`
 5. Add the user in the group with:  
     `usermod -a -G dialout pi`
-6. Type `sudo crontab -e` and append this:  
+6. Type `sudo crontab -e`, append this and save the changes:  
     `@reboot /usr/local/gateway/launcher.sh >/usr/local/gateway/cronlog 2>&1`
 7. Install [NGINX](https://www.nginx.com/) and git
-8. Type this command:  
-`sudo apt install python3 python3-venv python3-pip`  
-and this one:  
+8. Install Python3 and pip:  
+`sudo apt install python3 python3-pip`  
+and Django:  
 `sudo python3 -m pip install django`
 
 ### Installation of the application in the KNX URL-Gateway
@@ -59,7 +59,7 @@ and this one:
    `sudo chgrp -R pi gateway/`  
    `sudo chown -R pi gateway/`  
    `sudo chmod +x gateway/launcher.sh` 
-3. Save the changes and reboot the system
+3. Reboot the system
 
 ### Configure and usage
 1. With the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool, integrate the KNX URL-Gateway in your system applying to it a KNX physical address
