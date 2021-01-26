@@ -45,7 +45,11 @@ That means reading values from the KNX Bus (e.g. to visualize stati) is still no
     `usermod -a -G dialout pi`
 6. Type `sudo crontab -e` and append this:  
     `@reboot /usr/local/gateway/launcher.sh >/usr/local/gateway/cronlog 2>&1`
-7. Install [NGINX](https://www.nginx.com/) and git
+7. Install [NGINX](https://www.nginx.com/) git
+8. Type this command:  
+`sudo apt install python3 python3-venv python3-pip`  
+and this one:  
+`sudo python3 -m pip install django`
 
 ### Installation of the application in the KNX URL-Gateway
 
