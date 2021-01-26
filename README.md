@@ -46,6 +46,10 @@ That means reading values from the KNX Bus (e.g. to visualize stati) is still no
 6. Type `sudo crontab -e` and append this:  
     `@reboot /usr/local/gateway/launcher.sh >/usr/local/gateway/cronlog 2>&1`
 7. Install [NGINX](https://www.nginx.com/) and git
+8. Type this command:  
+`sudo apt install python3 python3-venv python3-pip`  
+and this one:  
+`sudo python3 -m pip install django`
 
 ### Installation of the application in the KNX URL-Gateway
 
@@ -55,17 +59,7 @@ That means reading values from the KNX Bus (e.g. to visualize stati) is still no
    `sudo chgrp -R pi gateway/`  
    `sudo chown -R pi gateway/`  
    `sudo chmod +x gateway/launcher.sh` 
-3. Type `sudo crontab -e` and append this:  
-    ```
-    # create symlinks for IoT GUI
-    @reboot ln -s /usr/local/gateway/iot/knx/media/knx.xml /usr/local/gateway/iot/knx/templates/knx/minibrowser.xml
-    @reboot ln -s /usr/local/gateway/iot/knx/media/knx.xml /var/www/html/knx.xml
-    @reboot ln -s /usr/local/gateway/iot/knx/media/ga.csv /usr/local/gateway/ga.csv
-
-    # start IoT GUI
-    @reboot /usr/bin/python3 /usr/local/gateway/iot/manage.py runserver 0:8000
-    ```
-4. Save the changes and reboot the system
+3. Save the changes and reboot the system
 
 ### Configure and usage
 1. With the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool, integrate the KNX URL-Gateway in your system applying to it a KNX physical address
