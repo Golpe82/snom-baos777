@@ -171,7 +171,23 @@ def create_xml():
                 <Name>off</Name>
                     <URL>{ settings.KNX_ROOT }{ row[1] }-aus</URL>
                 </MenuItem>
-            </Menu>"""  
+            </Menu>"""
+            )
+            continue
+        elif 'DPST-3-' in row[5]:
+            xml_data.write(
+            f"""
+            <Menu Name='{ row[0] }'>
+            <Name>{ row[0] }</Name>
+                <MenuItem>
+                <Name>plus</Name>
+                    <URL>{ settings.KNX_ROOT }{ row[1] }-plus</URL>
+                </MenuItem>
+                <MenuItem>
+                <Name>minus</Name>
+                    <URL>{ settings.KNX_ROOT }{ row[1] }-minus</URL>
+                </MenuItem>
+            </Menu>"""
             )
             continue
 
