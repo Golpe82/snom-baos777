@@ -17,7 +17,7 @@ You only need to send an HTTP-Request with one of this patterns:
 `http://ip.of.the.gateway:1234/knx/group/address-an` (will switch on your groupaddress),  
 `http://ip.of.the.gateway:1234/knx/group/address-aus` (will switch off your groupaddress)  
 `http://ip.of.the.gateway:1234/knx/group/address-plus` (will dimm your groupaddress up)  
-`http://ip.of.the.gateway:1234/knx/group/address-plus` (will dimm your groupaddress down)  
+`http://ip.of.the.gateway:1234/knx/group/address-minus` (will dimm your groupaddress down)  
 
 The KNX app allows you to upload your KNX groupaddresses and create or modify your
 KNX [Snom XML minibrowser](https://service.snom.com/display/wiki/XML+Minibrowser) for controlling your KNX installation.
