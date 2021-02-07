@@ -171,7 +171,7 @@ def create_xml():
                 <Name>off</Name>
                     <URL>{ settings.KNX_ROOT }{ row[1] }-aus</URL>
                 </MenuItem>
-            </Menu>"""  
+            </Menu>"""
             )
             continue
         elif 'DPST-3-' in row[5]:

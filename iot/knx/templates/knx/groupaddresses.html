@@ -71,8 +71,9 @@
                 </td>
                 {% elif 'DPT-3' in groupaddress.2 or 'DPST-3-' in groupaddress.2 %}
                 <td>
-                    <form action="">
-                        <input type="range" min="0" max="100" value="50">
+                     <form method="get">
+                        <button id="plus" formaction="{{ knx_gateway }}{{ groupaddress.1 }}-plus" type="submit" name="{{groupaddress.0 }}" value="plus">+</button>
+                        <button id="minus" formaction="{{ knx_gateway }}{{ groupaddress.1 }}-minus" type="submit" name="{{groupaddress.0 }}" value="minus">-</button>
                     </form>
                 </td>
                 {% else %}
