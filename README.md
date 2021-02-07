@@ -13,15 +13,16 @@ That means you can change the functionality of the buttons of your IP device in 
 
 For example, using a [Snom IP phone](https://www.snom.com/en/), you can assign at each time, to each button in each room a new functionality without paying for this change.
 
-You only need to send an HTTP-Request with this pattern:  
-`http://ip.of.the.gateway:1234/knx/group/address-an` (will switch on your groupaddress)  
-or  
-`http://ip.of.the.gateway:1234/knx/group/address-aus` (will switch off your groupaddress)
+You only need to send an HTTP-Request with one of this patterns:  
+`http://ip.of.the.gateway:1234/knx/group/address-an` (will switch on your groupaddress),  
+`http://ip.of.the.gateway:1234/knx/group/address-aus` (will switch off your groupaddress)  
+`http://ip.of.the.gateway:1234/knx/group/address-plus` (will dimm your groupaddress up)  
+`http://ip.of.the.gateway:1234/knx/group/address-plus` (will dimm your groupaddress down)  
 
 The KNX app allows you to upload your KNX groupaddresses and create or modify your
 KNX [Snom XML minibrowser](https://service.snom.com/display/wiki/XML+Minibrowser) for controlling your KNX installation.
 
-At this moment the KNX URL Gateway can only control boolean values (on/off) in one way (send).  
+At this moment the KNX URL Gateway can only control DPT1 (datapoint type 1. On/off) and DPT3 (dimm relative) in one way (send).  
 That means reading values from the KNX Bus (e.g. to visualize stati) is still not possible. 
 
 ### Hardware needed for the KNX URL Gateway
