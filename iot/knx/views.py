@@ -158,7 +158,7 @@ def create_xml():
             tag2 = 'open'
             continue
 
-        elif 'DPST-1-' in row[5]:
+        elif 'DPST-1-' in row[5] and 'DPST-1-11' not in row[5]:
             xml_data.write(
             f"""
             <Menu Name='{ row[0] }'>
