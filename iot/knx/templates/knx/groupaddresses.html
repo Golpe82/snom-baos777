@@ -29,7 +29,8 @@
                 <td></td>
             {% elif groupaddress.2 != '' %}
             <tr>
-                {% if groupaddress.2 != 'DPST-1-11' and 'DPT-1' in groupaddress.2 or 'DPST-1-' in groupaddress.2 %}
+                {% if 'DPT-1' in groupaddress.2 or 'DPST-1-' in groupaddress.2 %}
+                {% if groupaddress.2 != 'DPST-1-11' %}
                 <td>
                      <form method="get">
                         <button id="on" formaction="{{ knx_gateway }}{{ groupaddress.1 }}-an" type="submit" name="{{groupaddress.0 }}" value="on">On</button>
@@ -69,6 +70,7 @@
                     </script>
 
                 </td>
+                {% endif %}
                 {% elif 'DPT-3' in groupaddress.2 or 'DPST-3-' in groupaddress.2 %}
                 <td>
                      <form method="get">
