@@ -54,7 +54,7 @@ and Django:
 
 ### Installation of the application in the KNX URL-Gateway
 
-1. Go to the directory `/usr/local/` of your KNX URL-Gateway, type `git init` in your terminal and clone this project:  
+1. Go to the directory `/usr/local/` of your KNX URL-Gateway, type `sudo git init` in your terminal and clone this project:  
    `sudo git clone https://gitlab.com/simon.golpe/gateway.git`
 2. Type this three commands on your terminal:  
    `sudo chgrp -R pi gateway/`  
@@ -67,16 +67,16 @@ and Django:
 1.  Export the KNX groupaddresses of your KNX project from the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool as .csv file or ask your KNX integrator for it
 2. From the webbrowser of a device in the same network as your KNX URL-Gateway call:  
     `http://192.168.178.47:8000/knx/`, where the IP address must be the address of the KNX URL-Gateway.
-3. Upload the .csv file with your KNX groupaddresses
+3. Upload the .csv file with your KNX groupaddresses (for development purposes you can use [this example](https://gitlab.com/simon.golpe/gateway/-/blob/master/groupaddresses.example.csv))
    
 _Using a Snom deskphone_
-1. Configure a function key of your Snom phone as an action-URL and assign it the value `http://192.168.178.47:8000/knx.xml`, where the IP address must be the address of the KNX URL-Gateway.
+1. Configure a function key of your Snom phone as an action-URL and assign it the value `http://192.168.178.47:8000/knx/minibrowser`, where the IP address must be the address of the KNX URL-Gateway.
 2. Pressing this function key, you can now control your KNX system
    
 _Using a Snom M900 and Snom DECT handsets_
-1. Configure in the M900 your central directory as XML minibrowser and set the value `http://192.168.178.47:8000/knx.xml`
-2. Update your DECT Basisstation and your handsets
-3. Pressing the central directory button of your handsets, you can now control your KNX system
+1. Configure in the M900 your central directory as XML minibrowser and set the value `http://192.168.178.47:8000/knx/minibrowser`  
+2. Update your DECT Basisstation and your handsets  
+3. Pressing the central directory button of your handsets, you can now control your KNX system  
 
 
 If you want to customize the minibrowser menu, navigate in the GUI to 'Minibrowser', download the XML file and upload it again after customizing it.  
@@ -84,9 +84,15 @@ If you want to customize the minibrowser menu, navigate in the GUI to 'Minibrows
 Navigating to 'Start' in the GUI, you can also control your KNX system.
 
 ## Developing the Internet of Things gateway in your local machine
-1. Clone this project in any directory in your local machine
-2. Create a symlink from the file `/path/to/project/iot/knx/media/knx.xml` to the file
-    `/path/to/project/iot/knx/templates/knx/minibrowser.xml` (as sudo)
+1. Install Python3 and pip:  
+`sudo apt install python3 python3-pip`  
+and Django:  
+`sudo python3 -m pip install django`  
+2. Clone this project in any directory in your local machine  
+3. Navigate to the project´s root folder `iot` and start the application from terminal with `python3 manage.py runserver`  
+3. From the webbrowser of a device in the same network as your KNX URL-Gateway call:  
+    `http://192.168.178.47:8000/knx/`, where the IP address must be the address of the KNX URL-Gateway.
+4. Upload the .csv file with your KNX groupaddresses (for development purposes you can use [this example](https://gitlab.com/simon.golpe/gateway/-/blob/master/groupaddresses.example.csv))
 
 
 Mantainer: Golpe Varela, Simón
