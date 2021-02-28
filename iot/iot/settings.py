@@ -131,12 +131,11 @@ MEDIA_URL = 'knx/media/'
 
 KNX_ROOT = f"http://{ GATEWAY_IP }:1234/"
 
-CSV_TARGET_PATH = '/usr/local/gateway/iot/knx/media/ga.csv'
-CSV_SOURCE_PATH = '/usr/local/gateway/iot/knx/media/ga.csv'
-XML_TARGET_PATH = '/usr/local/gateway/iot/knx/media/knx.xml'
+CSV_SOURCE_PATH = 'knx/media/ga.csv'
+XML_TARGET_PATH = 'knx/media/knx.xml'
 
 try:
-    from iot.local_settings import *
+    from iot import local_settings
 
 except ImportError:
     pass
