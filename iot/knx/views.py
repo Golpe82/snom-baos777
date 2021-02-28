@@ -11,11 +11,10 @@ APP = 'KNX'
 
 def groupaddresses(request):
     source_path = settings.CSV_SOURCE_PATH
-    target_path = settings.CSV_TARGET_PATH
     groupaddresses = []
 
     if os.path.exists(source_path):
-        with open(target_path, newline='', encoding='latin1') as csvfile:
+        with open(source_path, newline='', encoding='latin1') as csvfile:
             groupaddressesreader = csv.reader(csvfile)
             groupaddresses = [groupaddress for groupaddress in groupaddressesreader]
 
