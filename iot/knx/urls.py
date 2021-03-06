@@ -9,7 +9,7 @@ from knx import views
 app_name = 'knx'
 
 urlpatterns = [
-    path('', views.groupaddresses, name='start'),
+    path('', views.index, name='start'),
     path('minibrowser/', views.minibrowser, name='minibrowser'),
     path('upload/', views.upload, name='upload'),
 ]
