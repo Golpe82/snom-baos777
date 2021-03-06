@@ -45,8 +45,7 @@ def groupaddresses(request):
 
         return render(request, 'knx/groupaddresses.html', context)
 
-    else:
-        return HttpResponse('<h1><a href="upload/">Upload</a> first your .csv file with the KNX addresses</h1>')
+    return HttpResponse('<h1><a href="upload/">Upload</a> first your .csv file with the KNX addresses</h1>')
 
 def minibrowser(request):
     return render(request, 'knx/minibrowser.xml', content_type="application/xhtml+xml")
