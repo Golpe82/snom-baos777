@@ -16,7 +16,7 @@ def groupaddresses(request):
     if os.path.exists(source_path):
         with open(source_path, newline='', encoding='latin1') as csvfile:
             groupaddressesreader = csv.reader(csvfile)
-            groupaddresses = [groupaddress for groupaddress in groupaddressesreader]
+            groupaddresses = list(groupaddressesreader)
 
         first_line = groupaddresses[0]
 
