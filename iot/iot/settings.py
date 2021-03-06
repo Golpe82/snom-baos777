@@ -131,8 +131,8 @@ MEDIA_URL = 'knx/media/'
 
 KNX_ROOT = f"http://{ GATEWAY_IP }:1234/"
 
-CSV_SOURCE_PATH = 'knx/media/ga.csv'
-XML_TARGET_PATH = 'knx/media/knx.xml'
+CSV_SOURCE_PATH = f"{ MEDIA_ROOT }ga.csv"
+XML_TARGET_PATH = f"{ MEDIA_ROOT }knx.xml"
 
 try:
     from iot import local_settings
