@@ -7,46 +7,28 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 
+from knx import groupaddresses
+
 APP = 'KNX'
 
-def groupaddresses(request):
-    source_path = settings.CSV_SOURCE_PATH
-    groupaddresses = []
-
-    if os.path.exists(source_path):
-        with open(source_path, newline='', encoding='latin1') as csvfile:
-            groupaddressesreader = csv.reader(csvfile)
-            groupaddresses = [groupaddress for groupaddress in groupaddressesreader]
-
-        first_line = groupaddresses[0]
-
-        if first_line[0] == 'Group name':
-            header = first_line
-            header[6:] = []
-            header[2:5] = []
-            addresses = groupaddresses[1:]
-
-        else:
-            header = ['Group name', 'Address', 'DatapointType']
-            addresses = groupaddresses
-
-        for line in addresses:
-            line[6:] = []
-            line[2:5] = []
+def index(request):
+    if os.path.exists(settings.CSV_SOURCE_PATH):
+        groupaddresses_data = groupaddresses.get_groupaddresses_data()
 
         context = {
             'project': settings.PROJECT_NAME,
             'app': APP,
             'page': 'Groupaddresses',
-            'header': header,
-            'groupaddresses': addresses,
+            'header': groupaddresses_data['header'],
+            'groupaddresses': groupaddresses_data['groupaddresses'],
             'knx_gateway': settings.KNX_ROOT,
             }
 
         return render(request, 'knx/groupaddresses.html', context)
 
-    else:
-        return HttpResponse('<h1><a href="upload/">Upload</a> first your .csv file with the KNX addresses</h1>')
+    prompt = '<h1><a href="upload/">Upload</a> first your .csv file with the KNX addresses</h1>'
+
+    return HttpResponse(prompt)
 
 def minibrowser(request):
     return render(request, 'knx/minibrowser.xml', content_type="application/xhtml+xml")
