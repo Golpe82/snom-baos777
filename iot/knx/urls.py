@@ -11,7 +11,7 @@ app_name = 'knx'
 urlpatterns = [
     path('', views.index, name='start'),
     path('minibrowser/', views.minibrowser, name='minibrowser'),
-    path('upload/', views.upload, name='upload'),
+    path('upload/', views.upload_file, name='upload_file'),
 ]
 
 # serve during development
