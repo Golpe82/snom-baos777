@@ -19,7 +19,7 @@
             <p>(A default xml menu for your Snom deskphone or handset will be created)</p>
         </label>
         <input type="file" name="groupaddresses">
-        <button type="submit" name="csv" value=".csv">Upload csv</button>
+        <button type="submit" name="file_type" value=".csv">Upload csv</button>
     </form>
     <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
@@ -27,7 +27,7 @@
             <p>You can also download the default xml file, edit it and upload the customized one:</p>
         </label>
         <input type="file" name="minibrowser">
-        <button type="submit" name="xml" value=".xml">Upload xml</button>
+        <button type="submit" name="file_type" value=".xml">Upload xml</button>
     </form>
     <h2>{{ message }}</h2>
 
