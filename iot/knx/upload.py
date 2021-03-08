@@ -25,7 +25,7 @@ def process_file(request):
 
         return 'Choose first a file'
 
-    return 'Wrong request method'
+    return ''
 
 
 class HandleUploads():

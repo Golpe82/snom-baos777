@@ -3,33 +3,41 @@ import os
 
 from django.conf import settings
 from django.shortcuts import render
-from django.http import HttpResponse
 
 from knx import groupaddresses, upload
 
 APP = 'KNX'
 
 def index(request):
+    data = None
+
     if os.path.exists(settings.CSV_SOURCE_PATH):
-        groupaddresses_data = groupaddresses.get_groupaddresses_data()
+        data = groupaddresses.get_data()
 
-        context = {
-            'project': settings.PROJECT_NAME,
-            'app': APP,
-            'page': 'Groupaddresses',
-            'header': groupaddresses_data['header'],
-            'groupaddresses': groupaddresses_data['groupaddresses'],
-            'knx_gateway': settings.KNX_ROOT,
-            }
+    context = {
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'Groupaddresses',
+        'addresses': data,
+        'knx_gateway': settings.KNX_ROOT,
+        }
 
-        return render(request, 'knx/groupaddresses.html', context)
+    return render(request, 'knx/groupaddresses.html', context)
 
-    prompt = '<h1><a href="upload/">Upload</a> first your .csv file with the KNX addresses</h1>'
-
-    return HttpResponse(prompt)
 
 def minibrowser(request):
-    return render(request, 'knx/minibrowser.xml', content_type="application/xhtml+xml")
+    if os.path.exists(settings.XML_TARGET_PATH):
+        return render(request, 'knx/minibrowser.xml', content_type="application/xhtml+xml")
+
+    context = {
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'Minibrowser',
+        'addresses': None,
+        'knx_gateway': settings.KNX_ROOT,
+        }
+
+    return render(request, 'knx/groupaddresses.html', context)
 
 def upload_file(request):
 
