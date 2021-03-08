@@ -2,27 +2,30 @@ import csv
 
 from django.conf import settings
 
-def get_groupaddresses_data():
-    groupaddresses = []
+SOURCE_FILE = settings.CSV_SOURCE_PATH
+CSV_FIELDS = {
+    'Group name': 0, 'Address': 1, 'Central': 2, 'Unfiltered': 3,
+    'Description': 4, 'DatapointType': 5, 'Security': 6,
+}
 
-    with open(settings.CSV_SOURCE_PATH, newline='', encoding='latin1') as csvfile:
-        groupaddressesreader = csv.reader(csvfile)
-        groupaddresses = list(groupaddressesreader)
+def get_data():
+    data = []
 
-    first_line = groupaddresses[0]
+    with open(SOURCE_FILE, newline='', encoding='latin1') as csv_file:
+        reader = csv.DictReader(csv_file, fieldnames=CSV_FIELDS.keys())
 
-    if first_line[0] == 'Group name':
-        header = first_line
-        header[6:] = []
-        header[2:5] = []
-        addresses = groupaddresses[1:]
+        for row in reader:
+            if row['Group name'] == 'Group name':
+                continue
 
-    else:
-        header = ['Group name', 'Address', 'DatapointType']
-        addresses = groupaddresses
+            address_info = {
+                'Groupname': row['Group name'],
+                'Groupaddress': row['Address'],
+                'Datapointtype': row['DatapointType'],
+            }
+            data.append(address_info)
 
-    for line in addresses:
-        line[6:] = []
-        line[2:5] = []
-
-    return {'header': header, 'groupaddresses': addresses}
+    return {
+        'header': data[0].keys(),
+        'data': data,
+    }
