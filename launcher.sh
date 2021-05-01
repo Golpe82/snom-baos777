@@ -10,10 +10,13 @@ stty -F /dev/ttyAMA0 -a
 echo "Starting KNX URL-gateway..."
 /usr/local/gateway/KnxHttpGateway &
 
+echo "Starting KNX monitor..."
+/usr/bin/python3 /usr/local/gateway/knx_monitor.py &
+
 echo "Creating symlinks for IoT GUI..."
 ln -s /usr/local/gateway/iot/knx/media/knx.xml /usr/local/gateway/iot/knx/templates/knx/minibrowser.xml
 ln -s /usr/local/gateway/iot/knx/media/knx.xml /var/www/html/knx.xml
 ln -s /usr/local/gateway/iot/knx/media/ga.csv /usr/local/gateway/ga.csv
 
 echo "Starting IoT GUI..."
-/usr/bin/python3 /usr/local/gateway/iot/manage.py runserver 0:8000
+/usr/bin/python3 /usr/local/gateway/iot/manage.py runserver 0:8000 &
