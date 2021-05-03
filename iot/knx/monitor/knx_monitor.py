@@ -4,7 +4,10 @@ import re
 import csv
 import serial
 
-# TODO: Implement hardcoded file paths in project settings
+from django.conf import settings
+
+ETS_FILE = settings.CSV_SOURCE_PATH
+STATI_FILE = f'{ settings.MEDIA_URL }KNX_stati.csv'
 
 
 def handle_DPT1(value):
@@ -87,55 +90,49 @@ def get_value(frame, datapoint_type):
     return {'raw': raw_value, 'formatted': value}
 
 
-def writer(filename, groupaddress_info):
-    with open(filename, "w", newline="") as csv_file:
-        stati = csv.DictWriter(csv_file, fieldnames=groupaddress_info.keys())
+def create_stati_file(groupaddress_info):
+    with open(STATI_FILE, "w", newline="") as write_stati:
+        stati = csv.DictWriter(
+            write_stati, fieldnames=groupaddress_info.keys())
         stati.writeheader()
         stati.writerow(groupaddress_info)
 
 
-def updater(filename, groupaddress_info):
-    with open(filename, newline="") as file:
-        readData = [row for row in csv.DictReader(file)]
+def update_stati_file(groupaddress_info):
+    with open(STATI_FILE, newline="") as read_stati:
+        stati = [status for status in csv.DictReader(read_stati)]
         found = False
         new_status = {}
 
-        for index, raw in enumerate(readData):
-            if groupaddress_info.get('groupaddress') in readData[index]['groupaddress']:
-                readData[index]['status'] = groupaddress_info.get('status')
+        for index, raw in enumerate(stati):
+            if groupaddress_info.get('groupaddress') in stati[index]['groupaddress']:
+                stati[index]['status'] = groupaddress_info.get('status')
                 found = True
                 break
 
         if not found:
             new_status = groupaddress_info
 
-    with open(filename, "w", newline="") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=groupaddress_info.keys())
+    with open(STATI_FILE, "w", newline="") as update_stati:
+        writer = csv.DictWriter(
+            update_stati, fieldnames=groupaddress_info.keys())
         writer.writeheader()
-        writer.writerows(readData)
+        writer.writerows(stati)
 
         if new_status:
             writer.writerow(new_status)
 
 
 def save_status(groupaddress_info):
-    FILEPATH = '/usr/local/gateway/iot/knx/media/'
-    FILENAME = 'KNX_stati.csv'
-    FILE = f"{ FILEPATH }{ FILENAME }"
-
-    file_exists = os.path.isfile(FILE)
-
-    if file_exists:
-        updater(FILE, groupaddress_info)
+    if os.path.isfile(STATI_FILE):
+        update_stati_file(groupaddress_info)
 
     else:
-        writer(FILE, groupaddress_info)
+        create_stati_file(groupaddress_info)
 
 
 def get_groupaddress_info(groupaddress):
-    FILE = '/usr/local/gateway/iot/knx/media/ga.csv'
-
-    with open(FILE) as groupaddresses_info:
+    with open(ETS_FILE) as groupaddresses_info:
         data = [info for info in csv.DictReader(
             groupaddresses_info) if groupaddress in info.get('Address')]
 
