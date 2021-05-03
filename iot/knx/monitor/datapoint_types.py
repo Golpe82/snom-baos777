@@ -19,35 +19,26 @@ class DptHandlers:
     def handle_DPT1(self):
         VALUES = {'on': 0x81, 'off': 0x80}
 
-        if self.raw_value == VALUES.get('on'):
-            return 'on'
+        for key, value in VALUES.items():
+            if self.raw_value == value:
+                return key
 
-        elif self.raw_value == VALUES.get('off'):
-            return 'off'
-
-        else:
-            return 'wrong value'
+        return 'wrong value'
 
     def handle_DPT3(self):
         VALUES = {
-            'stop': 0x80,
+            'stop': range(0x81),
             'decrease': range(0x81, 0x88),
             'increase': range(0x88, 0x8F+0x01)
         }
 
         step = self.raw_value & 0x07
 
-        if self.raw_value in VALUES.get('increase'):
-            return f'increase { step }'
+        for key, value in VALUES.items():
+            if self.raw_value in value:
+                return f'{ key } { step }'
 
-        elif self.raw_value in VALUES.get('decrease'):
-            return f'decrease { step }'
-
-        elif self.raw_value == VALUES.get('stop'):
-            return 'stop'
-
-        else:
-            return 'wrong value'
+        return 'wrong value'
 
     def handle_DPT5(self):
         VALUES = {
