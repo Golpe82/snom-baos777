@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import os
 import re
 import csv
@@ -145,27 +144,3 @@ def get_groupaddress_info(groupaddress):
         'groupaddress name': info.get('Group name'),
         'datapoint type': info.get('DatapointType')
     }
-
-
-def main():
-    with serial.Serial(
-        KnxSerial.DEVICE, KnxSerial.BAUDRATE, KnxSerial.CHARACTER_SIZE, KnxSerial.PARITY
-    ) as connection:
-
-        while True:
-            connection.read_until(BytesValues.STARTBYTE)
-            frame = bytearray(BytesValues.STARTBYTE)
-            frame.extend(connection.read_until(BytesValues.STOPBYTE))
-
-            groupaddress = get_groupaddress(frame).get('formatted')
-            groupaddress_info = get_groupaddress_info(groupaddress)
-            datapoint_type = groupaddress_info.get('datapoint type')
-            groupaddress_info['status'] = get_value(
-                frame, datapoint_type).get('formatted')
-            groupaddress_info['timestamp'] = datetime.now().strftime(
-               '%Y-%m-%d %H:%M:%S')
-            save_status(groupaddress_info)
-
-
-if __name__ == "__main__":
-    main()
