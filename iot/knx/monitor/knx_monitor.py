@@ -34,9 +34,7 @@ def get_value(frame, datapoint_type):
     raw_value = frame[PAYLOAD.get('Byte0')]
     value = ''
 
-    for dpt, values in DPTS.items():
-        pattern = values.get('pattern')
-
+    for dpt, pattern in DPTS.items():
         if re.match(pattern, datapoint_type):
             value = handler(raw_value, dpt).value
 

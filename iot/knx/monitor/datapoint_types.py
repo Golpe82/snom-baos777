@@ -1,23 +1,8 @@
 '''Handles frame payload depending on datapointtype'''
 DPTS = {
-    'DPT1': {
-        'pattern': '^DPS?T-1-',
-    },
-    'DPT3': {
-        'pattern': '^DPS?T-3-',
-        'values': {
-            'stop': 0x80,
-            'decrease': range(0x81, 0x88),
-            'increase': range(0x88, 0x8F+0x01)
-        },
-    },
-    'DPT5': {
-        'pattern': '^DPS?T-5-',
-        'values': {
-            'byte0': 0x80,
-            'byte1': range(0x01, 0xFF)
-        },
-    },
+    'DPT1': '^DPS?T-1-',
+    'DPT3': '^DPS?T-3-',
+    'DPT5': '^DPS?T-5-',
 }
 
 
@@ -27,6 +12,7 @@ class DptHandlers:
         self.HANDLERS = {
             'DPT1': self.handle_DPT1(),
             'DPT3': self.handle_DPT3(),
+            'DPT5': self.handle_DPT3(),
         }
         self.value = self.HANDLERS.get(dpt)
 
@@ -48,7 +34,6 @@ class DptHandlers:
             'decrease': range(0x81, 0x88),
             'increase': range(0x88, 0x8F+0x01)
         }
-        print(self.raw_value)
 
         step = self.raw_value & 0x07
 
@@ -63,3 +48,11 @@ class DptHandlers:
 
         else:
             return 'wrong value'
+
+    def handle_DPT5(self):
+        VALUES = {
+            'byte0': 0x80,
+            'byte1': range(0x01, 0xFF)
+        }
+
+        return 'not implemented'
