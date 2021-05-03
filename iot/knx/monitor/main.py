@@ -4,20 +4,27 @@ from datetime import datetime
 
 import knx_monitor as mon
 
+DEVICE = '/dev/ttyAMA0'
+BAUDRATE = 19200
+CHARACTER_SIZE = serial.EIGHTBITS
+PARITY = serial.PARITY_EVEN
+STARTBYTE = b'\x68'
+STOPBYTE = b'\x16'
+
 
 def main():
-    with serial.Serial(
-        mon.KnxSerial.DEVICE, mon.KnxSerial.BAUDRATE, mon.KnxSerial.CHARACTER_SIZE, mon.KnxSerial.PARITY
-    ) as connection:
-
+    with serial.Serial(DEVICE, BAUDRATE, CHARACTER_SIZE, PARITY) as connection:
         while True:
-            connection.read_until(mon.BytesValues.STARTBYTE)
-            frame = bytearray(mon.BytesValues.STARTBYTE)
-            frame.extend(connection.read_until(mon.BytesValues.STOPBYTE))
+            # read frame
+            connection.read_until(STARTBYTE)
+            frame = bytearray(STARTBYTE)
+            frame.extend(connection.read_until(STOPBYTE))
 
             groupaddress = mon.get_groupaddress(frame).get('formatted')
             groupaddress_info = mon.get_groupaddress_info(groupaddress)
             datapoint_type = groupaddress_info.get('datapoint type')
+
+            # save status
             groupaddress_info['status'] = mon.get_value(
                 frame, datapoint_type).get('formatted')
             groupaddress_info['timestamp'] = datetime.now().strftime(
