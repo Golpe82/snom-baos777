@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
 import os
 import re
 import csv
 import serial
-from datetime import datetime
+
+# TODO: Implement hardcoded file paths in project settings
 
 
 def handle_DPT1(value):
@@ -118,7 +118,7 @@ def updater(filename, groupaddress_info):
 
 
 def save_status(groupaddress_info):
-    FILEPATH = '/usr/local/gateway/'
+    FILEPATH = '/usr/local/gateway/iot/knx/media/'
     FILENAME = 'KNX_stati.csv'
     FILE = f"{ FILEPATH }{ FILENAME }"
 
@@ -132,7 +132,7 @@ def save_status(groupaddress_info):
 
 
 def get_groupaddress_info(groupaddress):
-    FILE = '/usr/local/gateway/ga.csv'
+    FILE = '/usr/local/gateway/iot/knx/media/ga.csv'
 
     with open(FILE) as groupaddresses_info:
         data = [info for info in csv.DictReader(
@@ -145,27 +145,3 @@ def get_groupaddress_info(groupaddress):
         'groupaddress name': info.get('Group name'),
         'datapoint type': info.get('DatapointType')
     }
-
-
-def main():
-    with serial.Serial(
-        KnxSerial.DEVICE, KnxSerial.BAUDRATE, KnxSerial.CHARACTER_SIZE, KnxSerial.PARITY
-    ) as connection:
-
-        while True:
-            connection.read_until(BytesValues.STARTBYTE)
-            frame = bytearray(BytesValues.STARTBYTE)
-            frame.extend(connection.read_until(BytesValues.STOPBYTE))
-
-            groupaddress = get_groupaddress(frame).get('formatted')
-            groupaddress_info = get_groupaddress_info(groupaddress)
-            datapoint_type = groupaddress_info.get('datapoint type')
-            groupaddress_info['status'] = get_value(
-                frame, datapoint_type).get('formatted')
-            groupaddress_info['timestamp'] = datetime.now().strftime(
-               '%Y-%m-%d %H:%M:%S')
-            save_status(groupaddress_info)
-
-
-if __name__ == "__main__":
-    main()
