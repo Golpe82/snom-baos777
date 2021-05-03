@@ -4,10 +4,9 @@ import re
 import csv
 import serial
 
-from django.conf import settings
 
-ETS_FILE = settings.CSV_SOURCE_PATH
-STATI_FILE = f'{ settings.MEDIA_URL }KNX_stati.csv'
+ETS_FILE = '/usr/local/gateway/iot/knx/media/ga.csv'
+STATI_FILE = '/usr/local/gateway/iot/knx/media/KNX_stati.csv'
 
 
 def handle_DPT1(value):
