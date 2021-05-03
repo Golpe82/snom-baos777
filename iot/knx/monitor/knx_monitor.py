@@ -2,7 +2,6 @@ import os
 import re
 import csv
 import serial
-from datetime import datetime
 
 # TODO: Implement hardcoded file paths in project settings
 
