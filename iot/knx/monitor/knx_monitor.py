@@ -4,6 +4,8 @@ import csv
 import serial
 from datetime import datetime
 
+# TODO: Implement hardcoded file paths in project settings
+
 
 def handle_DPT1(value):
     VALUES = {0x81: 'on', 0x80: 'off'}
@@ -117,7 +119,7 @@ def updater(filename, groupaddress_info):
 
 
 def save_status(groupaddress_info):
-    FILEPATH = '/usr/local/gateway/'
+    FILEPATH = '/usr/local/gateway/iot/knx/media/'
     FILENAME = 'KNX_stati.csv'
     FILE = f"{ FILEPATH }{ FILENAME }"
 
@@ -131,7 +133,7 @@ def save_status(groupaddress_info):
 
 
 def get_groupaddress_info(groupaddress):
-    FILE = '/usr/local/gateway/ga.csv'
+    FILE = '/usr/local/gateway/iot/knx/media/ga.csv'
 
     with open(FILE) as groupaddresses_info:
         data = [info for info in csv.DictReader(
