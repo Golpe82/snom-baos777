@@ -3,6 +3,7 @@ import os
 import re
 import csv
 import serial
+from datetime import datetime
 
 
 def handle_DPT1(value):
@@ -48,6 +49,7 @@ class DPTHandlers:
         'DPT3': handle_DPT3,
     }
 
+
 def check_startbyte(frame):
     first_byte_not_startbyte = frame and frame[Bytes.STARTBYTE] != BytesValues.STARTBYTE
 
@@ -55,6 +57,7 @@ def check_startbyte(frame):
         frame.pop(Bytes.STARTBYTE)
 
     return frame
+
 
 def get_groupaddress(frame):
     raw_address = f"{ frame[Bytes.DEST_HIGH_BYTE] } { frame[Bytes.DEST_LOW_BYTE] }"
@@ -127,12 +130,14 @@ def save_status(groupaddress_info):
     else:
         writer(FILE, groupaddress_info)
 
+
 def get_groupaddress_info(groupaddress):
     FILE = '/usr/local/gateway/ga.csv'
 
     with open(FILE) as groupaddresses_info:
-        data = [info for info in csv.DictReader(groupaddresses_info) if groupaddress in info.get('Address')]
-    
+        data = [info for info in csv.DictReader(
+            groupaddresses_info) if groupaddress in info.get('Address')]
+
     info = data[0]
 
     return {
@@ -151,12 +156,16 @@ def main():
             connection.read_until(BytesValues.STARTBYTE)
             frame = bytearray(BytesValues.STARTBYTE)
             frame.extend(connection.read_until(BytesValues.STOPBYTE))
-            
+
             groupaddress = get_groupaddress(frame).get('formatted')
             groupaddress_info = get_groupaddress_info(groupaddress)
             datapoint_type = groupaddress_info.get('datapoint type')
-            groupaddress_info['status'] = get_value(frame, datapoint_type).get('formatted')
+            groupaddress_info['status'] = get_value(
+                frame, datapoint_type).get('formatted')
+            groupaddress_info['timestamp'] = datetime.now().strftime(
+               '%Y-%m-%d %H:%M:%S')
             save_status(groupaddress_info)
+
 
 if __name__ == "__main__":
     main()
