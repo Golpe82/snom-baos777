@@ -11,7 +11,7 @@ echo "Starting KNX URL-gateway..."
 /usr/local/gateway/KnxHttpGateway &
 
 echo "Starting KNX monitor..."
-/usr/bin/python3 /usr/local/gateway/knx_monitor.py &
+/usr/bin/python3 /usr/local/gateway/iot/knx/monitor/main.py &
 
 echo "Creating symlinks for IoT GUI..."
 ln -s /usr/local/gateway/iot/knx/media/knx.xml /usr/local/gateway/iot/knx/templates/knx/minibrowser.xml
