@@ -1,3 +1,4 @@
+'''Module for reading telegrams from KNX bus'''
 import os
 import re
 import csv

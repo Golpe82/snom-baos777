@@ -1,4 +1,4 @@
-''' main programm for monitoring knx bus traffic'''
+''' Main programm for reading knx bus traffic'''
 import serial
 from datetime import datetime
 
