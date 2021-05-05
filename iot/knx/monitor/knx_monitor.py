@@ -3,8 +3,7 @@ import os
 import re
 import csv
 
-from datapoint_types import DPTS
-from datapoint_types import DptHandlers as handler
+import datapoint_types
 
 
 ETS_FILE = '/usr/local/gateway/iot/knx/media/ga.csv'
@@ -34,9 +33,10 @@ def get_value(frame, datapoint_type):
     raw_value = frame[PAYLOAD.get('Byte0')]
     value = ''
 
-    for dpt, pattern in DPTS.items():
+    for dpt, pattern in datapoint_types.PATTERNS.items():
         if re.match(pattern, datapoint_type):
-            value = handler(raw_value, dpt).value
+            handler = datapoint_types.DptHandlers(raw_value)
+            value = handler.get_formatted_value(dpt)
 
     return {'raw': raw_value, 'formatted': value}
 
