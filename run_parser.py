@@ -50,11 +50,11 @@ def main():
         if p.poll(0.1):
             syslog_lines = f.stdout.readline()
             syslog_lines = syslog_lines.decode('utf-8')
-            print(syslog_lines)
+            # print(syslog_lines)
             list = parser.analyse_syslog_lines([syslog_lines])
 
-            if list != []:
-                print(list)
+            # if list:
+            #    print(list)
         time.sleep(0.1)
 
 

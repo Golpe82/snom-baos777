@@ -3,12 +3,9 @@
 
 import pandas as pd
 from pyparsing import Word, hexnums, alphas, alphanums, Suppress, Combine, nums, string, Regex, pyparsing_common
-# import time
 import subprocess
-# import select
+import re
 
-
-#from bottle_utils.i18n import lazy_ngettext as ngettext, lazy_gettext as _
 
 class RSyslogParser(object):
     """Class to parse snom desktop syslog files 
@@ -49,20 +46,13 @@ class RSyslogParser(object):
             mac + syslog_class + snom_class + message
         # print(self.__pattern)
 
-    def parse(self, line):
-        # print('line:',line)
-        parsed = self.__pattern.parseString(line)
+    def to_dict(self, message):
+        MSG_KEYS = ["timestamp", "ip address", "mac",
+                    "syslog class", "snom class", "message"]
 
-        # print(parsed)
-        payload = {}
-        payload["timestamp"] = parsed[0]
-        payload["ip_address"] = parsed[1]
-        payload["mac"] = parsed[2]
-        payload["syslog_class"] = parsed[3]
-        payload["snom_class"] = parsed[4]
-        payload["message"] = parsed[5]
+        msg_values = self.__pattern.parseString(message)
 
-        return payload
+        return dict(zip(MSG_KEYS, msg_values))
 
     def tail(self, f, n, offset=0):
         # when tail fails, log file not existing we return an empty list
@@ -72,68 +62,30 @@ class RSyslogParser(object):
             proc.wait()
         return lines
 
-    def grep_syslog(self, line, pattern=".*PP_.*"):
-        try:
-            # print(line)
-            pattern = Regex(pattern)
-            parsed = pattern.parseString(line)
-            return(parsed)
-        except:
-            return False
+    def get_value(self, message, pattern=".*PP_.*"):
+        match = re.search(pattern, message)
 
-    def analyse_syslog(self, file, num_lines=100):
+        if match:
+            return match.group(0)
 
-        syslogFileContent = self.tail(file, num_lines)
-
-        # print(syslogFileContent)
-        list1 = []
-        for line in syslogFileContent:
-            fields = self.parse(line)
-            # print(line)
-
-            fields['severity'] = 'alert-info'
-            append = False
-
-            # ALS_VALUE:1071
-            if self.grep_syslog(fields['message'], ".*ALS_VALUE:.*"):
-                before = Regex('.*ALS_VALUE:')
-                value = pyparsing_common.number
-                after = Regex('.*')
-                pattern = before + value + after
-                parsed = pattern.parseString(fields['message'])
-                # print(parsed[1])
-                fields['answer'] = str(parsed[1])
-                fields['severity'] = 'alert-success'
-                append = True
-
-            if append:
-                list1.append(fields)
-
-        return list1
+        return match
 
     def analyse_syslog_lines(self, syslogFileContent):
-        # print(syslogFileContent)
+        # TODO: Split function. It makes several things, not only analyse
+        SENSOR_PATTERN = ".*ALS_VALUE:.*"
         list1 = []
-        for line in syslogFileContent:
-            fields = self.parse(line)
-            # print(line)
+        for message_raw in syslogFileContent:
+            message = self.to_dict(message_raw)
+            message['severity'] = 'alert-info'
+            sensor_value = self.get_value(
+                message['message'], SENSOR_PATTERN)
 
-            fields['severity'] = 'alert-info'
-            append = False
-
-            # ALS_VALUE:1071
-            if self.grep_syslog(fields['message'], ".*ALS_VALUE:.*"):
-                before = Regex('.*ALS_VALUE:')
-                value = pyparsing_common.number
-                after = Regex('.*')
-                pattern = before + value + after
-                parsed = pattern.parseString(fields['message'])
-                # print(parsed[1])
-                fields['answer'] = str(parsed[1])
-                fields['severity'] = 'alert-success'
-                append = True
-
-            if append:
-                list1.append(fields)
+            if sensor_value:
+                NUMBERS = "\d+"
+                match = re.search(NUMBERS, sensor_value)
+                message['answer'] = match.group(0)
+                message['severity'] = 'alert-success'
+                print(message)
+                list1.append(message)
 
         return list1
