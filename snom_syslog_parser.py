@@ -3,9 +3,9 @@
 
 import pandas as pd
 from pyparsing import Word, hexnums, alphas, alphanums, Suppress, Combine, nums, string, Regex, pyparsing_common
-import time 
+# import time
 import subprocess
-import select
+# import select
 
 
 #from bottle_utils.i18n import lazy_ngettext as ngettext, lazy_gettext as _
@@ -20,50 +20,49 @@ class RSyslogParser(object):
 
     def __init__(self):
         ints = Word(nums)
-        
+
         # timestamp
         month = Word(string.ascii_uppercase, string.ascii_lowercase, exact=3)
-        day   = ints
-        hour  = Combine(ints + ":" + ints + ":" + ints)
-        
+        day = ints
+        hour = Combine(ints + ":" + ints + ":" + ints)
+
         # still 3 fields in pattern
         timestamp = Combine(month + Regex("..") + day + " " + hour)
-        
+
         ip_address = Combine(ints + "." + ints + "." + ints + "." + ints)
-        
-        # phone mac 
+
+        # phone mac
         mac = Word(hexnums, exact=12)
-               
+
         # syslog class
         syslog_class = Combine("[" + Word(alphanums) + Regex(".*]"))
 
         # snom class
         snom_class = Combine(Word(string.ascii_uppercase, exact=3) + ":")
-        
+
         # message still has ending ']'
         message = Combine(Regex(".*"))
         #message = Regex(".*")
 
         # pattern build
-        self.__pattern = timestamp + ip_address + mac + syslog_class + snom_class + message
-        #print(self.__pattern)
-        
-    
-    def parse(self, line):
-        #print('line:',line)
-        parsed = self.__pattern.parseString(line)
-        
-        #print(parsed)
-        payload                 = {}
-        payload["timestamp"]    = parsed[0]
-        payload["ip_address"]   = parsed[1]
-        payload["mac"]          = parsed[2]
-        payload["syslog_class"] = parsed[3]
-        payload["snom_class"]   = parsed[4]
-        payload["message"]      = parsed[5]
-        
-        return payload
+        self.__pattern = timestamp + ip_address + \
+            mac + syslog_class + snom_class + message
+        # print(self.__pattern)
 
+    def parse(self, line):
+        # print('line:',line)
+        parsed = self.__pattern.parseString(line)
+
+        # print(parsed)
+        payload = {}
+        payload["timestamp"] = parsed[0]
+        payload["ip_address"] = parsed[1]
+        payload["mac"] = parsed[2]
+        payload["syslog_class"] = parsed[3]
+        payload["snom_class"] = parsed[4]
+        payload["message"] = parsed[5]
+
+        return payload
 
     def tail(self, f, n, offset=0):
         # when tail fails, log file not existing we return an empty list
@@ -73,98 +72,68 @@ class RSyslogParser(object):
             proc.wait()
         return lines
 
-
     def grep_syslog(self, line, pattern=".*PP_.*"):
         try:
-            #print(line)
+            # print(line)
             pattern = Regex(pattern)
             parsed = pattern.parseString(line)
             return(parsed)
         except:
             return False
-            
-            
+
     def analyse_syslog(self, file, num_lines=100):
-    
+
         syslogFileContent = self.tail(file, num_lines)
-        
-        #print(syslogFileContent)
+
+        # print(syslogFileContent)
         list1 = []
         for line in syslogFileContent:
             fields = self.parse(line)
-            #print(line)
+            # print(line)
 
             fields['severity'] = 'alert-info'
-            append=False
+            append = False
 
             # ALS_VALUE:1071
             if self.grep_syslog(fields['message'], ".*ALS_VALUE:.*"):
                 before = Regex('.*ALS_VALUE:')
                 value = pyparsing_common.number
-                after =  Regex('.*')
-                pattern = before + value + after 
+                after = Regex('.*')
+                pattern = before + value + after
                 parsed = pattern.parseString(fields['message'])
-                #print(parsed[1])
-                fields['answer']= str(parsed[1])
+                # print(parsed[1])
+                fields['answer'] = str(parsed[1])
                 fields['severity'] = 'alert-success'
-                append=True
-       
+                append = True
+
             if append:
                 list1.append(fields)
 
         return list1
-
 
     def analyse_syslog_lines(self, syslogFileContent):
-       
-        #print(syslogFileContent)
+        # print(syslogFileContent)
         list1 = []
         for line in syslogFileContent:
             fields = self.parse(line)
-            #print(line)
+            # print(line)
 
             fields['severity'] = 'alert-info'
-            append=False
+            append = False
 
             # ALS_VALUE:1071
             if self.grep_syslog(fields['message'], ".*ALS_VALUE:.*"):
                 before = Regex('.*ALS_VALUE:')
                 value = pyparsing_common.number
-                after =  Regex('.*')
-                pattern = before + value + after 
+                after = Regex('.*')
+                pattern = before + value + after
                 parsed = pattern.parseString(fields['message'])
-                #print(parsed[1])
-                fields['answer']= str(parsed[1])
+                # print(parsed[1])
+                fields['answer'] = str(parsed[1])
                 fields['severity'] = 'alert-success'
-                append=True
-       
+                append = True
+
             if append:
                 list1.append(fields)
 
         return list1
-
-
-def main():
-    
-    parser = RSyslogParser()
-    
-    #syslogFile = '/Users/oliver.wittig/SnomM9B_Configuration/app/snomtest.log'
-    syslogFile = '/usr/local/gateway/iot/knx/media/log/als_snom.log'
-    f = subprocess.Popen(['tail','-F',syslogFile],\
-        stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    p = select.poll()
-    p.register(f.stdout)
-    
-    while True:
-        if p.poll(0.1):
-            syslog_lines = f.stdout.readline()
-            syslog_lines = syslog_lines.decode('utf-8')
-            #print(syslog_lines)
-            list = parser.analyse_syslog_lines([syslog_lines])
-            if list != []:
-                print(list)
-        time.sleep(0.1)
-
-    
-if __name__ == "__main__":
-    main()
