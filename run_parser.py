@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# TOD0: send syslog messages direct to python programm, instead
+# saving first into a file.
+# Maybe with https://www.rsyslog.com/doc/master/configuration/modules/omprog.html ?
+# example: https://www.bggofurther.com/2021/03/use-rsyslog-omprog-with-a-python-script/
 '''Reads syslog file where ambient light sensor values are stored'''
 import os
 import subprocess
