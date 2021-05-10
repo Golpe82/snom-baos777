@@ -50,9 +50,9 @@ def main():
             last_message = last_message.decode('utf-8')
 
             if LIGHT_SENSOR_VALUE in last_message:
-                als_value_msg = parser.get_message(
+                message = parser.get_message(
                     last_message, LIGHT_SENSOR_VALUE)
-                raw_value = als_value_msg.get('value')
+                raw_value = message.get('value')
                 value = als_parser.to_lux(raw_value)
 
                 if value < 100:
