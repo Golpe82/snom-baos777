@@ -5,6 +5,45 @@ import pandas as pd
 from pyparsing import Word, hexnums, alphas, alphanums, Suppress, Combine, nums, string, Regex, pyparsing_common
 import subprocess
 import re
+import getmac
+
+
+MSG_KEYS = ["timestamp", "ip address", "mac",
+            "syslog class", "snom class", "content"]
+
+BOOTSTRAP = {
+    'success': 'alert-success',
+    'info': 'alert-info',
+    'warning': 'alert-warning',
+    'danger': 'alert-danger',
+    'primary': 'alert-primary',
+    'secondary': 'alert-secondary',
+    'light': 'alert-light',
+    'dark': 'alert-dark'
+}
+
+
+def add_ip_client(ip_address, conf_file, syslog_file):
+    MAC = str(getmac.get_mac_address(ip=ip_address)).replace(":", '')
+    TEMPLATE = (
+        f'$template snom{MAC}, "{ syslog_file }"\n'
+        f':fromhost-ip, isequal, "{ ip_address }" -?snom{MAC}\n'
+        f'& stop'
+    )
+
+    with open(conf_file, 'a+') as als_log:
+        content = als_log.readlines()
+
+        if TEMPLATE not in content:
+            als_log.write(TEMPLATE)
+
+    subprocess.call(["systemctl", "restart", "rsyslog"])
+
+
+def to_lux(raw_value):
+    value = int(raw_value)*6.5/100
+
+    return round(value, 2)
 
 
 class RSyslogParser(object):
@@ -46,46 +85,37 @@ class RSyslogParser(object):
             mac + syslog_class + snom_class + message
         # print(self.__pattern)
 
-    def to_dict(self, message):
-        MSG_KEYS = ["timestamp", "ip address", "mac",
-                    "syslog class", "snom class", "message"]
-
-        msg_values = self.__pattern.parseString(message)
-
-        return dict(zip(MSG_KEYS, msg_values))
-
     def tail(self, f, n, offset=0):
         # when tail fails, log file not existing we return an empty list
         lines = []
         with subprocess.Popen(['tail', '-n', '%s' % (n + offset), f], stdout=subprocess.PIPE, encoding='utf-8') as proc:
             lines = proc.stdout.readlines()
             proc.wait()
+
         return lines
 
-    def get_value(self, message, pattern=".*PP_.*"):
-        match = re.search(pattern, message)
+    def get_message(self, message, content):
+        message_dict = self.to_dict(message)
+        message_dict.update({'bootstrap': BOOTSTRAP.get('info')})
+        content_value = self.get_content_value(message_dict)
 
-        if match:
-            return match.group(0)
+        return self.update_message(message_dict, content_value)
 
-        return match
+    def to_dict(self, message):
+        msg_values = self.__pattern.parseString(message)
 
-    def analyse_syslog_lines(self, syslogFileContent):
-        # TODO: Split function. It makes several things, not only analyse
-        SENSOR_PATTERN = ".*ALS_VALUE:.*"
-        list1 = []
-        for message_raw in syslogFileContent:
-            message = self.to_dict(message_raw)
-            message['severity'] = 'alert-info'
-            sensor_value = self.get_value(
-                message['message'], SENSOR_PATTERN)
+        return dict(zip(MSG_KEYS, msg_values))
 
-            if sensor_value:
-                NUMBERS = "\d+"
-                match = re.search(NUMBERS, sensor_value)
-                message['answer'] = match.group(0)
-                message['severity'] = 'alert-success'
-                print(message)
-                list1.append(message)
+    def get_content_value(self, message):
+        DIGITS = "\d+"
+        CONTENT = message.get(MSG_KEYS[5])
 
-        return list1
+        match = re.search(DIGITS, CONTENT)
+
+        return match.group(0)
+
+    def update_message(self, message, value):
+        message.update(
+            {'bootstrap': BOOTSTRAP.get('success'), 'value': value})
+
+        return message
