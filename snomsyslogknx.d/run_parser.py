@@ -14,8 +14,8 @@ import requests
 import snom_syslog_parser as als_parser
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
-SYSLOG_FILE = '/usr/local/gateway/als_snom.log'
-KNX_STATI = '/usr/local/gateway/iot/knx/media/KNX_stati.csv'
+SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx.d/als_snom.log'
+KNX_STATI = '/usr/local/gateway/knxmonitor.d/KNX_stati.csv'
 CONTENTS = {
     'light sensor value': 'ALS_VALUE',
     'light sensor key': 'ALS_KEY',
