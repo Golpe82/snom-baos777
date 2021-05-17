@@ -15,10 +15,25 @@ import snom_syslog_parser as als_parser
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
 SYSLOG_FILE = '/usr/local/gateway/als_snom.log'
+KNX_STATI = '/usr/local/gateway/iot/knx/media/KNX_stati.csv'
 CONTENTS = {
     'light sensor value': 'ALS_VALUE',
     'light sensor key': 'ALS_KEY',
 }
+
+def get_status(groupaddress):
+    status = None
+    with open(KNX_STATI) as knx_stati:
+        while True:
+            address_info = knx_stati.readline()
+
+            if not address_info:
+                break
+
+            if groupaddress in address_info:
+                status = address_info.split(",")[3]
+
+    return status
 
 
 def main():
@@ -45,34 +60,35 @@ def main():
     p.register(f.stdout)
 
     while True:
-        if p.poll(0.1):
-            last_message = f.stdout.readline()
-            last_message = last_message.decode('utf-8')
+        if get_status('1/2/20') == 'on':
+            if p.poll(0.1):
+                last_message = f.stdout.readline()
+                last_message = last_message.decode('utf-8')
 
-            if LIGHT_SENSOR_VALUE in last_message:
-                message = parser.get_message(
-                    last_message, LIGHT_SENSOR_VALUE)
-                raw_value = message.get('value')
-                value = als_parser.to_lux(raw_value)
+                if LIGHT_SENSOR_VALUE in last_message:
+                    message = parser.get_message(
+                        last_message, LIGHT_SENSOR_VALUE)
+                    raw_value = message.get('value')
+                    value = als_parser.to_lux(raw_value)
 
-                if value < 100:
-                    try:
-                        requests.get('http://192.168.178.47:1234/1/2/21-plus')
-                    except:
-                        print(
-                            'KNX gateway not reachable or invalid groupaddress/value')
+                    if value < 100:
+                        try:
+                            requests.get('http://192.168.178.47:1234/1/2/21-plus')
+                        except:
+                            print(
+                                'KNX gateway not reachable or invalid groupaddress/value')
 
-                elif value > 200:
-                    try:
-                        requests.get('http://192.168.178.47:1234/1/2/21-plus')
-                    except:
-                        print(
-                            'KNX gateway not reachable or invalid groupaddress/value')
+                    elif value > 110:
+                        try:
+                            requests.get('http://192.168.178.47:1234/1/2/21-minus')
+                        except:
+                            print(
+                                'KNX gateway not reachable or invalid groupaddress/value')
 
-                print(
-                    f"Ambientlight sensor value: { value } Lux\t{ raw_value } raw")
+                    print(
+                        f"Ambientlight sensor value: { value } Lux\t{ raw_value } raw")
 
-        time.sleep(0.1)
+            time.sleep(0.1)
 
 
 if __name__ == "__main__":
