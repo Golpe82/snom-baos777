@@ -7,7 +7,7 @@ import datapoint_types
 
 
 ETS_FILE = '/usr/local/gateway/iot/knx/media/ga.csv'
-STATI_FILE = '/usr/local/gateway/iot/knx/media/KNX_stati.csv'
+STATI_FILE = '/usr/local/gateway/knxmonitor.d/KNX_stati.csv'
 DEST_HIGH_BYTE = 11
 DEST_LOW_BYTE = 12
 PAYLOAD = {
@@ -17,6 +17,7 @@ PAYLOAD = {
 
 
 def get_groupaddress(frame):
+    print(frame)
     raw_address = f"{ frame[DEST_HIGH_BYTE] } { frame[DEST_LOW_BYTE] }"
     subaddress = frame[DEST_LOW_BYTE]
     high_byte = frame[DEST_HIGH_BYTE]

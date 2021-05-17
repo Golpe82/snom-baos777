@@ -1,0 +1,5 @@
+groupaddress,groupaddress name,datapoint type,status,timestamp
+1/2/20,Couch rechts Beleuchtung,DPST-1-1,off,2021-05-17 13:03:40
+1/2/10,Couch links Beleuchtung,DPST-1-1,off,2021-05-17 13:11:10
+1/2/11,Couch links dimmen,DPST-3-7,decrease 5,2021-05-17 13:11:27
+1/2/21,Couch rechts dimmen,DPST-3-7,increase 5,2021-05-17 13:16:56
