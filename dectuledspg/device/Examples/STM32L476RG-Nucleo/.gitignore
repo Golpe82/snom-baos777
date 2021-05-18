@@ -1,0 +1,6 @@
+*/SW4STM32/.settings/
+*/SW4STM32/.tracecompass/
+*/SW4STM32/*.cfg
+*/SW4STM32/Debug/
+*/SW4STM32/Release/
+*/SW4STM32/NUCLEO-*.xml
