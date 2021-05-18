@@ -17,7 +17,6 @@ PAYLOAD = {
 
 
 def get_groupaddress(frame):
-    print(frame)
     raw_address = f"{ frame[DEST_HIGH_BYTE] } { frame[DEST_LOW_BYTE] }"
     subaddress = frame[DEST_LOW_BYTE]
     high_byte = frame[DEST_HIGH_BYTE]
