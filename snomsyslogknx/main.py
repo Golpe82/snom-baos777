@@ -36,40 +36,10 @@ def get_status(groupaddress):
 
     return status
 
-def get_phones_info():
-    IP = "\d+\.\d+\.\d+\.\d+"
-    MAC = "00041[a-f0-9]+"
-    phones = []
-    PHONE_ITEM = {'IP': "no IP", 'MAC': "no MAC"}
-    
-    with open(CONF_FILE) as syslog_config:
-        phone_item = PHONE_ITEM
-
-        for line in syslog_config:
-            match_ip = re.search(IP, line)
-            match_mac = re.search(MAC, line)
-
-            if match_ip:
-                phone_item.update(IP=match_ip.group(0))
-
-            if match_mac:
-                mac = match_mac.group(0)
-
-                if mac in phone_item.get("MAC"):
-                    phones.append(phone_item)
-                    phone_item = PHONE_ITEM
-
-                else:
-                    phone_item.update(MAC=mac)
-
-    return phones
-
 
 def main():
-    print(get_phones_info())
-    FILTERS = {
+    print(als_parser.get_phones_info())
 
-    }
     LIGHT_SENSOR_VALUE = CONTENTS.get('light sensor value')
     LIGHT_SENSOR_KEY = CONTENTS.get('light sensor key')
     FILE_EXISTS = os.path.isfile(CONF_FILE)
