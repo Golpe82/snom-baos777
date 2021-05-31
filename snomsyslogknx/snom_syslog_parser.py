@@ -4,13 +4,14 @@
 import pandas as pd
 from pyparsing import Word, hexnums, alphas, alphanums, Suppress, Combine, nums, string, Regex, pyparsing_common
 import subprocess
+import socket
 import re
 import getmac
 
-
+CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
+SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx/als_snom.log'
 MSG_KEYS = ["timestamp", "ip address", "mac",
             "syslog class", "snom class", "content"]
-
 BOOTSTRAP = {
     'success': 'alert-success',
     'info': 'alert-info',
@@ -22,16 +23,28 @@ BOOTSTRAP = {
     'dark': 'alert-dark'
 }
 
+def get_local_ip():
+    local_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # doesn't even have to be reachable
+        local_socket.connect(('10.255.255.255', 1))
+        local_ip = local_socket.getsockname()[0]
+    except Exception:
+        local_ip = '127.0.0.1'
+    finally:
+        local_socket.close()
+    return local_ip
 
-def add_ip_client(ip_address, conf_file, syslog_file):
+
+def add_ip_client(ip_address):
     MAC = str(getmac.get_mac_address(ip=ip_address)).replace(":", '')
     TEMPLATE = (
-        f'$template snom{MAC}, "{ syslog_file }"\n'
+        f'$template snom{MAC}, "{ SYSLOG_FILE }"\n'
         f':fromhost-ip, isequal, "{ ip_address }" -?snom{MAC}\n'
         f'& stop\n'
     )
 
-    with open(conf_file, 'a+') as als_log:
+    with open(CONF_FILE, 'a+') as als_log:
         content = als_log.readlines()
 
         if TEMPLATE not in content:
@@ -39,13 +52,13 @@ def add_ip_client(ip_address, conf_file, syslog_file):
 
     subprocess.call(["systemctl", "restart", "rsyslog"])
 
-def get_phones_info(config_file):
+def get_phones_info():
     IP = "\d+\.\d+\.\d+\.\d+"
     MAC = "00041[a-f0-9]+"
     phones = []
     PHONE_ITEM = {'IP': "no IP", 'MAC': "no MAC"}
     
-    with open(config_file) as syslog_config:
+    with open(CONF_FILE) as syslog_config:
         phone_item = PHONE_ITEM
 
         for line in syslog_config:
@@ -66,6 +79,11 @@ def get_phones_info(config_file):
                     phone_item.update(MAC=mac)
 
     return phones
+
+def assign_groupaddresses(phone_ip,ga_read, ga_write):
+    for phone_info in get_phones_info():
+        if phone_info.get("IP") == phone_ip:
+            phone_info.update(GA_READ=ga_read, GA_WRITE=ga_write)
 
 
 def to_lux(raw_value):
