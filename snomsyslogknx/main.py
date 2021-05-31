@@ -64,7 +64,7 @@ def main():
         #if get_status('1/2/20') == 'on':
         #snom:
         
-        if get_status('1/1/10') == 'on':
+        if get_status('1/1/20') == 'on':
             
             if p.poll(0.1):
                 last_message = f.stdout.readline()
@@ -81,7 +81,7 @@ def main():
                             # home
                             # requests.get('http://192.168.178.47:1234/1/2/21-plus')
                             # snom:
-                            requests.get('http://10.110.16.63:1234/1/1/11-plus')
+                            requests.get('http://10.110.16.63:1234/1/1/21-plus')
                         except:
                             print(
                                 'KNX gateway not reachable or invalid groupaddress/value')
@@ -91,7 +91,7 @@ def main():
                             # home:
                             # requests.get('http://192.168.178.47:1234/1/2/21-minus')
                             # snom:
-                            requests.get('http://10.110.16.63:1234/1/1/11-minus')
+                            requests.get('http://10.110.16.63:1234/1/1/21-minus')
                         except:
                             print(
                                 'KNX gateway not reachable or invalid groupaddress/value')
