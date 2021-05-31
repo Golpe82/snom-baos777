@@ -38,7 +38,7 @@ def get_status(groupaddress):
 
 
 def main():
-    print(als_parser.get_phones_info())
+    print(als_parser.get_phones_info(CONF_FILE))
 
     LIGHT_SENSOR_VALUE = CONTENTS.get('light sensor value')
     LIGHT_SENSOR_KEY = CONTENTS.get('light sensor key')

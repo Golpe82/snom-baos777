@@ -39,13 +39,13 @@ def add_ip_client(ip_address, conf_file, syslog_file):
 
     subprocess.call(["systemctl", "restart", "rsyslog"])
 
-def get_phones_info():
+def get_phones_info(config_file):
     IP = "\d+\.\d+\.\d+\.\d+"
     MAC = "00041[a-f0-9]+"
     phones = []
     PHONE_ITEM = {'IP': "no IP", 'MAC': "no MAC"}
     
-    with open(CONF_FILE) as syslog_config:
+    with open(config_file) as syslog_config:
         phone_item = PHONE_ITEM
 
         for line in syslog_config:
