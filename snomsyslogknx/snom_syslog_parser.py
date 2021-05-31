@@ -28,7 +28,7 @@ def add_ip_client(ip_address, conf_file, syslog_file):
     TEMPLATE = (
         f'$template snom{MAC}, "{ syslog_file }"\n'
         f':fromhost-ip, isequal, "{ ip_address }" -?snom{MAC}\n'
-        f'& stop'
+        f'& stop\n'
     )
 
     with open(conf_file, 'a+') as als_log:
