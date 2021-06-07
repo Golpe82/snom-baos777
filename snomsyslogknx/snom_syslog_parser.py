@@ -7,6 +7,7 @@ import subprocess
 import socket
 import re
 import getmac
+import csv
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
 SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx/als_snom.log'
@@ -84,6 +85,23 @@ def assign_groupaddresses(phone_ip,ga_read, ga_write):
     for phone_info in get_phones_info():
         if phone_info.get("IP") == phone_ip:
             phone_info.update(GA_READ=ga_read, GA_WRITE=ga_write)
+
+def save_als_value(als_value, als_row):
+    PHONE = get_phones_info()[0]
+
+    with open("/usr/local/gateway/snomsyslogknx/AlsStatus.csv", "w") as als_status:
+        fieldnames = ["Phone MAC", "Phone IP", "ALS row value", "ALS value (Lux)"]
+        writer = csv.DictWriter(als_status, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerow(
+            {
+                "Phone MAC": PHONE.get("MAC"),
+                "Phone IP": PHONE.get("IP"),
+                "ALS row value": als_row,
+                "ALS value (Lux)": als_value
+            },
+        )
+
 
 
 def to_lux(raw_value):
