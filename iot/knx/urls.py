@@ -12,6 +12,7 @@ urlpatterns = [
     path('', views.index, name='start'),
     path('minibrowser/', views.minibrowser, name='minibrowser'),
     path('upload/', views.upload_file, name='upload_file'),
+    path('ambientlight/', views.ambientlight_sensors, name='ambientlight'),
 ]
 
 # serve during development

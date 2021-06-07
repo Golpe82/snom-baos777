@@ -103,6 +103,14 @@ def save_als_value(als_value, als_row):
             },
         )
 
+def get_als_value(mac):
+    with open(AMBIENTLIGHT_STATUS_FILE) as als_status:
+        fieldnames = ["Phone MAC", "Phone IP", "ALS row value", "ALS value (Lux)"]
+        reader = csv.DictReader(als_status)
+        for phone in reader:
+            values = {field: value for (field, value) in fieldnames.items()}
+
+    return values
 
 
 def to_lux(raw_value):
