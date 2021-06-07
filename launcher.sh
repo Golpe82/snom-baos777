@@ -8,13 +8,13 @@ echo "serial ttyAMAO configured, this are the new settings:"
 stty -F /dev/ttyAMA0 -a
 
 echo "Starting KNX URL-gateway..."
-/usr/local/gateway/KnxHttpGateway &
+/usr/local/gateway/KnxHttpGateway > /usr/local/gateway/logs/KnxGateway.log 2>&1 &
 
 echo "Starting KNX monitor..."
-/usr/bin/python3 /usr/local/gateway/knxmonitor/main.py &
+/usr/bin/python3 /usr/local/gateway/knxmonitor/main.py > /usr/local/gateway/logs/KnxMonitor.log 2>&1 &
 
 echo "Starting ambient light sensor syslog parser..."
-/usr/bin/python3 /usr/local/gateway/snomsyslogknx/main.py &
+/usr/bin/python3 /usr/local/gateway/snomsyslogknx/main.py > /usr/local/gateway/logs/AlsSensor.log 2>&1 &
 
 echo "Creating symlinks for IoT GUI..."
 ln -s /usr/local/gateway/iot/knx/media/knx.xml /usr/local/gateway/iot/knx/templates/knx/minibrowser.xml
