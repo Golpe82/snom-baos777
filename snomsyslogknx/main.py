@@ -66,7 +66,7 @@ def main():
         # TODO: Create a class "Phone" an create an instance of it for each client in
         # '/etc/rsyslog.d/als_snom.conf' 
         if get_status('1/1/20') == 'on':
-            
+
             if p.poll(0.1):
                 last_message = f.stdout.readline()
                 last_message = last_message.decode('utf-8')
@@ -91,8 +91,7 @@ def main():
                             print(
                                 'KNX gateway not reachable or invalid groupaddress/value')
 
-                    print(
-                        f"Ambientlight sensor value: { value } Lux\t{ raw_value } raw")
+                    als_parser.save_als_value(value, raw_value)
 
             time.sleep(0.1)
 
