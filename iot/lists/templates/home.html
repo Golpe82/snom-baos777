@@ -1,10 +1,11 @@
-<html>
-    <head>
-        <title>To-Do lists</title>
-    </head>
+{% extends 'knx/base.html' %}
 
-    <body>
-        <h1>Your To-Do list</h1>
+{% load static %}
+
+{% block title %}|{{ app }}|{{ page }}{% endblock title %}
+{% block header %}- {{app }} - {{ page }}{% endblock header %}
+
+{% block content %}
         <form method="POST">
             <input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />
             {% csrf_token %}
@@ -14,6 +15,5 @@
             <tr><td>{{ forloop.counter }}: {{ item.text }}</td></tr>
         {% endfor %}
         </table>
-    </body>
-</html>
+{% endblock content %}
 

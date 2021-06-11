@@ -1,8 +1,10 @@
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.conf import settings
 
 from lists.models import Item
 
+
+APP = 'TO-DO'
 
 def home_page(request):
     if request.method == "POST":
@@ -11,6 +13,11 @@ def home_page(request):
 
     items =Item.objects.all()
 
-    return render(request, 'home.html', {"items": items})
+    return render(request, 'home.html', {
+        "items": items,
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'To-Do list',
+    })
 
 
