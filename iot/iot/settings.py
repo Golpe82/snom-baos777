@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ['localhost', GATEWAY_IP]
 
 INSTALLED_APPS = [
     'knx.apps.KnxConfig',
+    'lists.apps.ListsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

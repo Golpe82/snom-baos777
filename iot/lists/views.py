@@ -1,3 +1,23 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.conf import settings
 
-# Create your views here.
+from lists.models import Item
+
+
+APP = 'TO-DO'
+
+def home_page(request):
+    if request.method == "POST":
+        Item.objects.create(text=request.POST["item_text"])
+        return redirect("/")
+
+    items =Item.objects.all()
+
+    return render(request, 'home.html', {
+        "items": items,
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'To-Do list',
+    })
+
+
