@@ -1,6 +1,9 @@
 #!/bin/bash
 sleep 15
 
+echo "Setting enviroment variables..."
+export PYTHONPATH="/usr/local/gateway/iot:/usr/local/gateway/knxmonitor:/usr/local/gateway/snomsyslogknx"
+
 echo "System rebooted, KNX launcher running..."
 stty -F /dev/ttyAMA0 19200 cs8 parenb -parodd -icrnl -opost -isig -icanon -echo
 
