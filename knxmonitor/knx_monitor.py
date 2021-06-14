@@ -94,3 +94,18 @@ def get_groupaddress_info(groupaddress):
         'groupaddress name': info.get('Group name'),
         'datapoint type': info.get('DatapointType')
     }
+
+def get_status(groupaddress):
+    status = None
+
+    with open(STATI_FILE) as knx_stati:
+        while True:
+            address_info = knx_stati.readline()
+
+            if not address_info:
+                break
+
+            if groupaddress in address_info:
+                status = address_info.split(",")[3]
+
+    return status

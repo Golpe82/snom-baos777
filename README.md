@@ -94,6 +94,21 @@ and Django:
     `http://192.168.178.47:8000/knx/`, where the IP address must be the address of the KNX URL-Gateway.
 4. Upload the .csv file with your KNX groupaddresses (for development purposes you can use [this example](https://gitlab.com/simon.golpe/gateway/-/blob/master/groupaddresses.example.csv))
 
+# Other modules
+
+In order to import this modules within any module in the `/usr/local/gateway/` folder:   
+- Type this in your `~/.bashrc` file:   
+`export PYTHONPATH="/usr/local/gateway/iot:/usr/local/gateway/knxmonitor:/usr/local/gateway/snomsyslogknx"`
+- Type this in your `/etc/sudoers` file:
+`Defaults        env_keep+=PYTHONPATH`
+
+## KNX monitor
+It reads the KNX bus traffic and safe in a .csv file the last status of the KNX Groupaddresses
+
+## Snom syslog KNX
+
+It reads the value of the ambientlight sensor of a Snom D735 in order to dimm the light constantly.
+
 
 Mantainer: Golpe Varela, Simón
 
