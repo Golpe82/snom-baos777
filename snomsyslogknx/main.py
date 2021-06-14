@@ -13,27 +13,12 @@ import requests
 import re
 
 import snom_syslog_parser as als_parser
+import knx_monitor
 
-KNX_STATI = '/usr/local/gateway/knxmonitor/KNX_stati.csv'
 CONTENTS = {
     'light sensor value': 'ALS_VALUE',
     'light sensor key': 'ALS_KEY',
 }
-
-def get_status(groupaddress):
-    status = None
-
-    with open(KNX_STATI) as knx_stati:
-        while True:
-            address_info = knx_stati.readline()
-
-            if not address_info:
-                break
-
-            if groupaddress in address_info:
-                status = address_info.split(",")[3]
-
-    return status
 
 
 def main():
@@ -63,7 +48,7 @@ def main():
     while True:
         # TODO: Create a class "Phone" an create an instance of it for each client in
         # '/etc/rsyslog.d/als_snom.conf' 
-        if get_status('1/2/30') == 'on':
+        if knx_monitor.get_status('1/2/30') == 'on':
     
             if p.poll(0.1):
                 last_message = f.stdout.readline()

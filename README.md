@@ -96,8 +96,11 @@ and Django:
 
 # Other modules
 
-In order to import this modules within any module in the `/usr/local/gateway/` folder, you must type this in your gateway terminal:   
+In order to import this modules within any module in the `/usr/local/gateway/` folder:   
+- Type this in your `~/.bashrc` file:   
 `export PYTHONPATH="/usr/local/gateway/iot:/usr/local/gateway/knxmonitor:/usr/local/gateway/snomsyslogknx"`
+- Type this in your `/etc/sudoers` file:
+`Defaults        env_keep+=PYTHONPATH`
 
 ## KNX monitor
 It reads the KNX bus traffic and safe in a .csv file the last status of the KNX Groupaddresses
