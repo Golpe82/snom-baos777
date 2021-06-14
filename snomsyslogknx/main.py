@@ -37,8 +37,6 @@ def get_status(groupaddress):
 
 
 def main():
-    # TODO:show this output in the GUI
-    print(als_parser.get_phones_info())
     GATEWAY_IP = als_parser.get_local_ip()
 
     LIGHT_SENSOR_VALUE = CONTENTS.get('light sensor value')
@@ -65,8 +63,8 @@ def main():
     while True:
         # TODO: Create a class "Phone" an create an instance of it for each client in
         # '/etc/rsyslog.d/als_snom.conf' 
-        if get_status('1/1/20') == 'on':
-
+        if get_status('1/2/30') == 'on':
+    
             if p.poll(0.1):
                 last_message = f.stdout.readline()
                 last_message = last_message.decode('utf-8')
@@ -77,19 +75,18 @@ def main():
                     raw_value = message.get('value')
                     value = als_parser.to_lux(raw_value)
 
-                    if value < 100:
+                    if value < 0.2:
                         try:
-                            requests.get(f'http://{ GATEWAY_IP }:1234/1/1/21-plus')
+                            requests.get(f'http://{ GATEWAY_IP }:1234/1/2/31-plus')
                         except:
                             print(
                                 'KNX gateway not reachable or invalid groupaddress/value')
 
-                    elif value > 110:
+                    elif value > 1:
                         try:
-                            requests.get(f'http://{ GATEWAY_IP }:1234/1/1/21-minus')
+                            requests.get(f'http://{ GATEWAY_IP }:1234/1/2/31-minus')
                         except:
-                            print(
-                                'KNX gateway not reachable or invalid groupaddress/value')
+                            print('KNX gateway not reachable or invalid groupaddress/value')
 
                     als_parser.save_als_value(value, raw_value)
 
