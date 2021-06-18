@@ -9,15 +9,29 @@ APP = 'TO-DO'
 def home_page(request):
     if request.method == "POST":
         Item.objects.create(text=request.POST["item_text"])
-        return redirect("/")
+        return redirect("/lists/the-only-list-in-the-world")
 
-    items =Item.objects.all()
+    items = Item.objects.all()
 
-    return render(request, 'home.html', {
+    context = {
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'Start a new To-Do list',
+    }
+
+    return render(request, 'home.html', context)
+
+def view_list(request):
+    items = Item.objects.all()
+
+    context = {
         "items": items,
         'project': settings.PROJECT_NAME,
         'app': APP,
         'page': 'To-Do list',
-    })
+    }
+
+    return render(request, 'list.html', context)
+
 
 
