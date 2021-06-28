@@ -3,7 +3,7 @@
 The purpose of this project is to implement differents IoT systems/services.  
 The first implemented service under development is the comunication with the [KNX system](https://www.knx.org/knx-en/for-professionals/index.php) over HTTP protocol.  
 Further services like the [DECT-Messaging](https://github.com/snom-project/DECTMessagingDemonstrator) / Bluetooth beacons app are also in progress.  
-![architecture](./snomKnxArchitectrue.JPG "Architecture [WIP]")
+![architecture](./snomKnxArchitectrue.JPG)
 
 ## KNX app
 The KNX URL-Gateway allows you to control your KNX system in a easy way.  
