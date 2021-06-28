@@ -14,7 +14,7 @@ import re
 
 import snom_syslog_parser as als_parser
 import knx_monitor
-from iot.iot import helpers
+from iot import helpers
 
 CONTENTS = {
     'light sensor value': 'ALS_VALUE',

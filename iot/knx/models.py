@@ -1,3 +1,7 @@
 from django.db import models
 
-# Create your models here.
+class Devices(models.Model):
+    mac_address = None
+    ip_address = None
+
+
