@@ -75,6 +75,7 @@ def main():
                             print('KNX gateway not reachable or invalid groupaddress/value')
 
                     als_parser.save_als_value(value, raw_value)
+                    #requests.post("http://10.110.16.63:8000/knx/values/", data={"value": 666})
 
             time.sleep(0.1)
 

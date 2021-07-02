@@ -70,3 +70,15 @@ def ambientlight_sensors(request):
         }
 
     return render(request, "knx/ambientlight.html", context)
+
+#@csrf_exempt
+def post_sensor_value(request):
+    print(request)
+    context = {
+        'values': [("one", 1), ("two", 2)],
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'values',
+    }
+
+    return render(request, "knx/als_values.html", context)
