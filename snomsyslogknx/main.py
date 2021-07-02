@@ -14,6 +14,7 @@ import re
 
 import snom_syslog_parser as als_parser
 import knx_monitor
+from iot import helpers
 
 CONTENTS = {
     'light sensor value': 'ALS_VALUE',
@@ -22,7 +23,7 @@ CONTENTS = {
 
 
 def main():
-    GATEWAY_IP = als_parser.get_local_ip()
+    GATEWAY_IP = helpers.get_local_ip()
 
     LIGHT_SENSOR_VALUE = CONTENTS.get('light sensor value')
     LIGHT_SENSOR_KEY = CONTENTS.get('light sensor key')
@@ -48,7 +49,7 @@ def main():
     while True:
         # TODO: Create a class "Phone" an create an instance of it for each client in
         # '/etc/rsyslog.d/als_snom.conf' 
-        if knx_monitor.get_status('1/2/30') == 'on':
+        if knx_monitor.get_status('1/1/20') == 'on':
     
             if p.poll(0.1):
                 last_message = f.stdout.readline()
@@ -60,20 +61,21 @@ def main():
                     raw_value = message.get('value')
                     value = als_parser.to_lux(raw_value)
 
-                    if value < 0.2:
+                    if value < 100:
                         try:
-                            requests.get(f'http://{ GATEWAY_IP }:1234/1/2/31-plus')
+                            requests.get(f'http://{ GATEWAY_IP }:1234/1/1/21-plus')
                         except:
                             print(
                                 'KNX gateway not reachable or invalid groupaddress/value')
 
-                    elif value > 1:
+                    elif value > 110:
                         try:
-                            requests.get(f'http://{ GATEWAY_IP }:1234/1/2/31-minus')
+                            requests.get(f'http://{ GATEWAY_IP }:1234/1/1/21-minus')
                         except:
                             print('KNX gateway not reachable or invalid groupaddress/value')
 
                     als_parser.save_als_value(value, raw_value)
+                    #requests.post("http://10.110.16.63:8000/knx/values/", data={"value": 666})
 
             time.sleep(0.1)
 

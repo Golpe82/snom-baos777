@@ -45,8 +45,8 @@ That means reading values from the KNX Bus (e.g. to visualize stati) is still no
     `chgrp dialout /dev/ttyAMA0`
 5. Add the user in the group with:  
     `usermod -a -G dialout pi`
-6. Type `sudo crontab -e`, append this and save the changes:  
-    `@reboot /usr/local/gateway/launcher.sh >/usr/local/gateway/cronlog 2>&1`
+<!-- 6. Type `sudo crontab -e`, append this and save the changes:  
+    `@reboot /usr/local/gateway/launcher.sh >/usr/local/gateway/cronlog 2>&1` -->
 7. Install [NGINX](https://www.nginx.com/) and git
 8. Install Python3 and pip:  
 `sudo apt install python3 python3-pip`  
@@ -57,11 +57,24 @@ and Django:
 
 1. Go to the directory `/usr/local/` of your KNX URL-Gateway, type `sudo git init` in your terminal and clone this project:  
    `sudo git clone https://gitlab.com/simon.golpe/gateway.git`
-2. Type this three commands on your terminal:  
-   `sudo chgrp -R pi gateway/`  
-   `sudo chown -R pi gateway/`  
-   `sudo chmod +x gateway/launcher.sh` 
-3. Reboot the system
+2. Change the owner and group of the gateway to `pi`:  
+    `sudo chgrp -R pi gateway/ && sudo chown -R pi gateway/`
+3. Make this files executable:  
+    `sudo chmod +x gateway/snomiot.conf.sh`  
+    `sudo chmod +x gateway/snomiotlinks.sh`
+4. Create links for the services (daemons) of the gateway:  
+    - `sudo ln -s -f /usr/local/gateway/knxmonitor.service /etc/systemd/system`  
+    - `sudo ln -s -f /usr/local/gateway/knxurlgateway.service /etc/systemd/system`  
+    - `sudo ln -s -f /usr/local/gateway/snomiot.conf.service /etc/systemd/system`  
+    - `sudo ln -s -f /usr/local/gateway/snomiotgui.service  /etc/systemd/system`  
+    - `sudo ln -s -f /usr/local/gateway/snomsyslog.service  /etc/systemd/system`
+5. Make services executable, start and enable them to start at reboot:  
+    - `sudo chmod +x gateway/knxmonitor.service && sudo systemctl start knxmonitor.service && sudo systemctl enable knxmonitor.service`  
+    - `sudo chmod +x gateway/knxurlgateway.service && sudo systemctl start knxurlgateway.service && sudo systemctl enable knxurlgateway.service`  
+    - `sudo chmod +x gateway/snomiot.conf.service && sudo systemctl start snomiot.conf.service && sudo systemctl enable snomiot.conf.service`  
+    - `sudo chmod +x gateway/snomiotgui.service && sudo systemctl start snomiotgui.service && sudo systemctl enable snomiotgui.service`  
+    - `sudo chmod +x gateway/snomsyslog.service && sudo systemctl start snomsyslog.service && sudo systemctl enable snomsyslog.service`
+6. Reboot the system
 
 ### Configure and usage
 1. With the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool, integrate the KNX URL-Gateway in your system applying to it a KNX physical address
@@ -95,7 +108,7 @@ and Django:
     `http://192.168.178.47:8000/knx/`, where the IP address must be the address of the KNX URL-Gateway.
 4. Upload the .csv file with your KNX groupaddresses (for development purposes you can use [this example](https://gitlab.com/simon.golpe/gateway/-/blob/master/groupaddresses.example.csv))
 
-# Other modules
+# Services
 
 ## KNX monitor
 It reads the KNX bus traffic and safe in a .csv file the last status of the KNX Groupaddresses
