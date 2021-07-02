@@ -1,6 +1,7 @@
 """Views for app knx"""
 import os
 import csv
+import subprocess
 
 from django.conf import settings
 from django.shortcuts import render
@@ -82,3 +83,20 @@ def post_sensor_value(request):
     }
 
     return render(request, "knx/als_values.html", context)
+
+def dect_ule(request):
+    CMD_ROOT = "/usr/local/opend/openD/dspg/base/ule-hub/"
+    INTERPRETER = "python3"
+    command = request.POST.get("cmd")
+
+    if command:
+        process = subprocess.call(f"{INTERPRETER} { CMD_ROOT }{command}", shell=True)
+
+    context = {
+        'command': f"cd { CMD_ROOT } {command}",
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'DECT ULE',
+    }
+
+    return render(request, "knx/dect_ule.html", context)
