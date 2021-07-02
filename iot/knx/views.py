@@ -93,7 +93,7 @@ def dect_ule(request):
         process = subprocess.call(f"{INTERPRETER} { CMD_ROOT }{command}", shell=True)
 
     context = {
-        'command': f"cd { CMD_ROOT } {command}",
+        'command': f"{INTERPRETER} { CMD_ROOT }{command}",
         'project': settings.PROJECT_NAME,
         'app': APP,
         'page': 'DECT ULE',
