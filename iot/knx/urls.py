@@ -14,6 +14,7 @@ urlpatterns = [
     path('upload/', views.upload_file, name='upload_file'),
     path('ambientlight/', views.ambientlight_sensors, name='ambientlight'),
     path('values/', views.post_sensor_value, name='values'),
+    path('dect-ule/', views.dect_ule, name='dect_ule'),
 ]
 
 # serve during development
