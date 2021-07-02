@@ -11,8 +11,6 @@ def home_page(request):
         Item.objects.create(text=request.POST["item_text"])
         return redirect("/lists/the-only-list-in-the-world")
 
-    items = Item.objects.all()
-
     context = {
         'project': settings.PROJECT_NAME,
         'app': APP,
