@@ -1,5 +1,5 @@
 """knx app URLs configuration"""
-from django.urls import path
+from django.urls import path, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -13,7 +13,9 @@ urlpatterns = [
     path('minibrowser/', views.minibrowser, name='minibrowser'),
     path('upload/', views.upload_file, name='upload_file'),
     path('ambientlight/', views.ambientlight_sensors, name='ambientlight'),
-    path('values/', views.post_sensor_value, name='values'),
+    path('values/', views.render_sensor_values, name='render_values'),
+    path('values', views.post_sensor_value, name='post_values'),
+    # re_path('^values/(.+)/$', views.view_values, name='render_values'),
     path('dect-ule/', views.dect_ule, name='dect_ule'),
 ]
 

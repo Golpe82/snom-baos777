@@ -10,7 +10,7 @@ from django.db import models
 #     pass
 
 class AlsStatus(models.Model):
-    device_name = "D735"
+    device_name = models.CharField(max_length=4, default="D735")
     mac_address = models.CharField(max_length=12)
     ip_address = models.CharField(max_length=15)
     raw_value = models.IntegerField()

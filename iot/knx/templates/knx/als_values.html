@@ -15,16 +15,16 @@
     td    {padding: 6px;}
     th    {padding: 6px;}
 </style>
-
     <table>
         <tr>
-        {% for item in values %}
-            <th>{{ item.0 }} </th>
+        {{values}}
+        {% for column in values.keys %}
+            <th>{{ column }} </th>
         {% endfor %}
         </tr>
         <tr>
-        {% for item in values %}
-            <td>{{ item.1 }}</td>
+        {% for value in values.values %}
+            <td>{{ value }}</td>
         {% endfor %}
         </tr>
     </table>
