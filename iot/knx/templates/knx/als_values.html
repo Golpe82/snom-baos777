@@ -17,16 +17,17 @@
 </style>
     <table>
         <tr>
-        {{values}}
-        {% for column in values.keys %}
-            <th>{{ column }} </th>
+        {% for field in status.0.keys %}
+            <th>{{ field }} </th>
         {% endfor %}
         </tr>
+        {% for status in status.values %}
         <tr>
-        {% for value in values.values %}
+            {% for value in status.values %}
             <td>{{ value }}</td>
-        {% endfor %}
+            {% endfor %}
         </tr>
+        {% endfor %}
     </table>
 
 {% endblock content %}

@@ -6,6 +6,7 @@ import requests
 
 from django.conf import settings
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 
 from knx import groupaddresses, upload
 from knx.models import AlsStatus
@@ -76,7 +77,7 @@ def ambientlight_sensors(request):
 
 @csrf_exempt
 def post_sensor_value(request):
-    status_object = AlsStatus.objects.create(
+    AlsStatus.objects.create(
         mac_address=request.POST.get("mac_address"),
         ip_address=request.POST.get("ip_address"),
         raw_value=request.POST.get("raw_value"),
@@ -87,18 +88,18 @@ def post_sensor_value(request):
     
 
 def render_sensor_values(request):
-    DATA = {
-            "mac_address": "000413A34795",
-            "ip_address": "192.168.178.66",
-            "raw_value": 1460,
-            "value":  94.9
-        }
-    URL = "http://10.110.16.63:8000/knx/values"
-    requests.post(URL, DATA)
+    # DATA = {
+    #         "mac_address": "000413A34795",
+    #         "ip_address": "192.168.178.66",
+    #         "raw_value": 1460,
+    #         "value":  94.9
+    #     }
+    # URL = "http://localhost:8000/knx/values"
+    # requests.post(URL, DATA)
     status = AlsStatus.objects.all()
 
     context = {
-        'values': status,
+        'status': status.values,
         'project': settings.PROJECT_NAME,
         'app': APP,
         'page': 'values',
