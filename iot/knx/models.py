@@ -15,7 +15,7 @@ class AlsStatus(models.Model):
     ip_address = models.CharField(max_length=15)
     raw_value = models.IntegerField()
     value = models.FloatField()
-    time_stamp = models.DateTimeField(null=True)
+    time_stamp = models.DateTimeField(null=True, auto_now_add=True)
      
 
 

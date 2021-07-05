@@ -77,6 +77,10 @@ def ambientlight_sensors(request):
 
 @csrf_exempt
 def post_sensor_value(request):
+    if AlsStatus.objects.count() > 100:
+        first = AlsStatus.objects.first().id
+        AlsStatus.objects.filter(id=first).delete()
+
     AlsStatus.objects.create(
         mac_address=request.POST.get("mac_address"),
         ip_address=request.POST.get("ip_address"),
@@ -84,7 +88,7 @@ def post_sensor_value(request):
         value= request.POST.get("value")
     )
 
-    return redirect(f"knx/values/")
+    return redirect(f"values/")
     
 
 def render_sensor_values(request):

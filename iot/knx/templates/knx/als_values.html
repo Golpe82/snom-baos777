@@ -21,7 +21,7 @@
             <th>{{ field }} </th>
         {% endfor %}
         </tr>
-        {% for status in status.values %}
+        {% for status in status.values reversed%}
         <tr>
             {% for value in status.values %}
             <td>{{ value }}</td>
