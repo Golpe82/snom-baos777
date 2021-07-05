@@ -2,11 +2,14 @@
 import os
 import csv
 import subprocess
+import requests
 
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 
 from knx import groupaddresses, upload
+from knx.models import AlsStatus
 
 APP = 'KNX'
 
@@ -72,11 +75,35 @@ def ambientlight_sensors(request):
 
     return render(request, "knx/ambientlight.html", context)
 
-#@csrf_exempt
+@csrf_exempt
 def post_sensor_value(request):
-    print(request)
+    if AlsStatus.objects.count() > 100:
+        first = AlsStatus.objects.first().id
+        AlsStatus.objects.filter(id=first).delete()
+
+    AlsStatus.objects.create(
+        mac_address=request.POST.get("mac_address"),
+        ip_address=request.POST.get("ip_address"),
+        raw_value=request.POST.get("raw_value"),
+        value= request.POST.get("value")
+    )
+
+    return redirect(f"values/")
+    
+
+def render_sensor_values(request):
+    # DATA = {
+    #         "mac_address": "000413A34795",
+    #         "ip_address": "192.168.178.66",
+    #         "raw_value": 1460,
+    #         "value":  94.9
+    #     }
+    # URL = "http://localhost:8000/knx/values"
+    # requests.post(URL, DATA)
+    status = AlsStatus.objects.all()
+
     context = {
-        'values': [("one", 1), ("two", 2)],
+        'status': status.values,
         'project': settings.PROJECT_NAME,
         'app': APP,
         'page': 'values',
@@ -93,7 +120,7 @@ def dect_ule(request):
         process = subprocess.call(f"{INTERPRETER} { CMD_ROOT }{command}", shell=True)
 
     context = {
-        'command': f"cd { CMD_ROOT } {command}",
+        'command': f"{INTERPRETER} { CMD_ROOT }{command}",
         'project': settings.PROJECT_NAME,
         'app': APP,
         'page': 'DECT ULE',

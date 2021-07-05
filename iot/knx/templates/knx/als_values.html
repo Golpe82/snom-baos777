@@ -15,18 +15,19 @@
     td    {padding: 6px;}
     th    {padding: 6px;}
 </style>
-
     <table>
         <tr>
-        {% for item in values %}
-            <th>{{ item.0 }} </th>
+        {% for field in status.0.keys %}
+            <th>{{ field }} </th>
         {% endfor %}
         </tr>
+        {% for status in status.values reversed%}
         <tr>
-        {% for item in values %}
-            <td>{{ item.1 }}</td>
-        {% endfor %}
+            {% for value in status.values %}
+            <td>{{ value }}</td>
+            {% endfor %}
         </tr>
+        {% endfor %}
     </table>
 
 {% endblock content %}

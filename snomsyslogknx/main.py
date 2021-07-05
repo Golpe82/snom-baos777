@@ -11,6 +11,7 @@ import select
 import time
 import requests
 import re
+import datetime
 
 import snom_syslog_parser as als_parser
 import knx_monitor
@@ -49,18 +50,29 @@ def main():
     while True:
         # TODO: Create a class "Phone" an create an instance of it for each client in
         # '/etc/rsyslog.d/als_snom.conf' 
-        if knx_monitor.get_status('1/1/20') == 'on':
     
-            if p.poll(0.1):
-                last_message = f.stdout.readline()
-                last_message = last_message.decode('utf-8')
+        if p.poll(0.1):
+            last_message = f.stdout.readline()
+            last_message = last_message.decode('utf-8')
 
-                if LIGHT_SENSOR_VALUE in last_message:
-                    message = parser.get_message(
-                        last_message, LIGHT_SENSOR_VALUE)
-                    raw_value = message.get('value')
-                    value = als_parser.to_lux(raw_value)
+            if LIGHT_SENSOR_VALUE in last_message:
+                message = parser.get_message(
+                    last_message, LIGHT_SENSOR_VALUE)
+                raw_value = message.get('value')
+                value = als_parser.to_lux(raw_value)
 
+                als_parser.save_als_value(value, raw_value)
+                requests.post(
+                    "http://localhost:8000/knx/values",
+                    data={
+                        "mac_address": als_parser.get_phones_info()[0].get("MAC"),
+                        "ip_address": als_parser.get_phones_info()[0].get("IP"),
+                        "raw_value": raw_value,
+                        "value":  value
+                    }
+                )
+
+                if knx_monitor.get_status('1/1/20') == 'on':
                     if value < 100:
                         try:
                             requests.get(f'http://{ GATEWAY_IP }:1234/1/1/21-plus')
@@ -74,10 +86,7 @@ def main():
                         except:
                             print('KNX gateway not reachable or invalid groupaddress/value')
 
-                    als_parser.save_als_value(value, raw_value)
-                    #requests.post("http://10.110.16.63:8000/knx/values/", data={"value": 666})
-
-            time.sleep(0.1)
+        time.sleep(0.1)
 
 
 if __name__ == "__main__":
