@@ -36,6 +36,9 @@
     </nav>
     <div id="content">
         {% block content %}
+            {% block form_action %}{% endblock %}
+            {% block table %}
+            {% endblock %}
         {% endblock content %}
     </div>
     <footer id="footer">
