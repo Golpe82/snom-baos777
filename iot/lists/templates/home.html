@@ -1,19 +1,5 @@
-{% extends 'knx/base.html' %}
+{% extends 'base.html' %}
 
-{% load static %}
+{% block header_text %}Start a new To-Do list{% endblock %}
 
-{% block title %}|{{ app }}|{{ page }}{% endblock title %}
-{% block header %}- {{app }} - {{ page }}{% endblock header %}
-
-{% block content %}
-        <form method="POST" action="{% block form_action %}/lists/new{% endblock %}">
-        <p style="text-align: center;">
-
-            <input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />
-        </p>
-            {% csrf_token %}
-        </form>
-
-        
-{% endblock content %}
-
+{% block form_action %}/lists/new{% endblock %}
