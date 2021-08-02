@@ -61,7 +61,6 @@ def main():
                 raw_value = message.get('value')
                 value = als_parser.to_lux(raw_value)
 
-                als_parser.save_als_value(value, raw_value)
                 requests.post(
                     "http://localhost:8000/knx/values",
                     data={
