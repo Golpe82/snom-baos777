@@ -15,7 +15,6 @@ urlpatterns = [
     path('ambientlight/', views.ambientlight_sensors, name='ambientlight'),
     path('values/', views.render_sensor_values, name='render_values'),
     path('values', views.post_sensor_value, name='post_values'),
-    # re_path('^values/(.+)/$', views.view_values, name='render_values'),
     path('dect-ule/', views.dect_ule, name='dect_ule'),
 ]
 

@@ -15,7 +15,7 @@ import datetime
 
 import snom_syslog_parser as als_parser
 import knx_monitor
-from iot import helpers
+from snom_syslog_parser import KNXActions, DBActions
 
 CONTENTS = {
     'light sensor value': 'ALS_VALUE',
@@ -24,8 +24,6 @@ CONTENTS = {
 
 
 def main():
-    GATEWAY_IP = helpers.get_local_ip()
-
     LIGHT_SENSOR_VALUE = CONTENTS.get('light sensor value')
     LIGHT_SENSOR_KEY = CONTENTS.get('light sensor key')
     FILE_EXISTS = os.path.isfile(als_parser.CONF_FILE)
@@ -61,30 +59,10 @@ def main():
                 raw_value = message.get('value')
                 value = als_parser.to_lux(raw_value)
 
-                als_parser.save_als_value(value, raw_value)
-                requests.post(
-                    "http://localhost:8000/knx/values",
-                    data={
-                        "mac_address": als_parser.get_phones_info()[0].get("MAC"),
-                        "ip_address": als_parser.get_phones_info()[0].get("IP"),
-                        "raw_value": raw_value,
-                        "value":  value
-                    }
-                )
+                DBActions.als_save(raw_value, value)
 
                 if knx_monitor.get_status('1/1/20') == 'on':
-                    if value < 100:
-                        try:
-                            requests.get(f'http://{ GATEWAY_IP }:1234/1/1/21-plus')
-                        except:
-                            print(
-                                'KNX gateway not reachable or invalid groupaddress/value')
-
-                    elif value > 110:
-                        try:
-                            requests.get(f'http://{ GATEWAY_IP }:1234/1/1/21-minus')
-                        except:
-                            print('KNX gateway not reachable or invalid groupaddress/value')
+                    KNXActions().knx_dimm_relative(value)
 
         time.sleep(0.1)
 

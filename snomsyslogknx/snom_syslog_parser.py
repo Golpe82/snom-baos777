@@ -8,10 +8,11 @@ import socket
 import re
 import getmac
 import csv
+import requests
+import sys
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
 SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx/als_snom.log'
-AMBIENTLIGHT_STATUS_FILE = "/usr/local/gateway/snomsyslogknx/AlsStatus.csv"
 MSG_KEYS = ["timestamp", "ip address", "mac",
             "syslog class", "snom class", "content"]
 BOOTSTRAP = {
@@ -24,6 +25,9 @@ BOOTSTRAP = {
     'light': 'alert-light',
     'dark': 'alert-dark'
 }
+
+POST_STATUS_URL = "http://localhost:8000/knx/values"
+KNX_URL = "http://localhost:1234/"
 
 def add_ip_client(ip_address):
     MAC = str(getmac.get_mac_address(ip=ip_address)).replace(":", '')
@@ -74,36 +78,59 @@ def assign_groupaddresses(phone_ip,ga_read, ga_write):
         if phone_info.get("IP") == phone_ip:
             phone_info.update(GA_READ=ga_read, GA_WRITE=ga_write)
 
-def save_als_value(als_value, als_row):
-    PHONE = get_phones_info()[0]
-
-    with open(AMBIENTLIGHT_STATUS_FILE, "w") as als_status:
-        fieldnames = ["Phone MAC", "Phone IP", "ALS row value", "ALS value (Lux)"]
-        writer = csv.DictWriter(als_status, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerow(
-            {
-                "Phone MAC": PHONE.get("MAC"),
-                "Phone IP": PHONE.get("IP"),
-                "ALS row value": als_row,
-                "ALS value (Lux)": als_value
-            },
-        )
-
-def get_als_value(mac):
-    with open(AMBIENTLIGHT_STATUS_FILE) as als_status:
-        fieldnames = ["Phone MAC", "Phone IP", "ALS row value", "ALS value (Lux)"]
-        reader = csv.DictReader(als_status)
-        for phone in reader:
-            values = {field: value for (field, value) in fieldnames.items()}
-
-    return values
-
-
 def to_lux(raw_value):
     value = int(raw_value)*6.5/100
 
     return round(value, 2)
+
+class DBActions(object):
+
+    def als_save(raw_value, value):
+        try:
+            requests.post(
+                POST_STATUS_URL,
+                data={
+                    "mac_address": get_phones_info()[0].get("MAC"),
+                    "ip_address": get_phones_info()[0].get("IP"),
+                    "raw_value": raw_value,
+                    "value":  value
+                }
+            )
+
+        except:
+            print(f"Could not save data with post. URL = { POST_STATUS_URL }")
+
+class KNXActions(object):
+
+    def __init__(self):
+        self.groupaddress = "1/1/21"
+        self.min_value = 100
+        self.max_value = 110
+
+    def knx_dimm_relative(self, value):
+        if value < self.min_value:
+            self.knx_increase()
+
+        elif value > self.max_value:
+            self.knx_decrease()
+    
+    def knx_increase(self):
+        VALUE = "-plus"
+
+        try:
+            requests.get(f'{ KNX_URL }{ self.groupaddress }{ VALUE }')
+
+        except:
+            print('Could not increase. KNX gateway not reachable or invalid groupaddress/value')
+
+    def knx_decrease(self):
+        VALUE = "-minus"
+        
+        try:
+            requests.get(f'{ KNX_URL }{ self.groupaddress }{ VALUE }')
+
+        except:
+            print('Could not decrease. KNX gateway not reachable or invalid groupaddress/value')
 
 
 class RSyslogParser(object):
