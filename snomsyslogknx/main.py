@@ -15,8 +15,7 @@ import datetime
 
 import snom_syslog_parser as als_parser
 import knx_monitor
-#from iot import helpers
-from snom_syslog_parser import Actions
+from snom_syslog_parser import KNXActions, DBActions
 
 CONTENTS = {
     'light sensor value': 'ALS_VALUE',
@@ -25,8 +24,6 @@ CONTENTS = {
 
 
 def main():
-    #GATEWAY_IP = helpers.get_local_ip()
-
     LIGHT_SENSOR_VALUE = CONTENTS.get('light sensor value')
     LIGHT_SENSOR_KEY = CONTENTS.get('light sensor key')
     FILE_EXISTS = os.path.isfile(als_parser.CONF_FILE)
@@ -62,14 +59,10 @@ def main():
                 raw_value = message.get('value')
                 value = als_parser.to_lux(raw_value)
 
-                Actions.als_save(raw_value, value)
+                DBActions.als_save(raw_value, value)
 
                 if knx_monitor.get_status('1/1/20') == 'on':
-                    if value < 100:
-                        Actions.knx_increase("1/1/21")
-
-                    elif value > 110:
-                        Actions.knx_decrease("1/1/21")
+                    KNXActions().knx_dimm_relative(value)
 
         time.sleep(0.1)
 

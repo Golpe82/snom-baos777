@@ -9,6 +9,7 @@ import re
 import getmac
 import csv
 import requests
+import sys
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
 SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx/als_snom.log'
@@ -82,7 +83,7 @@ def to_lux(raw_value):
 
     return round(value, 2)
 
-class Actions(object):
+class DBActions(object):
 
     def als_save(raw_value, value):
         try:
@@ -97,21 +98,39 @@ class Actions(object):
             )
 
         except:
-            print(f"Not able to save data with post. URL = { POST_STATUS_URL }")
+            print(f"Could not save data with post. URL = { POST_STATUS_URL }")
 
-    def knx_increase(groupaddress):
+class KNXActions(object):
+
+    def __init__(self):
+        self.groupaddress = "1/1/21"
+        self.min_value = 100
+        self.max_value = 110
+
+    def knx_dimm_relative(self, value):
+        if value < self.min_value:
+            self.knx_increase()
+
+        elif value > self.max_value:
+            self.knx_decrease()
+    
+    def knx_increase(self):
+        VALUE = "-plus"
+
         try:
-            requests.get(f'{ KNX_URL }{ groupaddress }-plus')
+            requests.get(f'{ KNX_URL }{ self.groupaddress }{ VALUE }')
 
         except:
-            print('KNX gateway not reachable or invalid groupaddress/value')
+            print('Could not increase. KNX gateway not reachable or invalid groupaddress/value')
 
-    def knx_decrease(groupaddress):
+    def knx_decrease(self):
+        VALUE = "-minus"
+        
         try:
-            requests.get(f'{ KNX_URL }{ groupaddress }-minus')
+            requests.get(f'{ KNX_URL }{ self.groupaddress }{ VALUE }')
 
         except:
-            print('KNX gateway not reachable or invalid groupaddress/value')
+            print('Could not decrease. KNX gateway not reachable or invalid groupaddress/value')
 
 
 class RSyslogParser(object):
