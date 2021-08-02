@@ -87,19 +87,12 @@ def post_sensor_value(request):
         raw_value=request.POST.get("raw_value"),
         value= request.POST.get("value")
     )
+    print(AlsStatus.objects.all())
 
-    return redirect(f"values/")
+    return redirect(f"knx/values/")
     
 
 def render_sensor_values(request):
-    # DATA = {
-    #         "mac_address": "000413A34795",
-    #         "ip_address": "192.168.178.66",
-    #         "raw_value": 1460,
-    #         "value":  94.9
-    #     }
-    # URL = "http://localhost:8000/knx/values"
-    # requests.post(URL, DATA)
     status = AlsStatus.objects.all()
 
     context = {
