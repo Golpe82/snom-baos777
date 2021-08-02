@@ -26,6 +26,7 @@ BOOTSTRAP = {
 }
 
 POST_STATUS_URL = "http://localhost:8000/knx/values"
+KNX_URL = "http://localhost:1234/"
 
 def add_ip_client(ip_address):
     MAC = str(getmac.get_mac_address(ip=ip_address)).replace(":", '')
@@ -81,20 +82,36 @@ def to_lux(raw_value):
 
     return round(value, 2)
 
-def post_status(raw_value, value):
-    try:
-        requests.post(
-            POST_STATUS_URL,
-            data={
-                "mac_address": get_phones_info()[0].get("MAC"),
-                "ip_address": get_phones_info()[0].get("IP"),
-                "raw_value": raw_value,
-                "value":  value
-            }
-        )
+class Actions(object):
 
-    except:
-        print(f"Not able to save data with post. URL = { POST_STATUS_URL }")
+    def als_save(raw_value, value):
+        try:
+            requests.post(
+                POST_STATUS_URL,
+                data={
+                    "mac_address": get_phones_info()[0].get("MAC"),
+                    "ip_address": get_phones_info()[0].get("IP"),
+                    "raw_value": raw_value,
+                    "value":  value
+                }
+            )
+
+        except:
+            print(f"Not able to save data with post. URL = { POST_STATUS_URL }")
+
+    def knx_increase(groupaddress):
+        try:
+            requests.get(f'{ KNX_URL }{ groupaddress }-plus')
+
+        except:
+            print('KNX gateway not reachable or invalid groupaddress/value')
+
+    def knx_decrease(groupaddress):
+        try:
+            requests.get(f'{ KNX_URL }{ groupaddress }-minus')
+
+        except:
+            print('KNX gateway not reachable or invalid groupaddress/value')
 
 
 class RSyslogParser(object):
