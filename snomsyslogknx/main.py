@@ -61,15 +61,7 @@ def main():
                 raw_value = message.get('value')
                 value = als_parser.to_lux(raw_value)
 
-                requests.post(
-                    "http://localhost:8000/knx/values",
-                    data={
-                        "mac_address": als_parser.get_phones_info()[0].get("MAC"),
-                        "ip_address": als_parser.get_phones_info()[0].get("IP"),
-                        "raw_value": raw_value,
-                        "value":  value
-                    }
-                )
+                als_parser.post_status(raw_value, value)
 
                 if knx_monitor.get_status('1/1/20') == 'on':
                     if value < 100:

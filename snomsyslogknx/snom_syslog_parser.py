@@ -8,6 +8,7 @@ import socket
 import re
 import getmac
 import csv
+import requests
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
 SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx/als_snom.log'
@@ -23,6 +24,8 @@ BOOTSTRAP = {
     'light': 'alert-light',
     'dark': 'alert-dark'
 }
+
+POST_STATUS_URL = "http://localhost:8000/knx/values"
 
 def add_ip_client(ip_address):
     MAC = str(getmac.get_mac_address(ip=ip_address)).replace(":", '')
@@ -77,6 +80,21 @@ def to_lux(raw_value):
     value = int(raw_value)*6.5/100
 
     return round(value, 2)
+
+def post_status(raw_value, value):
+    try:
+        requests.post(
+            POST_STATUS_URL,
+            data={
+                "mac_address": get_phones_info()[0].get("MAC"),
+                "ip_address": get_phones_info()[0].get("IP"),
+                "raw_value": raw_value,
+                "value":  value
+            }
+        )
+
+    except:
+        print(f"Not able to save data with post. URL = { POST_STATUS_URL }")
 
 
 class RSyslogParser(object):
