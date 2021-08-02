@@ -87,7 +87,6 @@ def post_sensor_value(request):
         raw_value=request.POST.get("raw_value"),
         value= request.POST.get("value")
     )
-    print(AlsStatus.objects.all())
 
     return redirect(f"knx/values/")
     
@@ -104,6 +103,7 @@ def render_sensor_values(request):
 
     return render(request, "knx/als_values.html", context)
 
+@csrf_exempt
 def dect_ule(request):
     CMD_ROOT = "/usr/local/opend/openD/dspg/base/ule-hub/"
     INTERPRETER = "python3"
