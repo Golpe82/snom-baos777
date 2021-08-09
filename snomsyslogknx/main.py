@@ -9,9 +9,6 @@ import os
 import subprocess
 import select
 import time
-import requests
-import re
-import datetime
 
 import snom_syslog_parser as als_parser
 import knx_monitor
