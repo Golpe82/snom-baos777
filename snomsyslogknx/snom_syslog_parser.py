@@ -1,15 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import pandas as pd
-from pyparsing import Word, hexnums, alphas, alphanums, Suppress, Combine, nums, string, Regex, pyparsing_common
+from pyparsing import Word, hexnums, alphanums, Combine, nums, string, Regex
 import subprocess
-import socket
 import re
 import getmac
 import csv
 import requests
-import sys
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
 SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx/als_snom.log'
