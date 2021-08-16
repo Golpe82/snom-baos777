@@ -69,7 +69,7 @@ def post_sensor_value(request):
         value= request.POST.get("value")
     )
 
-    return redirect(f"knx/values/")
+    return redirect("knx/values/")
     
 
 def render_sensor_values(request):

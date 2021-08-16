@@ -82,7 +82,7 @@ def to_lux(raw_value):
 
 class DBActions(object):
 
-    def als_save(raw_value, value):
+    def als_save(self, raw_value, value):
         try:
             requests.post(
                 POST_STATUS_URL,
