@@ -26,12 +26,12 @@
         <h1>{{project}} {% block header %}{% endblock header %}</h1>
     </div>
     <nav id="nav">
-        <a href="{% url 'knx:start' %}">Start</a>
-        <a href="{% url 'knx:minibrowser' %}">Minibrowser</a>
-        <a href="{% url 'knx:upload_file' %}">Upload</a>
-        <a href="{% url 'home' %}">To-Do</a>
-        <a href="{% url 'knx:render_values' %}">Ambientlight values</a>
-        <a href="{% url 'knx:dect_ule' %}">DECT ULE</a>
+        <a href="{% url 'knx:start' %}">KNX control | </a>
+        <a href="{% url 'knx:minibrowser' %}">Snom minibrowser | </a>
+        <a href="{% url 'knx:upload_file' %}">Upload | </a>
+        <a href="{% url 'home' %}">To-Do | </a>
+        <a href="{% url 'knx:render_values' %}">Ambientlight values | </a>
+        <a href="{% url 'knx:dect_ule' %}">DECT ULE command | </a>
     </nav>
     <div id="content">
         {% block content %}
