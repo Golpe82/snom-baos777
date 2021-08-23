@@ -153,32 +153,37 @@ def post_knx_status(request):
         first = KnxStatus.objects.first().id
         KnxStatus.objects.filter(id=first).delete()
 
-    KnxStatus.objects.create(
-        groupaddress_name=request.POST.get("groupaddress_name"),
-        groupaddress=request.POST.get("groupaddress"),
-        status=request.POST.get("status")
-    )
+    status_object = KnxStatus.objects.get(groupaddress=request.POST.get("groupaddress"))
+    status_object.status = request.POST.get("status")
+    status_object.save()
+
+
+    # KnxStatus.objects.create(
+    #     groupaddress_name=request.POST.get("groupaddress_name"),
+    #     groupaddress=request.POST.get("groupaddress"),
+    #     status=request.POST.get("status")
+    # )
 
     return redirect("knx/knx_status")
 
 def knx_status(request):
-    monitor = KnxMonitor.objects.all()
-    ga_qset = monitor.values_list("groupaddress_name").distinct()
-    ga_list = []
-    for ga in ga_qset:
-        for a in ga:
-            ga_list.append(a)
+    status = KnxStatus.objects.all()
+    # ga_qset = monitor.values_list("groupaddress_name").distinct()
+    # ga_list = []
+    # for ga in ga_qset:
+    #     for a in ga:
+    #         ga_list.append(a)
 
-    status = [
-        monitor.filter(groupaddress_name=groupaddress).last()
-        for groupaddress in ga_list
-    ]
+    # status = [
+    #     monitor.filter(groupaddress_name=groupaddress).last()
+    #     for groupaddress in ga_list
+    # ]
 
     context = {
         "status": status,
         'project': settings.PROJECT_NAME,
         'app': APP,
-        'page': 'MONITOR',
+        'page': 'STATUS',
     }
 
     return render(request, "knx/knx_status.html", context)
