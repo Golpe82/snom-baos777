@@ -122,7 +122,7 @@ def dect_ule(request):
 
 @csrf_exempt
 def post_knx_status(request):
-    if KnxStatus.objects.count() > 100:
+    if KnxStatus.objects.count() > 2000:
         first = KnxStatus.objects.first().id
         KnxStatus.objects.filter(id=first).delete()
     logging.warning("bla")
