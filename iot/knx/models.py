@@ -1,6 +1,6 @@
 from django.db import models
 
-class KnxStatus(models.Model):
+class KnxMonitor(models.Model):
     groupaddress_name = models.CharField(max_length=50)
     groupaddress = models.CharField(max_length=9)
     datapoint_type = models.CharField(max_length=15)

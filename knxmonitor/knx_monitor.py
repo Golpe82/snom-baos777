@@ -112,7 +112,7 @@ def get_status(groupaddress):
 
     return status
 
-POST_STATUS_URL = "http://localhost:8000/knx/groupaddress_status"
+POST_STATUS_URL = "http://localhost:8000/knx/groupaddress_monitor"
 
 class DBActions(object):
 

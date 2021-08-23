@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
 from knx import groupaddresses, upload
-from knx.models import AlsStatus, BrightnessRules, KnxStatus
+from knx.models import AlsStatus, BrightnessRules, KnxMonitor
 
 APP = 'KNX'
 
@@ -121,12 +121,12 @@ def dect_ule(request):
     return render(request, "knx/dect_ule.html", context)
 
 @csrf_exempt
-def post_knx_status(request):
-    if KnxStatus.objects.count() > 2000:
-        first = KnxStatus.objects.first().id
-        KnxStatus.objects.filter(id=first).delete()
+def post_knx_monitor(request):
+    if KnxMonitor.objects.count() > 2000:
+        first = KnxMonitor.objects.first().id
+        KnxMonitor.objects.filter(id=first).delete()
 
-    KnxStatus.objects.create(
+    KnxMonitor.objects.create(
         groupaddress_name=request.POST.get("groupaddress_name"),
         groupaddress=request.POST.get("groupaddress"),
         datapoint_type=request.POST.get("datapoint_type"),
@@ -136,7 +136,7 @@ def post_knx_status(request):
     return redirect("knx/monitor/")
 
 def knx_monitor(request):
-    monitor = KnxStatus.objects.all()
+    monitor = KnxMonitor.objects.all()
 
     context = {
         "monitor": monitor.values,
@@ -148,7 +148,7 @@ def knx_monitor(request):
     return render(request, "knx/knx_monitor.html", context)
 
 def knx_status(request):
-    monitor = KnxStatus.objects.all()
+    monitor = KnxMonitor.objects.all()
     ga_qset = monitor.values_list("groupaddress_name").distinct()
     ga_list = []
     for ga in ga_qset:
