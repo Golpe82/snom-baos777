@@ -137,19 +137,8 @@ def post_knx_status(request):
 
 def knx_monitor(request):
     monitor = KnxStatus.objects.all()
-    # ga_qset = monitor.values_list("groupaddress_name").distinct()
-    # ga_list = []
-    # for ga in ga_qset:
-    #     for a in ga:
-    #         ga_list.append(a)
-
-    # status = [
-    #     monitor.filter(groupaddress_name=groupaddress).last()
-    #     for groupaddress in ga_list
-    # ]
 
     context = {
-        #"status": status,
         "monitor": monitor.values,
         'project': settings.PROJECT_NAME,
         'app': APP,
