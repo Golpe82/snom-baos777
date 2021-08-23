@@ -1,8 +1,10 @@
 ''' Main programm for reading knx bus traffic'''
 import serial
 from datetime import datetime
+import logging
 
 import knx_monitor as mon
+from knx_monitor import DBActions
 
 DEVICE = '/dev/ttyAMA0'
 BAUDRATE = 19200
@@ -30,6 +32,7 @@ def main():
             groupaddress_info['timestamp'] = datetime.now().strftime(
                 '%Y-%m-%d %H:%M:%S')
             mon.save_status(groupaddress_info)
+            DBActions.status_save(frame)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@
 import os
 import re
 import csv
+import requests
+import logging
 
 import datapoint_types
 
@@ -109,3 +111,25 @@ def get_status(groupaddress):
                 status = address_info.split(",")[3]
 
     return status
+
+POST_STATUS_URL = "http://localhost:8000/knx/groupaddress_status"
+
+class DBActions(object):
+
+    def status_save(frame):
+        groupaddress = get_groupaddress(frame).get('formatted')
+        info = get_groupaddress_info(groupaddress)
+        status = get_value(frame, info.get("datapoint type")).get('formatted')
+        post_data={
+            "groupaddress_name": info.get("groupaddress name"),
+            "groupaddress": groupaddress,
+            "datapoint_type": info.get("datapoint type"),
+            "status":  status,
+        }
+
+        try:
+            requests.post(POST_STATUS_URL, data=post_data)
+
+        except:
+            logging.warning(f"Could not save data = { post_data }")
+            logging.warning(f"from URL = { POST_STATUS_URL }")

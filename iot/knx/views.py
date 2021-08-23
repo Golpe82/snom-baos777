@@ -3,6 +3,7 @@ import os
 import csv
 import subprocess
 import requests
+import logging
 
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -10,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
 from knx import groupaddresses, upload
-from knx.models import AlsStatus, BrightnessRules
+from knx.models import AlsStatus, BrightnessRules, KnxStatus
 
 APP = 'KNX'
 
@@ -70,8 +71,7 @@ def post_sensor_value(request):
         value= request.POST.get("value")
     )
 
-    return redirect("knx/values/")
-    
+    return redirect("knx/values/") 
 
 def render_sensor_values(request):
     if BrightnessRules.objects.filter(mac_address="000413A34795"):
@@ -103,7 +103,6 @@ def get_rules(request):
 
     return HttpResponse(rules)
 
-
 def dect_ule(request):
     CMD_ROOT = "/usr/local/opend/openD/dspg/base/ule-hub/"
     INTERPRETER = "python3"
@@ -120,3 +119,42 @@ def dect_ule(request):
     }
 
     return render(request, "knx/dect_ule.html", context)
+
+@csrf_exempt
+def post_knx_status(request):
+    if KnxStatus.objects.count() > 100:
+        first = KnxStatus.objects.first().id
+        KnxStatus.objects.filter(id=first).delete()
+    logging.warning("bla")
+
+    KnxStatus.objects.create(
+        groupaddress_name=request.POST.get("groupaddress_name"),
+        groupaddress=request.POST.get("groupaddress"),
+        datapoint_type=request.POST.get("datapoint_type"),
+        status=request.POST.get("status")
+    )
+
+    return redirect("knx/monitor/")
+
+def knx_monitor(request):
+    monitor = KnxStatus.objects.all()
+    ga_qset = monitor.values_list("groupaddress_name").distinct()
+    ga_list = []
+    for ga in ga_qset:
+        for a in ga:
+            ga_list.append(a)
+
+    status = [
+        monitor.filter(groupaddress_name=groupaddress).last()
+        for groupaddress in ga_list
+    ]
+
+    context = {
+        "status": status,
+        "monitor": monitor.values,
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'MONITOR',
+    }
+
+    return render(request, "knx/knx_monitor.html", context)

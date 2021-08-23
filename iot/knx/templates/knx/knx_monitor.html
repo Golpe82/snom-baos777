@@ -19,21 +19,31 @@
     <table id="status">
         <caption>KNX status</caption>
         <tr>
-            <th></th>
+            <th>Groupaddress</th>
+            <th>Status</th>
+            <th>Timestamp</th>
         </tr>
-
+        {% for address in status %}
         <tr>
-            <td></td>
+            <td>{{ address.groupaddress_name }} </td>
+            <td>{{ address.status }} </td>
+            <td>{{ address.timestamp }} </td>
         </tr>
+        {% endfor %}
     </table>
-
     <table id="monitor">
         <caption>KNX monitor</caption>
         <tr>
-            <th></th>
+        {% for field in monitor.0.keys %}
+            <th>{{ field }} </th>
+        {% endfor %}
         </tr>
+        {% for info in monitor.values reversed%}
         <tr>
-            <td></td>
+            {% for value in info.values %}
+            <td>{{ value }}</td>
+            {% endfor %}
         </tr>
+        {% endfor %}
     </table>
 {% endblock content %}
