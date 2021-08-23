@@ -12,9 +12,9 @@ urlpatterns = [
     path('', views.index, name='start'),
     path('minibrowser/', views.minibrowser, name='minibrowser'),
     path('upload/', views.upload_file, name='upload_file'),
-    path('ambientlight/', views.ambientlight_sensors, name='ambientlight'),
     path('values/', views.render_sensor_values, name='render_values'),
     path('values', views.post_sensor_value, name='post_values'),
+    path('rules/', views.get_rules, name='get_rules'),
     path('dect-ule/', views.dect_ule, name='dect_ule'),
 ]
 

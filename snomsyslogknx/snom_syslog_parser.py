@@ -1,15 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import pandas as pd
-from pyparsing import Word, hexnums, alphas, alphanums, Suppress, Combine, nums, string, Regex, pyparsing_common
+from pyparsing import Word, hexnums, alphanums, Combine, nums, string, Regex
 import subprocess
-import socket
 import re
 import getmac
 import csv
 import requests
-import sys
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
 SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx/als_snom.log'
@@ -27,6 +24,7 @@ BOOTSTRAP = {
 }
 
 POST_STATUS_URL = "http://localhost:8000/knx/values"
+# GET_RULES_URL = "http://localhost:8000/knx/rules/"
 KNX_URL = "http://localhost:1234/"
 
 def add_ip_client(ip_address):
@@ -85,7 +83,7 @@ def to_lux(raw_value):
 
 class DBActions(object):
 
-    def als_save(raw_value, value):
+    def als_save(self, raw_value, value):
         try:
             requests.post(
                 POST_STATUS_URL,
@@ -106,6 +104,7 @@ class KNXActions(object):
         self.groupaddress = "1/1/21"
         self.min_value = 100
         self.max_value = 110
+        #self.rules = requests.get(GET_RULES_URL)
 
     def knx_dimm_relative(self, value):
         if value < self.min_value:

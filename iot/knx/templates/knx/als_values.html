@@ -14,8 +14,26 @@
     table {border-spacing: 2px;}
     td    {padding: 6px;}
     th    {padding: 6px;}
+    caption {font-weight: bold;}
 </style>
-    <table>
+    <table id="rules">
+        <caption>Devices rules</caption>
+        <tr>
+        {% for field in rules.0.keys %}
+            <th>{{ field }} {% if field == "min_value" or field == "max_value"%} (Lux){% endif %}</th>
+        {% endfor %}
+        </tr>
+        {% for rule in rules.values reversed%}
+        <tr>
+            {% for value in rules.0.values %}
+            <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <table id="als_values">
+        <caption>Snom ambientlight sensors</caption>
         <tr>
         {% for field in status.0.keys %}
             <th>{{ field }} </th>

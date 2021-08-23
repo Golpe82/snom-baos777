@@ -7,9 +7,10 @@ import requests
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 
 from knx import groupaddresses, upload
-from knx.models import AlsStatus
+from knx.models import AlsStatus, BrightnessRules
 
 APP = 'KNX'
 
@@ -55,25 +56,6 @@ def upload_file(request):
 
     return render(request, 'knx/upload.html', context)
 
-def ambientlight_sensors(request):
-    AMBIENTLIGHT_STATUS_FILE = "/usr/local/gateway/snomsyslogknx/AlsStatus.csv"
-    # TODO: Use AJAX for rendering the als value
-    # TODO: Use function of snomsyslogknx instead of this
-
-    with open(AMBIENTLIGHT_STATUS_FILE) as als_status:
-        fieldnames = ["Phone MAC", "Phone IP", "ALS row value", "ALS value (Lux)"]
-        reader = csv.DictReader(als_status)
-        for phone in reader:
-            values = dict((field, phone[field]) for field in fieldnames)
-
-        context = {
-            'project': settings.PROJECT_NAME,
-            "als_value": values,
-            'app': APP,
-            'page': 'Ambientlight sensors',
-        }
-
-    return render(request, "knx/ambientlight.html", context)
 
 @csrf_exempt
 def post_sensor_value(request):
@@ -88,14 +70,26 @@ def post_sensor_value(request):
         value= request.POST.get("value")
     )
 
-    return redirect(f"knx/values/")
+    return redirect("knx/values/")
     
 
 def render_sensor_values(request):
+    if BrightnessRules.objects.filter(mac_address="000413A34795"):
+        BrightnessRules.objects.filter(mac_address="000413A34795").delete()
+
+    BrightnessRules.objects.create(
+        mac_address="000413A34795",
+        ip_address="192.168.178.66",
+        min_value="100",
+        max_value="110"
+    )
+
     status = AlsStatus.objects.all()
+    rules = BrightnessRules.objects.all()
 
     context = {
         'status': status.values,
+        'rules': rules.values,
         'project': settings.PROJECT_NAME,
         'app': APP,
         'page': 'values',
@@ -103,11 +97,17 @@ def render_sensor_values(request):
 
     return render(request, "knx/als_values.html", context)
 
-@csrf_exempt
+def get_rules(request):
+    rules = BrightnessRules.objects.filter(mac_address="000413A34795").values("min_value", "max_value")
+    print(rules)
+
+    return HttpResponse(rules)
+
+
 def dect_ule(request):
     CMD_ROOT = "/usr/local/opend/openD/dspg/base/ule-hub/"
     INTERPRETER = "python3"
-    command = request.POST.get("cmd")
+    command = request.GET.get("cmd")
 
     if command:
         process = subprocess.call(f"{INTERPRETER} { CMD_ROOT }{command}", shell=True)
