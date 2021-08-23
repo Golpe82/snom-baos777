@@ -32,6 +32,7 @@ def main():
             groupaddress_info['timestamp'] = datetime.now().strftime(
                 '%Y-%m-%d %H:%M:%S')
             mon.save_status(groupaddress_info)
+            DBActions.monitor_status_save(frame)
             DBActions.status_save(frame)
 
 

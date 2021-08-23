@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
 from knx import groupaddresses, upload
-from knx.models import AlsStatus, BrightnessRules, KnxMonitor
+from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus
 
 APP = 'KNX'
 
@@ -146,6 +146,20 @@ def knx_monitor(request):
     }
 
     return render(request, "knx/knx_monitor.html", context)
+
+@csrf_exempt
+def post_knx_status(request):
+    if KnxStatus.objects.count() > 2000:
+        first = KnxStatus.objects.first().id
+        KnxStatus.objects.filter(id=first).delete()
+
+    KnxStatus.objects.create(
+        groupaddress_name=request.POST.get("groupaddress_name"),
+        groupaddress=request.POST.get("groupaddress"),
+        status=request.POST.get("status")
+    )
+
+    return redirect("knx/knx_status")
 
 def knx_status(request):
     monitor = KnxMonitor.objects.all()

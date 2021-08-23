@@ -7,6 +7,12 @@ class KnxMonitor(models.Model):
     status = models.CharField(max_length=9)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+class KnxStatus(models.Model):
+    groupaddress_name = models.CharField(max_length=50)
+    groupaddress = models.CharField(max_length=9)
+    status = models.CharField(max_length=9)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
 
 class AlsStatus(models.Model):
     device_name = models.CharField(max_length=4, default="D735")
