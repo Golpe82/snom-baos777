@@ -2,6 +2,7 @@ from django.urls import resolve
 from django.test import TestCase
 import unittest
 import re
+import requests
 
 from knx.models import AlsStatus, BrightnessRules
 
@@ -51,6 +52,8 @@ class AlsViewTest(TestCase):
 
 class RulesModelTest(TestCase):
     def test_brightness_rule_is_saved(self):
+        GET_RULES_URL = "http://localhost:8000/knx/rules/"
+
         first_value = BrightnessRules.objects.create(
             mac_address="000413A34795",
             ip_address="192.168.178.66",
@@ -59,6 +62,8 @@ class RulesModelTest(TestCase):
         )
 
         saved_values = BrightnessRules.objects.all()
+        rules = requests.get(GET_RULES_URL)
+        print(rules)
         self.assertEqual(saved_values.count(), 1)
 
         _first_saved_value = saved_values[0]

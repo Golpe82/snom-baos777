@@ -14,6 +14,7 @@ urlpatterns = [
     path('upload/', views.upload_file, name='upload_file'),
     path('values/', views.render_sensor_values, name='render_values'),
     path('values', views.post_sensor_value, name='post_values'),
+    path('rules/', views.get_rules, name='get_rules'),
     path('dect-ule/', views.dect_ule, name='dect_ule'),
 ]
 

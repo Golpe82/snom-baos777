@@ -7,9 +7,10 @@ import requests
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 
 from knx import groupaddresses, upload
-from knx.models import AlsStatus
+from knx.models import AlsStatus, BrightnessRules
 
 APP = 'KNX'
 
@@ -73,16 +74,35 @@ def post_sensor_value(request):
     
 
 def render_sensor_values(request):
+    if BrightnessRules.objects.filter(mac_address="000413A34795"):
+        BrightnessRules.objects.filter(mac_address="000413A34795").delete()
+
+    BrightnessRules.objects.create(
+        mac_address="000413A34795",
+        ip_address="192.168.178.66",
+        min_value="100",
+        max_value="110"
+    )
+
     status = AlsStatus.objects.all()
+    rules = BrightnessRules.objects.all()
 
     context = {
         'status': status.values,
+        'rules': rules.values,
         'project': settings.PROJECT_NAME,
         'app': APP,
         'page': 'values',
     }
 
     return render(request, "knx/als_values.html", context)
+
+def get_rules(request):
+    rules = BrightnessRules.objects.filter(mac_address="000413A34795").values("min_value", "max_value")
+    print(rules)
+
+    return HttpResponse(rules)
+
 
 def dect_ule(request):
     CMD_ROOT = "/usr/local/opend/openD/dspg/base/ule-hub/"
