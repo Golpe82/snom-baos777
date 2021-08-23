@@ -125,7 +125,6 @@ def post_knx_status(request):
     if KnxStatus.objects.count() > 2000:
         first = KnxStatus.objects.first().id
         KnxStatus.objects.filter(id=first).delete()
-    logging.warning("bla")
 
     KnxStatus.objects.create(
         groupaddress_name=request.POST.get("groupaddress_name"),
@@ -137,6 +136,29 @@ def post_knx_status(request):
     return redirect("knx/monitor/")
 
 def knx_monitor(request):
+    monitor = KnxStatus.objects.all()
+    # ga_qset = monitor.values_list("groupaddress_name").distinct()
+    # ga_list = []
+    # for ga in ga_qset:
+    #     for a in ga:
+    #         ga_list.append(a)
+
+    # status = [
+    #     monitor.filter(groupaddress_name=groupaddress).last()
+    #     for groupaddress in ga_list
+    # ]
+
+    context = {
+        #"status": status,
+        "monitor": monitor.values,
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'MONITOR',
+    }
+
+    return render(request, "knx/knx_monitor.html", context)
+
+def knx_status(request):
     monitor = KnxStatus.objects.all()
     ga_qset = monitor.values_list("groupaddress_name").distinct()
     ga_list = []
@@ -151,10 +173,9 @@ def knx_monitor(request):
 
     context = {
         "status": status,
-        "monitor": monitor.values,
         'project': settings.PROJECT_NAME,
         'app': APP,
         'page': 'MONITOR',
     }
 
-    return render(request, "knx/knx_monitor.html", context)
+    return render(request, "knx/knx_status.html", context)

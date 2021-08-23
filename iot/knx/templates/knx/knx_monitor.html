@@ -16,7 +16,7 @@
     th    {padding: 6px;}
     caption {font-weight: bold;}
 </style>
-    <table id="status">
+    {% comment %} <table id="status">
         <caption>KNX status</caption>
         <tr>
             <th>Groupaddress</th>
@@ -30,7 +30,7 @@
             <td>{{ address.timestamp }} </td>
         </tr>
         {% endfor %}
-    </table>
+    </table> {% endcomment %}
     <table id="monitor">
         <caption>KNX monitor</caption>
         <tr>
