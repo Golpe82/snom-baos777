@@ -1,8 +1,8 @@
 """Views for app knx"""
 import os
-import csv
 import subprocess
-import requests
+import logging
+from datetime import datetime
 
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -10,9 +10,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
 from knx import groupaddresses, upload
-from knx.models import AlsStatus, BrightnessRules
+from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus
 
 APP = 'KNX'
+logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
 
 def index(request):
     data = None
@@ -70,8 +71,7 @@ def post_sensor_value(request):
         value= request.POST.get("value")
     )
 
-    return redirect("knx/values/")
-    
+    return redirect("knx/values/") 
 
 def render_sensor_values(request):
     if BrightnessRules.objects.filter(mac_address="000413A34795"):
@@ -103,7 +103,6 @@ def get_rules(request):
 
     return HttpResponse(rules)
 
-
 def dect_ule(request):
     CMD_ROOT = "/usr/local/opend/openD/dspg/base/ule-hub/"
     INTERPRETER = "python3"
@@ -120,3 +119,56 @@ def dect_ule(request):
     }
 
     return render(request, "knx/dect_ule.html", context)
+
+@csrf_exempt
+def post_knx_monitor(request):
+    if KnxMonitor.objects.count() > 2000:
+        first = KnxMonitor.objects.first().id
+        KnxMonitor.objects.filter(id=first).delete()
+
+    KnxMonitor.objects.create(
+        groupaddress_name=request.POST.get("groupaddress_name"),
+        groupaddress=request.POST.get("groupaddress"),
+        datapoint_type=request.POST.get("datapoint_type"),
+        status=request.POST.get("status")
+    )
+
+    return redirect("knx/monitor/")
+
+def knx_monitor(request):
+    monitor = KnxMonitor.objects.all()
+
+    context = {
+        "monitor": monitor.values,
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'MONITOR',
+    }
+
+    return render(request, "knx/knx_monitor.html", context)
+
+@csrf_exempt
+def post_knx_status(request):
+    status_object, _created = KnxStatus.objects.update_or_create(
+        groupaddress_name=request.POST.get("groupaddress_name"),
+        groupaddress=request.POST.get("groupaddress"),
+        defaults={
+            "status": request.POST.get("status"),
+            "timestamp": datetime.now()
+        }
+    )
+    logging.info(f"{ status_object.groupaddress_name }: { status_object.status }")
+
+    return redirect("knx/knx_status")
+
+def knx_status(request):
+    status = KnxStatus.objects.all()
+
+    context = {
+        "status": status,
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'STATUS',
+    }
+
+    return render(request, "knx/knx_status.html", context)
