@@ -13,7 +13,7 @@ from knx import groupaddresses, upload
 from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus
 
 APP = 'KNX'
-logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 def index(request):
     data = None
