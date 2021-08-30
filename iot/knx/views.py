@@ -1,9 +1,8 @@
 """Views for app knx"""
 import os
-import csv
 import subprocess
-import requests
 import logging
+from datetime import datetime
 
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -14,6 +13,7 @@ from knx import groupaddresses, upload
 from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus
 
 APP = 'KNX'
+logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
 
 def index(request):
     data = None
@@ -149,35 +149,20 @@ def knx_monitor(request):
 
 @csrf_exempt
 def post_knx_status(request):
-    if KnxStatus.objects.count() > 2000:
-        first = KnxStatus.objects.first().id
-        KnxStatus.objects.filter(id=first).delete()
-
-    status_object = KnxStatus.objects.get(groupaddress=request.POST.get("groupaddress"))
-    status_object.status = request.POST.get("status")
-    status_object.save()
-
-
-    # KnxStatus.objects.create(
-    #     groupaddress_name=request.POST.get("groupaddress_name"),
-    #     groupaddress=request.POST.get("groupaddress"),
-    #     status=request.POST.get("status")
-    # )
+    status_object, _created = KnxStatus.objects.update_or_create(
+        groupaddress_name=request.POST.get("groupaddress_name"),
+        groupaddress=request.POST.get("groupaddress"),
+        defaults={
+            "status": request.POST.get("status"),
+            "timestamp": datetime.now()
+        }
+    )
+    logging.info(f"{ status_object.groupaddress_name }: { status_object.status }")
 
     return redirect("knx/knx_status")
 
 def knx_status(request):
     status = KnxStatus.objects.all()
-    # ga_qset = monitor.values_list("groupaddress_name").distinct()
-    # ga_list = []
-    # for ga in ga_qset:
-    #     for a in ga:
-    #         ga_list.append(a)
-
-    # status = [
-    #     monitor.filter(groupaddress_name=groupaddress).last()
-    #     for groupaddress in ga_list
-    # ]
 
     context = {
         "status": status,

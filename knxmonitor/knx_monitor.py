@@ -16,6 +16,8 @@ PAYLOAD = {
     'Byte0': 15,
     'Byte1': 16,
 }
+POST_MONITOR_URL = "http://localhost:8000/knx/groupaddress_monitor"
+POST_STATUS_URL = "http://localhost:8000/knx/status"
 
 
 def get_groupaddress(frame):
@@ -112,8 +114,6 @@ def get_status(groupaddress):
 
     return status
 
-POST_MONITOR_URL = "http://localhost:8000/knx/groupaddress_monitor"
-POST_STATUS_URL = "http://localhost:8000/knx/status"
 
 class DBActions(object):
 
