@@ -100,7 +100,7 @@ class DBActions(object):
 class KNXActions(object):
 
     def __init__(self):
-        self.groupaddress = "1/1/21"
+        self.groupaddress = "1/2/21"
         self.min_value = 100
         self.max_value = 110
         #self.rules = requests.get(GET_RULES_URL)

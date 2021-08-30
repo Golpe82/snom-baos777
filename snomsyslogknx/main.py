@@ -11,7 +11,7 @@ import select
 import time
 import logging
 
-import knx.rest_api as api
+import knx.views
 import snom_syslog_parser as als_parser
 from snom_syslog_parser import KNXActions, DBActions
 
@@ -61,7 +61,7 @@ def main():
                 raw_value = message.get('value')
                 value = als_parser.to_lux(raw_value)
                 DBActions().als_save(raw_value, value)
-                status = api.get_status('1/1/20').json().get("Status")
+                status = views.get_status('1/2/20').json().get("Status")
 
                 logging.info(f"Status: { status }")
 
