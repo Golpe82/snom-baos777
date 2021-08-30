@@ -20,6 +20,7 @@ urlpatterns = [
     path('groupaddress_monitor', views.post_knx_monitor, name='post_knx_monitor'),
     path('status/', views.knx_status, name='knx_status'),
     path('status', views.post_knx_status, name='post_knx_status'),
+    path('status/<int:main>/<int:midd>/<int:sub>/', views.get_groupaddress_status, name='get_groupaddress_status'),
 ]
 
 # serve during development

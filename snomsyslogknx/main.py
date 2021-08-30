@@ -9,15 +9,19 @@ import os
 import subprocess
 import select
 import time
+import logging
 
+import knx.rest_api as api
 import snom_syslog_parser as als_parser
-import knx_monitor
 from snom_syslog_parser import KNXActions, DBActions
+
 
 CONTENTS = {
     'light sensor value': 'ALS_VALUE',
     'light sensor key': 'ALS_KEY',
 }
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
@@ -51,14 +55,17 @@ def main():
             last_message = last_message.decode('utf-8')
 
             if LIGHT_SENSOR_VALUE in last_message:
-                message = parser.get_message(
-                    last_message, LIGHT_SENSOR_VALUE)
+                logging.info(f"Syslog message: { last_message }")
+
+                message = parser.get_message(last_message, LIGHT_SENSOR_VALUE)
                 raw_value = message.get('value')
                 value = als_parser.to_lux(raw_value)
+                DBActions().als_save(raw_value, value)
+                status = api.get_status('1/1/20').json().get("Status")
 
-                DBActions.als_save(raw_value, value)
+                logging.info(f"Status: { status }")
 
-                if knx_monitor.get_status('1/1/20') == 'on':
+                if status == 'on':
                     KNXActions().knx_dimm_relative(value)
 
         time.sleep(0.1)

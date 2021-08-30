@@ -5,7 +5,6 @@ from pyparsing import Word, hexnums, alphanums, Combine, nums, string, Regex
 import subprocess
 import re
 import getmac
-import csv
 import requests
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
