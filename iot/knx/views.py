@@ -7,7 +7,7 @@ from datetime import datetime
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from knx import groupaddresses, upload
 from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus
@@ -99,7 +99,6 @@ def render_sensor_values(request):
 
 def get_rules(request):
     rules = BrightnessRules.objects.filter(mac_address="000413A34795").values("min_value", "max_value")
-    print(rules)
 
     return HttpResponse(rules)
 
@@ -172,3 +171,16 @@ def knx_status(request):
     }
 
     return render(request, "knx/knx_status.html", context)
+
+def get_groupaddress_status(request, main, midd, sub):
+    request_address = f"{ main }/{ midd }/{ sub }"
+    status_object = KnxStatus.objects.get(groupaddress=request_address)
+
+    logging.info(f"Status of { status_object.groupaddress }: { status_object.status }")
+
+    data = {
+        "Groupaddress": status_object.groupaddress,
+        "Status": status_object.status
+    }
+
+    return JsonResponse(data)
