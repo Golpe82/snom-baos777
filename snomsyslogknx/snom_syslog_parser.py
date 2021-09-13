@@ -6,6 +6,8 @@ import subprocess
 import re
 import getmac
 import requests
+import logging
+
 
 CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
 SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx/als_snom.log'
@@ -25,6 +27,9 @@ BOOTSTRAP = {
 POST_STATUS_URL = "http://localhost:8000/knx/values"
 # GET_RULES_URL = "http://localhost:8000/knx/rules/"
 KNX_URL = "http://localhost:1234/"
+GET_STATUS_URL_ROOT = "http://localhost:8000/knx/status/"
+
+logging.basicConfig(level=logging.DEBUG)
 
 def add_ip_client(ip_address):
     MAC = str(getmac.get_mac_address(ip=ip_address)).replace(":", '')
@@ -95,7 +100,7 @@ class DBActions(object):
             )
 
         except:
-            print(f"Could not save data with post. URL = { POST_STATUS_URL }")
+            logging.info(f"Could not save data with post. URL = { POST_STATUS_URL }")
 
 class KNXActions(object):
 
@@ -119,7 +124,7 @@ class KNXActions(object):
             requests.get(f'{ KNX_URL }{ self.groupaddress }{ VALUE }')
 
         except:
-            print('Could not increase. KNX gateway not reachable or invalid groupaddress/value')
+            logging.info('Could not increase. KNX gateway not reachable or invalid groupaddress/value')
 
     def knx_decrease(self):
         VALUE = "-minus"
@@ -128,7 +133,16 @@ class KNXActions(object):
             requests.get(f'{ KNX_URL }{ self.groupaddress }{ VALUE }')
 
         except:
-            print('Could not decrease. KNX gateway not reachable or invalid groupaddress/value')
+            logging.info(f'Could not decrease { self.groupaddress }. KNX gateway not reachable or invalid groupaddress/value')
+
+    def get_status(self, request_groupaddress):
+        try:
+            status = requests.get(f"{ GET_STATUS_URL_ROOT }{ request_groupaddress }/")
+
+            return status.json().get("Status")
+        
+        except:
+            logging.info(f"No status for groupaddress { request_groupaddress }")
 
 
 class RSyslogParser(object):
