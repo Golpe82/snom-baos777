@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from knx import urls as knx_urls
 from lists import views as list_views
 from lists import urls as list_urls
 
@@ -23,6 +24,6 @@ from lists import urls as list_urls
 urlpatterns = [
     path('', list_views.home_page, name='home'),
     path('lists/', include(list_urls)),
-    path('knx/', include('knx.urls')),
+    path('knx/', include(knx_urls)),
     path('admin/', admin.site.urls),
 ]

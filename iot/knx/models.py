@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class KnxMonitor(models.Model):
     groupaddress_name = models.CharField(max_length=50)
     groupaddress = models.CharField(max_length=9)
