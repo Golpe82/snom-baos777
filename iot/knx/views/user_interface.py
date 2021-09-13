@@ -2,7 +2,6 @@
 import os
 import subprocess
 import logging
-from datetime import datetime
 
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -31,7 +30,6 @@ def index(request):
 
     return render(request, 'knx/groupaddresses.html', context)
 
-
 def minibrowser(request):
     if os.path.exists(settings.XML_TARGET_PATH):
         return render(request, 'knx/minibrowser.xml', content_type="application/xhtml+xml")
@@ -56,22 +54,6 @@ def upload_file(request):
     }
 
     return render(request, 'knx/upload.html', context)
-
-
-@csrf_exempt
-def post_sensor_value(request):
-    if AlsStatus.objects.count() > 100:
-        first = AlsStatus.objects.first().id
-        AlsStatus.objects.filter(id=first).delete()
-
-    AlsStatus.objects.create(
-        mac_address=request.POST.get("mac_address"),
-        ip_address=request.POST.get("ip_address"),
-        raw_value=request.POST.get("raw_value"),
-        value= request.POST.get("value")
-    )
-
-    return redirect("knx/values/") 
 
 def render_sensor_values(request):
     if BrightnessRules.objects.filter(mac_address="000413A34795"):
@@ -119,21 +101,6 @@ def dect_ule(request):
 
     return render(request, "knx/dect_ule.html", context)
 
-@csrf_exempt
-def post_knx_monitor(request):
-    if KnxMonitor.objects.count() > 2000:
-        first = KnxMonitor.objects.first().id
-        KnxMonitor.objects.filter(id=first).delete()
-
-    KnxMonitor.objects.create(
-        groupaddress_name=request.POST.get("groupaddress_name"),
-        groupaddress=request.POST.get("groupaddress"),
-        datapoint_type=request.POST.get("datapoint_type"),
-        status=request.POST.get("status")
-    )
-
-    return redirect("knx/monitor/")
-
 def knx_monitor(request):
     monitor = KnxMonitor.objects.all()
 
@@ -146,20 +113,6 @@ def knx_monitor(request):
 
     return render(request, "knx/knx_monitor.html", context)
 
-@csrf_exempt
-def post_knx_status(request):
-    status_object, _created = KnxStatus.objects.update_or_create(
-        groupaddress_name=request.POST.get("groupaddress_name"),
-        groupaddress=request.POST.get("groupaddress"),
-        defaults={
-            "status": request.POST.get("status"),
-            "timestamp": datetime.now()
-        }
-    )
-    logging.info(f"{ status_object.groupaddress_name }: { status_object.status }")
-
-    return redirect("knx/knx_status")
-
 def knx_status(request):
     status = KnxStatus.objects.all()
 
@@ -171,16 +124,3 @@ def knx_status(request):
     }
 
     return render(request, "knx/knx_status.html", context)
-
-def get_groupaddress_status(request, main, midd, sub):
-    request_address = f"{ main }/{ midd }/{ sub }"
-    status_object = KnxStatus.objects.get(groupaddress=request_address)
-
-    logging.info(f"Status of { status_object.groupaddress }: { status_object.status }")
-
-    data = {
-        "Groupaddress": status_object.groupaddress,
-        "Status": status_object.status
-    }
-
-    return JsonResponse(data)
