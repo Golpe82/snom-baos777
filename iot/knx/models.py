@@ -6,6 +6,7 @@ class KnxMonitor(models.Model):
     groupaddress = models.CharField(max_length=9)
     datapoint_type = models.CharField(max_length=15)
     status = models.CharField(max_length=9)
+    raw_frame = models.CharField(max_length=16384, default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
 
 class KnxStatus(models.Model):
