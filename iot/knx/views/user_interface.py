@@ -101,21 +101,6 @@ def dect_ule(request):
 
     return render(request, "knx/dect_ule.html", context)
 
-@csrf_exempt
-def post_knx_monitor(request):
-    if KnxMonitor.objects.count() > 2000:
-        first = KnxMonitor.objects.first().id
-        KnxMonitor.objects.filter(id=first).delete()
-
-    KnxMonitor.objects.create(
-        groupaddress_name=request.POST.get("groupaddress_name"),
-        groupaddress=request.POST.get("groupaddress"),
-        datapoint_type=request.POST.get("datapoint_type"),
-        status=request.POST.get("status")
-    )
-
-    return redirect("knx/monitor/")
-
 def knx_monitor(request):
     monitor = KnxMonitor.objects.all()
 

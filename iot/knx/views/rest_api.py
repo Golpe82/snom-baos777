@@ -5,9 +5,10 @@ from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
-from knx.models import KnxStatus, AlsStatus
+from knx.models import KnxStatus, AlsStatus, KnxMonitor
 
 
+POST_RESPONSE = {"POST": "OK"}
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -37,7 +38,7 @@ def post_sensor_value(request):
         value= request.POST.get("value")
     )
 
-    return JsonResponse({"POST": "OK"})
+    return JsonResponse(POST_RESPONSE)
 
 @csrf_exempt
 def post_knx_status(request):
@@ -51,4 +52,19 @@ def post_knx_status(request):
     )
     logging.info(f"{ status_object.groupaddress_name }: { status_object.status }")
 
-    return JsonResponse({"POST": "OK"})
+    return JsonResponse(POST_RESPONSE)
+
+@csrf_exempt
+def post_knx_monitor(request):
+    if KnxMonitor.objects.count() > 2000:
+        first = KnxMonitor.objects.first().id
+        KnxMonitor.objects.filter(id=first).delete()
+
+    KnxMonitor.objects.create(
+        groupaddress_name=request.POST.get("groupaddress_name"),
+        groupaddress=request.POST.get("groupaddress"),
+        datapoint_type=request.POST.get("datapoint_type"),
+        status=request.POST.get("status")
+    )
+
+    return JsonResponse(POST_RESPONSE)
