@@ -65,7 +65,7 @@ def main():
                 raw_value = message.get('value')
                 value = als_parser.to_lux(raw_value)
                 DBActions().als_save(raw_value, value)
-                status = iot_api.get_status('1/2/20').json().get("Status")
+                status = iot_api.get_status('1/2/20')
 
                 logging.info(f"Status: { status }")
 
