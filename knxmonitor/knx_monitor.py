@@ -78,7 +78,7 @@ class DBActions(object):
 
         except:
             logging.warning(f"Could not save data = { post_data }")
-            logging.warning(f"from URL = { POST_STATUS_URL }")
+            logging.warning(f"from URL = { POST_MONITOR_URL }")
 
     def status_save(frame):
         groupaddress = get_groupaddress(frame).get('formatted')

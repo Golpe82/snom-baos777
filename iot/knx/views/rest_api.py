@@ -1,5 +1,6 @@
 import requests
 import logging
+from datetime import datetime
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -35,3 +36,19 @@ def post_sensor_value(request):
         raw_value=request.POST.get("raw_value"),
         value= request.POST.get("value")
     )
+
+    return JsonResponse({"POST": "OK"})
+
+@csrf_exempt
+def post_knx_status(request):
+    status_object, _created = KnxStatus.objects.update_or_create(
+        groupaddress_name=request.POST.get("groupaddress_name"),
+        groupaddress=request.POST.get("groupaddress"),
+        defaults={
+            "status": request.POST.get("status"),
+            "timestamp": datetime.now()
+        }
+    )
+    logging.info(f"{ status_object.groupaddress_name }: { status_object.status }")
+
+    return JsonResponse({"POST": "OK"})

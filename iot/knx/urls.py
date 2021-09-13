@@ -18,9 +18,9 @@ urlpatterns = [
     path('monitor/', views.knx_monitor, name='knx_monitor'),
     path('groupaddress_monitor', views.post_knx_monitor, name='post_knx_monitor'),
     path('status/', views.knx_status, name='knx_status'),
-    path('status', views.post_knx_status, name='post_knx_status'),
     # REST API URLs
     path('values', views.post_sensor_value, name='post_values'),
+    path('status', views.post_knx_status, name='post_knx_status'),
     path('status/<int:main>/<int:midd>/<int:sub>/', views.get_groupaddress_status, name='get_groupaddress_status'),
 ]
 
