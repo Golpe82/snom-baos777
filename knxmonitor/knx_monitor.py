@@ -59,6 +59,8 @@ def get_groupaddress_info(groupaddress):
         'datapoint type': info.get('DatapointType')
     }
 
+def to_string(frame):
+    return "x".join([format(byte, 'X').zfill(2) for byte in frame])
 
 class DBActions(object):
 
@@ -71,6 +73,7 @@ class DBActions(object):
             "groupaddress": groupaddress,
             "datapoint_type": info.get("datapoint type"),
             "status":  status,
+            "raw_frame": to_string(frame)
         }
 
         try:

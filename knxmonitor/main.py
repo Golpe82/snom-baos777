@@ -12,6 +12,8 @@ PARITY = serial.PARITY_EVEN
 STARTBYTE = b'\x68'
 STOPBYTE = b'\x16'
 
+logging.basicConfig(level=logging.DEBUG)
+
 
 def main():
     with serial.Serial(DEVICE, BAUDRATE, CHARACTER_SIZE, PARITY) as connection:
@@ -20,6 +22,8 @@ def main():
             connection.read_until(STARTBYTE)
             frame = bytearray(STARTBYTE)
             frame.extend(connection.read_until(STOPBYTE))
+            for byte in frame:
+                logging.info(format(byte, 'X').zfill(2))
 
             DBActions.monitor_status_save(frame)
             DBActions.status_save(frame)
