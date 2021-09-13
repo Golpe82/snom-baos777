@@ -18,6 +18,8 @@ from iot import helpers
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+#DJANGO_SETTINGS_MODULE = iot.settings
+
 # IP Address of the KNX Gateway
 GATEWAY_IP = helpers.get_local_ip()
 

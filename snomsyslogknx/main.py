@@ -10,8 +10,12 @@ import subprocess
 import select
 import time
 import logging
+import django
 
-import knx.views
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'iot.settings')
+django.setup()
+
+import knx.views.rest_api as iot_api
 import snom_syslog_parser as als_parser
 from snom_syslog_parser import KNXActions, DBActions
 
@@ -61,7 +65,7 @@ def main():
                 raw_value = message.get('value')
                 value = als_parser.to_lux(raw_value)
                 DBActions().als_save(raw_value, value)
-                status = views.get_status('1/2/20').json().get("Status")
+                status = iot_api.get_status('1/2/20').json().get("Status")
 
                 logging.info(f"Status: { status }")
 

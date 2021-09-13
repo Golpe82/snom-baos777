@@ -1,8 +1,6 @@
 import requests
 import logging
 
-#from django.conf import settings
-# from django.shortcuts import render
 from django.http import JsonResponse
 
 from knx.models import KnxStatus
@@ -12,9 +10,8 @@ GET_STATUS_URL_ROOT = "http://localhost:8000/knx/status/"
 
 logging.basicConfig(level=logging.DEBUG)
 
-def get_status(groupaddress):
-    status = requests.get(f"{ GET_STATUS_URL_ROOT }{ groupaddress }/")
-    logging.info(KnxStatus.objects.get(groupaddress=request_address).status)
+def get_status(request_groupaddress):
+    status = requests.get(f"{ GET_STATUS_URL_ROOT }{ request_groupaddress }/")
 
     return status
 
