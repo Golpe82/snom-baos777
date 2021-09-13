@@ -31,7 +31,6 @@ def index(request):
 
     return render(request, 'knx/groupaddresses.html', context)
 
-
 def minibrowser(request):
     if os.path.exists(settings.XML_TARGET_PATH):
         return render(request, 'knx/minibrowser.xml', content_type="application/xhtml+xml")
@@ -56,22 +55,6 @@ def upload_file(request):
     }
 
     return render(request, 'knx/upload.html', context)
-
-
-@csrf_exempt
-def post_sensor_value(request):
-    if AlsStatus.objects.count() > 100:
-        first = AlsStatus.objects.first().id
-        AlsStatus.objects.filter(id=first).delete()
-
-    AlsStatus.objects.create(
-        mac_address=request.POST.get("mac_address"),
-        ip_address=request.POST.get("ip_address"),
-        raw_value=request.POST.get("raw_value"),
-        value= request.POST.get("value")
-    )
-
-    return redirect("knx/values/") 
 
 def render_sensor_values(request):
     if BrightnessRules.objects.filter(mac_address="000413A34795"):
