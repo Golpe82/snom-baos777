@@ -34,9 +34,12 @@ def get_DPT3_formatted(raw_value):
 
 
 def get_DPT5_formatted(raw_value):
-    VALUES = {"byte0": 0x80, "byte1": range(0x01, 0xFF)}
+    VALUES = {"scale": range(0x01, 0xFF)}
 
-    return f"{round((raw_value * 100) / 255)}%"
+    if raw_value in VALUES.get("scale"):
+        return f"{round((raw_value * 100) / 255)}%"
+
+    return "wrong value"
 
 
 class DptHandlers:

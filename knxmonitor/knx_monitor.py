@@ -11,6 +11,7 @@ import datapoint_types
 ETS_FILE = "/usr/local/gateway/iot/knx/media/ga.csv"
 DEST_HIGH_BYTE = 11
 DEST_LOW_BYTE = 12
+PAYLOAD_LENGTH = 13
 PAYLOAD = {
     "Byte0": 15,
     "Byte1": 16,
@@ -35,7 +36,6 @@ def get_groupaddress(frame):
 
 
 def get_value(frame, datapoint_type):
-    logging.info(datapoint_type)
     if datapoint_type == "DPST-5-1":
         raw_value = frame[PAYLOAD.get("Byte1")]
     else:
