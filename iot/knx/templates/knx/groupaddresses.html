@@ -30,56 +30,65 @@
             {% elif info.Datapointtype %}
             <tr>
                 {% if 'DPT-1' in info.Datapointtype or 'DPST-1-' in info.Datapointtype %}
-                {% if info.Datapointtype != 'DPST-1-11' %}
-                <td>
-                    <form method="get">
-                        <button id="on" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-an" type="submit" name="{{info.Groupname }}" value="on">On</button>
-                        <button id="off" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-aus" type="submit" name="{{info.Groupname }}" value="off">Off</button>
-                        
-                    </form>
-                    <button type="button" id="toggle{{ info.Groupaddress }}">toggle</button>
-                    <script>         
-                        function toggle(){
-                            'use strict';
-                            const element = document.getElementById('toggle{{ info.Groupaddress }}');
-                            
-                            if(element.classList.toggle('off')){
-                                element.classList.remove('on');
-                                element.innerHTML = 'off';
-                            }
-                            else {
-                                element.classList.remove('off');
-                                element.classList.add('on');
-                                element.innerHTML = 'on';
-                            }
-                            return element.innerHTML == 'on' ? 'an' : 'aus';
-                        }
+                    {% if info.Datapointtype != 'DPST-1-11' %}
+                        <td>
+                            <form method="get">
+                                <button id="on" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-an" type="submit" name="{{info.Groupname }}" value="on">On</button>
+                                <button id="off" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-aus" type="submit" name="{{info.Groupname }}" value="off">Off</button>
+                                
+                            </form>
+                            <button type="button" id="toggle{{ info.Groupaddress }}">toggle</button>
+                            <script>         
+                                function toggle(){
+                                    'use strict';
+                                    const element = document.getElementById('toggle{{ info.Groupaddress }}');
+                                    
+                                    if(element.classList.toggle('off')){
+                                        element.classList.remove('on');
+                                        element.innerHTML = 'off';
+                                    }
+                                    else {
+                                        element.classList.remove('off');
+                                        element.classList.add('on');
+                                        element.innerHTML = 'on';
+                                    }
+                                    return element.innerHTML == 'on' ? 'an' : 'aus';
+                                }
 
-                        function sendUrl(){
-                            'use strict';
-                            let request = new Request('{{ knx_gateway }}{{ info.Groupaddress }}-' + toggle());
-                            fetch(request);
-                        }
+                                function sendUrl(){
+                                    'use strict';
+                                    let request = new Request('{{ knx_gateway }}{{ info.Groupaddress }}-' + toggle());
+                                    fetch(request);
+                                }
 
-                        {
-                        'use strict';
-                        let button = document.getElementById('toggle{{ info.Groupaddress }}');
-                        button.addEventListener('click', toggle);
-                        button.addEventListener('click', sendUrl);
-                        }
-                    </script>
+                                {
+                                'use strict';
+                                let button = document.getElementById('toggle{{ info.Groupaddress }}');
+                                button.addEventListener('click', toggle);
+                                button.addEventListener('click', sendUrl);
+                                }
+                            </script>
 
-                </td>
-                {% endif %}
+                        </td>
+                    {% endif %}
                 {% elif 'DPT-3' in info.Datapointtype or 'DPST-3-' in info.Datapointtype %}
-                <td>
-                    <form method="get">
-                        <button id="plus" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-plus" type="submit" name="{{info.Groupname }}" value="plus">+</button>
-                        <button id="minus" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-minus" type="submit" name="{{info.Groupname }}" value="minus">-</button>
-                    </form>
-                </td>
+                    <td>
+                        <form method="get">
+                            <button id="plus" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-plus" type="submit" name="{{info.Groupname }}" value="plus">+</button>
+                            <button id="minus" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-minus" type="submit" name="{{info.Groupname }}" value="minus">-</button>
+                        </form>
+                    </td>
+                {% elif 'DPT-5' in info.Datapointtype or 'DPST-5-' in info.Datapointtype %}
+                    <td>
+                        <p id="scale{{ info.Groupaddress }}"></p>
+                        <script>
+                            fetch("http://192.168.178.47:8000/knx/status/{{ info.Groupaddress }}")
+                            .then(data=>{return data.json()})
+                            .then(res=>{document.getElementById("scale{{ info.Groupaddress }}").innerHTML = res.Status})
+                        </script>
+                    </td>
                 {% else %}
-                <td></td>
+                    <td></td>
                 {% endif %}        
                 <td>{{ info.Groupname }}</td>
                 <td>{{ info.Groupaddress }}</td>
