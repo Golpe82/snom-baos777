@@ -503,7 +503,6 @@ class HANClient(object):
         msg = Message(name="INIT")
         msg.params["VERSION"] = "1"
 
-        print('MESSAGE:::', msg)
         waiter = self.waiter("INIT_RES")
         self.send(msg)
 
@@ -643,7 +642,6 @@ class HANClient(object):
         else:
             msg_type = "1"
 
-        msg.params["DEV_IPUI"] = str(kwargs["ipui"])
         msg.params["SRC_DEV_ID"] = str(kwargs["src_dev_id"])
         msg.params["SRC_UNIT_ID"] = str(kwargs["src_unit_id"])
         msg.params["DST_DEV_ID"] = str(kwargs["dst_dev_id"])
@@ -800,5 +798,3 @@ class HANClient(object):
         msg.params["NAME"] = parameter
         msg.params["DATA"] = value
         return self.send_and_wait(msg, "SET_EEPROM_PARAM_RES")
-
-# %%
