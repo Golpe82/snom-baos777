@@ -82,7 +82,7 @@
                     <td>
                         <p id="scale{{ info.Groupaddress }}"></p>
                         <script>
-                            fetch("http://192.168.178.47:8000/knx/status/{{ info.Groupaddress }}")
+                            fetch("http://{{ gateway_ip }}:8000/knx/status/{{ info.Groupaddress }}")
                             .then(data=>{return data.json()})
                             .then(res=>{document.getElementById("scale{{ info.Groupaddress }}").innerHTML = res.Status})
                         </script>

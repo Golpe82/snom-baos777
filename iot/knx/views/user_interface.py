@@ -26,6 +26,7 @@ def index(request):
         'page': 'Groupaddresses',
         'addresses': data,
         'knx_gateway': settings.KNX_ROOT,
+        'gateway_ip': settings.GATEWAY_IP
         }
 
     return render(request, 'knx/groupaddresses.html', context)

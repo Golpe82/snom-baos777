@@ -63,7 +63,7 @@ def main():
                 raw_value = message.get("value")
                 value = als_parser.to_lux(raw_value)
                 DBActions().als_save(raw_value, value)
-                status = KNXActions().get_status("1/2/20")
+                status = KNXActions().get_status("1/1/20")
 
                 logging.info(f"Status: { status }")
 
