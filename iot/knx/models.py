@@ -1,13 +1,20 @@
 from django.db import models
 
-# class KnxStatus(models.Model):
-#     groupaddress_name = models.CharField(max_length=50)
-#     groupaddress = models.CharField(max_length=9)
-#     datapointtype = models.CharField(max_length=15)
-#     value = models.CharField(max_length=9)
-#     timestamp = 
 
-#     pass
+class KnxMonitor(models.Model):
+    groupaddress_name = models.CharField(max_length=50)
+    groupaddress = models.CharField(max_length=9)
+    datapoint_type = models.CharField(max_length=15)
+    status = models.CharField(max_length=9)
+    raw_frame = models.CharField(max_length=16384, default=0)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+class KnxStatus(models.Model):
+    groupaddress_name = models.CharField(max_length=50)
+    groupaddress = models.CharField(max_length=9)
+    status = models.CharField(max_length=9)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
 
 class AlsStatus(models.Model):
     device_name = models.CharField(max_length=4, default="D735")

@@ -1,18 +1,18 @@
 """Views for app knx"""
 import os
-import csv
 import subprocess
-import requests
+import logging
 
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from knx import groupaddresses, upload
-from knx.models import AlsStatus, BrightnessRules
+from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus
 
 APP = 'KNX'
+logging.basicConfig(level=logging.DEBUG)
 
 def index(request):
     data = None
@@ -26,10 +26,10 @@ def index(request):
         'page': 'Groupaddresses',
         'addresses': data,
         'knx_gateway': settings.KNX_ROOT,
+        'gateway_ip': settings.GATEWAY_IP
         }
 
     return render(request, 'knx/groupaddresses.html', context)
-
 
 def minibrowser(request):
     if os.path.exists(settings.XML_TARGET_PATH):
@@ -55,23 +55,6 @@ def upload_file(request):
     }
 
     return render(request, 'knx/upload.html', context)
-
-
-@csrf_exempt
-def post_sensor_value(request):
-    if AlsStatus.objects.count() > 100:
-        first = AlsStatus.objects.first().id
-        AlsStatus.objects.filter(id=first).delete()
-
-    AlsStatus.objects.create(
-        mac_address=request.POST.get("mac_address"),
-        ip_address=request.POST.get("ip_address"),
-        raw_value=request.POST.get("raw_value"),
-        value= request.POST.get("value")
-    )
-
-    return redirect("knx/values/")
-    
 
 def render_sensor_values(request):
     if BrightnessRules.objects.filter(mac_address="000413A34795"):
@@ -99,10 +82,8 @@ def render_sensor_values(request):
 
 def get_rules(request):
     rules = BrightnessRules.objects.filter(mac_address="000413A34795").values("min_value", "max_value")
-    print(rules)
 
     return HttpResponse(rules)
-
 
 def dect_ule(request):
     CMD_ROOT = "/usr/local/opend/openD/dspg/base/ule-hub/"
@@ -120,3 +101,27 @@ def dect_ule(request):
     }
 
     return render(request, "knx/dect_ule.html", context)
+
+def knx_monitor(request):
+    monitor = KnxMonitor.objects.all()
+
+    context = {
+        "monitor": monitor.values,
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'MONITOR',
+    }
+
+    return render(request, "knx/knx_monitor.html", context)
+
+def knx_status(request):
+    status = KnxStatus.objects.all()
+
+    context = {
+        "status": status,
+        'project': settings.PROJECT_NAME,
+        'app': APP,
+        'page': 'STATUS',
+    }
+
+    return render(request, "knx/knx_status.html", context)

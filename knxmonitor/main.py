@@ -1,15 +1,18 @@
-''' Main programm for reading knx bus traffic'''
+""" Main programm for reading knx bus traffic"""
 import serial
 from datetime import datetime
+import logging
 
-import knx_monitor as mon
+from knx_monitor import DBActions
 
-DEVICE = '/dev/ttyAMA0'
+DEVICE = "/dev/ttyAMA0"
 BAUDRATE = 19200
 CHARACTER_SIZE = serial.EIGHTBITS
 PARITY = serial.PARITY_EVEN
-STARTBYTE = b'\x68'
-STOPBYTE = b'\x16'
+STARTBYTE = b"\x68"
+STOPBYTE = b"\x16"
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def main():
@@ -20,16 +23,8 @@ def main():
             frame = bytearray(STARTBYTE)
             frame.extend(connection.read_until(STOPBYTE))
 
-            groupaddress = mon.get_groupaddress(frame).get('formatted')
-            groupaddress_info = mon.get_groupaddress_info(groupaddress)
-            datapoint_type = groupaddress_info.get('datapoint type')
-
-            # save status
-            groupaddress_info['status'] = mon.get_value(
-                frame, datapoint_type).get('formatted')
-            groupaddress_info['timestamp'] = datetime.now().strftime(
-                '%Y-%m-%d %H:%M:%S')
-            mon.save_status(groupaddress_info)
+            DBActions.monitor_status_save(frame)
+            DBActions.status_save(frame)
 
 
 if __name__ == "__main__":

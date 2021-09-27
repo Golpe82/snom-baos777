@@ -5,37 +5,41 @@ from pyparsing import Word, hexnums, alphanums, Combine, nums, string, Regex
 import subprocess
 import re
 import getmac
-import csv
 import requests
+import logging
 
-CONF_FILE = '/etc/rsyslog.d/als_snom.conf'
-SYSLOG_FILE = '/usr/local/gateway/snomsyslogknx/als_snom.log'
-MSG_KEYS = ["timestamp", "ip address", "mac",
-            "syslog class", "snom class", "content"]
+
+CONF_FILE = "/etc/rsyslog.d/als_snom.conf"
+SYSLOG_FILE = "/usr/local/gateway/snomsyslogknx/als_snom.log"
+MSG_KEYS = ["timestamp", "ip address", "mac", "syslog class", "snom class", "content"]
 BOOTSTRAP = {
-    'success': 'alert-success',
-    'info': 'alert-info',
-    'warning': 'alert-warning',
-    'danger': 'alert-danger',
-    'primary': 'alert-primary',
-    'secondary': 'alert-secondary',
-    'light': 'alert-light',
-    'dark': 'alert-dark'
+    "success": "alert-success",
+    "info": "alert-info",
+    "warning": "alert-warning",
+    "danger": "alert-danger",
+    "primary": "alert-primary",
+    "secondary": "alert-secondary",
+    "light": "alert-light",
+    "dark": "alert-dark",
 }
 
 POST_STATUS_URL = "http://localhost:8000/knx/values"
 # GET_RULES_URL = "http://localhost:8000/knx/rules/"
 KNX_URL = "http://localhost:1234/"
+GET_STATUS_URL_ROOT = "http://localhost:8000/knx/status/"
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 def add_ip_client(ip_address):
-    MAC = str(getmac.get_mac_address(ip=ip_address)).replace(":", '')
+    MAC = str(getmac.get_mac_address(ip=ip_address)).replace(":", "")
     TEMPLATE = (
         f'$template snom{MAC}, "{ SYSLOG_FILE }"\n'
         f':fromhost-ip, isequal, "{ ip_address }" -?snom{MAC}\n'
-        f'& stop\n'
+        f"& stop\n"
     )
 
-    with open(CONF_FILE, 'a+') as als_log:
+    with open(CONF_FILE, "a+") as als_log:
         content = als_log.readlines()
 
         if TEMPLATE not in content:
@@ -43,12 +47,13 @@ def add_ip_client(ip_address):
 
     subprocess.call(["systemctl", "restart", "rsyslog"])
 
+
 def get_phones_info():
     IP = "\d+\.\d+\.\d+\.\d+"
     MAC = "00041[a-f0-9]+"
     phones = []
-    PHONE_ITEM = {'IP': "no IP", 'MAC': "no MAC"}
-    
+    PHONE_ITEM = {"IP": "no IP", "MAC": "no MAC"}
+
     with open(CONF_FILE) as syslog_config:
         phone_item = PHONE_ITEM
 
@@ -71,18 +76,20 @@ def get_phones_info():
 
     return phones
 
-def assign_groupaddresses(phone_ip,ga_read, ga_write):
+
+def assign_groupaddresses(phone_ip, ga_read, ga_write):
     for phone_info in get_phones_info():
         if phone_info.get("IP") == phone_ip:
             phone_info.update(GA_READ=ga_read, GA_WRITE=ga_write)
 
+
 def to_lux(raw_value):
-    value = int(raw_value)*6.5/100
+    value = int(raw_value) * 6.5 / 100
 
     return round(value, 2)
 
-class DBActions(object):
 
+class DBActions(object):
     def als_save(self, raw_value, value):
         try:
             requests.post(
@@ -91,20 +98,20 @@ class DBActions(object):
                     "mac_address": get_phones_info()[0].get("MAC"),
                     "ip_address": get_phones_info()[0].get("IP"),
                     "raw_value": raw_value,
-                    "value":  value
-                }
+                    "value": value,
+                },
             )
 
         except:
-            print(f"Could not save data with post. URL = { POST_STATUS_URL }")
+            logging.info(f"Could not save data with post. URL = { POST_STATUS_URL }")
+
 
 class KNXActions(object):
-
     def __init__(self):
         self.groupaddress = "1/1/21"
         self.min_value = 100
         self.max_value = 110
-        #self.rules = requests.get(GET_RULES_URL)
+        # self.rules = requests.get(GET_RULES_URL)
 
     def knx_dimm_relative(self, value):
         if value < self.min_value:
@@ -112,29 +119,42 @@ class KNXActions(object):
 
         elif value > self.max_value:
             self.knx_decrease()
-    
+
     def knx_increase(self):
         VALUE = "-plus"
 
         try:
-            requests.get(f'{ KNX_URL }{ self.groupaddress }{ VALUE }')
+            requests.get(f"{ KNX_URL }{ self.groupaddress }{ VALUE }")
 
         except:
-            print('Could not increase. KNX gateway not reachable or invalid groupaddress/value')
+            logging.info(
+                "Could not increase. KNX gateway not reachable or invalid groupaddress/value"
+            )
 
     def knx_decrease(self):
         VALUE = "-minus"
-        
+
         try:
-            requests.get(f'{ KNX_URL }{ self.groupaddress }{ VALUE }')
+            requests.get(f"{ KNX_URL }{ self.groupaddress }{ VALUE }")
 
         except:
-            print('Could not decrease. KNX gateway not reachable or invalid groupaddress/value')
+            logging.info(
+                f"Could not decrease { self.groupaddress }. KNX gateway not reachable or invalid groupaddress/value"
+            )
+
+    def get_status(self, request_groupaddress):
+        try:
+            status = requests.get(f"{ GET_STATUS_URL_ROOT }{ request_groupaddress }/")
+
+            return status.json().get("Status")
+
+        except:
+            logging.info(f"No status for groupaddress { request_groupaddress }")
 
 
 class RSyslogParser(object):
-    """Class to parse snom desktop syslog files 
-    e.g. 
+    """Class to parse snom desktop syslog files
+    e.g.
     Feb 23 08:29:18.156 [DEBUG0] PHN: apply_value: hide_identity = 'false', set.need_apply: 0, finished: 1, need reboot to apply: 0
 
     Feb 24 16:20:08 10.110.16.59 000413A34795 [INFO  ] PHN: ALS_VALUE:180
@@ -164,17 +184,22 @@ class RSyslogParser(object):
 
         # message still has ending ']'
         message = Combine(Regex(".*"))
-        #message = Regex(".*")
+        # message = Regex(".*")
 
         # pattern build
-        self.__pattern = timestamp + ip_address + \
-            mac + syslog_class + snom_class + message
+        self.__pattern = (
+            timestamp + ip_address + mac + syslog_class + snom_class + message
+        )
         # print(self.__pattern)
 
     def tail(self, f, n, offset=0):
         # when tail fails, log file not existing we return an empty list
         lines = []
-        with subprocess.Popen(['tail', '-n', '%s' % (n + offset), f], stdout=subprocess.PIPE, encoding='utf-8') as proc:
+        with subprocess.Popen(
+            ["tail", "-n", "%s" % (n + offset), f],
+            stdout=subprocess.PIPE,
+            encoding="utf-8",
+        ) as proc:
             lines = proc.stdout.readlines()
             proc.wait()
 
@@ -182,7 +207,7 @@ class RSyslogParser(object):
 
     def get_message(self, message, content):
         message_dict = self.to_dict(message)
-        message_dict.update({'bootstrap': BOOTSTRAP.get('info')})
+        message_dict.update({"bootstrap": BOOTSTRAP.get("info")})
         content_value = self.get_content_value(message_dict)
 
         return self.update_message(message_dict, content_value)
@@ -201,7 +226,6 @@ class RSyslogParser(object):
         return match.group(0)
 
     def update_message(self, message, value):
-        message.update(
-            {'bootstrap': BOOTSTRAP.get('success'), 'value': value})
+        message.update({"bootstrap": BOOTSTRAP.get("success"), "value": value})
 
         return message
