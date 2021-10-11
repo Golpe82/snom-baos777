@@ -1,0 +1,67 @@
+"""All Profiles Defined in Han-Fun protocol"""
+
+import logging
+from enum import Enum, IntEnum
+
+
+FORMAT = "%(asctime)s:%(levelname)s:%(message)s"
+LOG_LEVEL = logging.DEBUG
+
+logging.basicConfig(format=FORMAT, level=LOG_LEVEL)
+
+
+class HomeControlProfiles(IntEnum):
+    ON_OFF_SWITCHABLE = 0x0100
+    ON_OFF_SWITCH = 0x0101
+    LEVEL_CONTROLLABLE = 0x0102
+    LEVEL_CONTROL = 0x0103
+    LEVEL_CONTROLLABLE_SWITCHABLE = 0x0104
+    LEVEL_CONTROL_SWITCH = 0x0105
+    AC_OUTLET = 0x0106
+    AC_OUTLET_WITH_POWER_METERING = 0x0107
+    SIMPLE_LIGHT = 0x0108
+    DIMMABLE_LIGHT = 0x0109
+    DIMMER_SWITCH = 0x010A
+    DOOR_LOCK = 0x010B
+    DOOR_BELL = 0x010C
+    POWER_METER = 0x010D
+    TEMPERATURE_SENSOR = 0x010E
+    HUMIDITY_SENSOR = 0x010F
+    AIR_PRESSURE_SENSOR = 0x0110
+    BUTTON = 0x0111
+    CONTROLLABLE_THERMOSTAT = 0x0112
+    LED = 0x0113
+    ENVIROMENT_MONITOR = 0x0114
+    COLOUR_BULB = 0x0115
+    DIMMABLE_COLOUR_BULB = 0x0116
+    TRACKER = 0x0117
+    SIMPLE_KEYPAD = 0x0118
+
+
+class SecurityProfiles(IntEnum):
+    DETECTOR = 0x0200
+    DOOR_OPEN_CLOSE_DETECTOR = 0x0201
+    WINDOW_OPEN_CLOSE_DETECTOR = 0x0202
+    MOTION_DETECTOR = 0x0203
+    SMOKE_DETECTOR = 0x0204
+    GAS_DETECTOR = 0x0205
+    FLOOD_DETECTOR = 0x0206
+    GLASS_BREAK_DETECTOR = 0x0207
+    VIBRATION_DETECTOR = 0x0208
+    LIGHT_SENSOR = 0x0209
+    SIREN = 0x0280
+    ALERTABLE = 0x0281
+
+
+class HomecareProfiles(IntEnum):
+    PENDANT = 0x0300
+
+
+class ApplicationProfiles(IntEnum):
+    UI_LOCK = 0x0401
+    USER_INTERFACE = 0x0410
+    GENERIC_APPLICATION_LOGIC = 0x0411
+
+
+class ProprietaryProfiles(Enum):
+    PROPRIETARY = range(0xFF00, 0xFF)
