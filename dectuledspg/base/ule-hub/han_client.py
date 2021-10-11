@@ -14,6 +14,7 @@ from __future__ import print_function
 import threading
 import socket
 import collections
+import logging
 
 
 EOL = "\r\n"
@@ -247,7 +248,7 @@ class DevTableParser(object):
         }
 
         def __str__(self):
-            return "Device(id={}, ipui={})".format(self.id, self.ipui)
+            return f"id={ self.id } | ipui={ self.ipui } "
 
     class Unit:
         _map = {
@@ -659,6 +660,11 @@ class HANClient(object):
             msg.params["DATA"] = msg.encode(data)
 
         self.send(msg)
+        logging.info(
+            f"Raw message { msg.to_string() } sent to device { msg.params['DST_DEV_ID'] }, "
+            f"unit { msg.params['DST_UNIT_ID'] } "
+            f"data { data }-{msg.params['DATA']}"
+        )
         return cookie
 
     def delete_dev(self, device_id, local=False):

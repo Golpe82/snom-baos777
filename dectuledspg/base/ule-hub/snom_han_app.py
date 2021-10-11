@@ -8,21 +8,21 @@ HAN App
 from __future__ import unicode_literals
 import shlex
 import sys
-import datetime
 import requests
 import logging
+
 from prompt_toolkit import prompt
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.contrib.completers import WordCompleter
 
 import han_client
+from snom_han_handlers import SnomHANHandlers as snm_handler
 
 
 FORMAT = '%(asctime)s:%(levelname)s:%(message)s'
 LOG_LEVEL = logging.DEBUG
 
 logging.basicConfig(format=FORMAT, level=LOG_LEVEL)
-
 
 #
 # callback handlers
@@ -45,35 +45,6 @@ def handle_dev_registered(client, msg):
 def handle_reg_closed(client, msg):
     reason = msg.params["REASON"]
     logging.info("Registration window closed (reason: {})".format(reason))
-
-
-def handle_fun_msg(client, msg):
-    device_id = int(msg.params["SRC_DEV_ID"])
-    unit_id = int(msg.params["SRC_UNIT_ID"])
-    interface_id = int(msg.params["INTRF_ID"])
-
-    if unit_id == 0 and interface_id == 0x0115:
-        # device management unit, keep-alive interface
-        logging.info("Device {}: keep alive".format(device_id))
-
-    if unit_id == 1:
-        # voice call unit
-        if msg.data[5]:
-            logging.info("open")
-            requests.get("http://192.168.178.47:1234/1/2/10-an")
-        else:
-            logging.info("close")
-            requests.get("http://192.168.178.47:1234/1/2/10-aus")
-        logging.info("Device {}: message from voice call unit".format(device_id))
-
-    if unit_id == 2:
-        # smoke unit
-        logging.info("Device {}: message from smoke unit".format(device_id))
-
-    if unit_id == 3:
-        # ULEasy unit (raw data)
-        data = msg.data.decode("utf-8")
-        logging.info("Device {}: message from raw data unit: '{}'".format(device_id, data))
 
 
 def handle_fun_msg_res(client, msg):
@@ -116,15 +87,27 @@ def send_data(client_handle, device_id, data):
     """
     # send raw data to Unit 3 (ULEasy)
     cookie = client_handle.fun_msg(
+
+        ### Message network layer:
         src_dev_id=0,
         src_unit_id=0,
         dst_dev_id=device_id,
-        dst_unit_id=3,  # ULEasy unit
-        interface_type=0,  # server
-        interface_id=0x7f16,  # ULeasy interface
-        interface_member=1,
+        # dst_unit_id=3,  # ULEasy unit
+        dst_unit_id=0,
+
+        ### Message transport layer:
+        # reserved for future
+
+        ### Message application layer:
+        #msg_type = 0x01, # command type
+        # interface_type=0,  # server
+        interface_type=0x01,  # client (destination when message type =  command)
+        # interface_id=0x7f16,  # ULeasy interface
+        interface_id=0x400,  # = profile!
+        interface_member=0x01,
         data=data,
     )
+
     return cookie
 
 #
@@ -346,7 +329,7 @@ registered.
         return
 
     send_data(client_handle, device_id, user_data)
-    logging.info("Device {}: message has been queued for delivery ...".format(device_id))
+    logging.info(f"Device { device_id }: message data { user_data } has been queued for delivery ...")
 
 
 def debug_print(client_handle, argv):
@@ -503,7 +486,7 @@ set_eeprom_parameter - sets the value of an EEPROM parameter
 SYNOPSIS
 set_eeprom_parameter <parameter hex_value | 'list'>
 
-DESCRIPTION
+DESCRIPTION            print(data)
 Set the value of the specified EEPROM paramter. Returns an error if the parameter
 does not exist or is not writable, or if the hex_value length does not match the
 required length (for example if a parameter requires a 16 bit value entering ABC
@@ -657,15 +640,18 @@ def main():
     client_handle.set_rx_message_callback(process_rx_data)
     client_handle.subscribe("dev_registered", handle_dev_registered)
     client_handle.subscribe("reg_closed", handle_reg_closed)
-    client_handle.subscribe("fun_msg", handle_fun_msg)
     client_handle.subscribe("fun_msg_res", handle_fun_msg_res)
     client_handle.subscribe("call_establish_indication", handle_call_establish_ind)
     client_handle.subscribe("dev_released_from_call", handle_call_dev_released_ind)
     client_handle.subscribe("call_release_indication", handle_call_release_ind)
 
+    ### snom custom handlers
+    snom_handler = snm_handler()
+    client_handle.subscribe("fun_msg", snom_handler.handle_fun_msg)
+
     client_handle.start()
     logging.info("HAN client started")
-    logging.info(f"{client_handle.get_dev_table().params}")
+    logging.info(client_handle.get_dev_table().devices[0])
 
     history = InMemoryHistory()
 
