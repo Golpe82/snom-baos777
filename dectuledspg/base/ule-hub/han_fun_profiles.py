@@ -1,9 +1,11 @@
 """All Profiles Defined in Han-Fun protocol"""
 
 import logging
+import json
 from enum import Enum, IntEnum
 
 
+DEBUG = True
 FORMAT = "%(asctime)s:%(levelname)s:%(message)s"
 LOG_LEVEL = logging.DEBUG
 
@@ -64,4 +66,76 @@ class ApplicationProfiles(IntEnum):
 
 
 class ProprietaryProfiles(Enum):
-    PROPRIETARY = range(0xFF00, 0xFF)
+    PROPRIETARY = range(0xFF00, 0xFFFF)
+
+
+profiles = {
+    "Homecontrol": {
+        str(profile): hex(profile.value) for profile in HomeControlProfiles
+    },
+    "Security": {str(profile): hex(profile.value) for profile in SecurityProfiles},
+    "Homecare": {str(profile): hex(profile.value) for profile in HomecareProfiles},
+    "Application": {
+        str(profile): hex(profile.value) for profile in ApplicationProfiles
+    },
+    "Proprietary": {
+        str(profile): str(profile.value) for profile in ProprietaryProfiles
+    },
+}
+
+
+def get_profile_groups(to_json=False):
+    if to_json:
+        return json.dumps(profiles, sort_keys=True, indent=4)
+
+    return profiles
+
+
+def get_profile_group(group, to_json=False):
+    if group in profiles.keys():
+        if to_json:
+            profile_group = profiles.get(group, None)
+
+            return json.dumps(profile_group, sort_keys=True, indent=4)
+
+        return profiles.get(group, None)
+
+    return (
+        "\nWrong Han-Fun profile group.\n"
+        "Available groups:\n"
+        f"{ list(profiles.keys()) }"
+    )
+
+
+def get_profile_id(profile_name, to_json=False):
+    available_profiles = get_profile_groups()
+    profiles = {}
+
+    for profile_group in available_profiles.values():
+        for profile, uid in profile_group.items():
+            if profile.find(profile_name) > 0:
+                profiles[profile] = uid
+
+    if profiles:
+        if to_json:
+            return json.dumps(profiles, sort_keys=True, indent=4)
+
+        return profiles
+
+    return (
+        "\nNo such a profile.\n"
+        "Available profiles:\n"
+        f"{ json.dumps(available_profiles, sort_keys=True, indent=4) }"
+    )
+
+
+if __name__ == "__main__":
+    if DEBUG:
+        profile_group_to_print = "Homecontrol"
+        logging.info(
+            "\n---> You are seeing this because DEBUG is set to 'True'.\n"
+            "---> Set DEBUG to 'False' to omit this output:\n"
+        )
+        logging.info(get_profile_groups(to_json=True))
+        logging.info(get_profile_group("Homecontrol", to_json=True))
+        logging.info(get_profile_id("AC_OUTLET", to_json=True))
