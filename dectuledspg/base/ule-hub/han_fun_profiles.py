@@ -109,18 +109,18 @@ def get_profile_group(group, to_json=False):
 
 def get_profile_id(profile_name, to_json=False):
     available_profiles = get_profile_groups()
-    profiles = {}
+    requested_profiles = {}
 
     for profile_group in available_profiles.values():
         for profile, uid in profile_group.items():
             if profile.find(profile_name) > 0:
-                profiles[profile] = uid
+                requested_profiles[profile] = uid
 
-    if profiles:
+    if requested_profiles:
         if to_json:
-            return json.dumps(profiles, sort_keys=True, indent=4)
+            return json.dumps(requested_profiles, sort_keys=True, indent=4)
 
-        return profiles
+        return requested_profiles
 
     return (
         "\nNo such a profile.\n"
@@ -131,11 +131,12 @@ def get_profile_id(profile_name, to_json=False):
 
 if __name__ == "__main__":
     if DEBUG:
-        profile_group_to_print = "Homecontrol"
+        PROFILE_GROUP_EXAMPLE = "Homecontrol"
+        PROFILE_EXAMPLE = "AC_OUTLET"
         logging.info(
             "\n---> You are seeing this because DEBUG is set to 'True'.\n"
             "---> Set DEBUG to 'False' to omit this output:\n"
         )
         logging.info(get_profile_groups(to_json=True))
-        logging.info(get_profile_group("Homecontrol", to_json=True))
-        logging.info(get_profile_id("AC_OUTLET", to_json=True))
+        logging.info(get_profile_group(PROFILE_GROUP_EXAMPLE, to_json=True))
+        logging.info(get_profile_id(PROFILE_EXAMPLE, to_json=True))
