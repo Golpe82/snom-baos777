@@ -663,7 +663,7 @@ class HANClient(object):
         logging.info(
             f"Raw message { msg.to_string() } sent to device { msg.params['DST_DEV_ID'] }, "
             f"unit { msg.params['DST_UNIT_ID'] } "
-            f"data { data }-{msg.params['DATA']}"
+            #f"data { data }-{msg.params['DATA']}"
         )
         return cookie
 

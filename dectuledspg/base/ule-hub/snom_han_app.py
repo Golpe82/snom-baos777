@@ -16,7 +16,7 @@ from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.contrib.completers import WordCompleter
 
 import han_client
-from snom_han_handlers import SnomHANHandlers as snm_handler
+import snom_han_handlers as snom_handler
 
 
 FORMAT = '%(asctime)s:%(levelname)s:%(message)s'
@@ -617,7 +617,7 @@ help command - prints help on the specified command
 commands = {
     'open_reg': open_reg,
     'close_reg': close_reg,
-    'send': send_user_data,
+    'send': snom_handler.send_user_data,
     'call': start_voice_call,
     'release': end_voice_call,
     'devices': list_devices,
@@ -646,7 +646,6 @@ def main():
     client_handle.subscribe("call_release_indication", handle_call_release_ind)
 
     ### snom custom handlers
-    snom_handler = snm_handler()
     client_handle.subscribe("fun_msg", snom_handler.handle_fun_msg)
 
     client_handle.start()
