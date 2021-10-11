@@ -1,44 +1,39 @@
 import requests
 import logging
 
+from han_fun_interfaces import InterfaceTypes, OnOff
+
 
 FORMAT = '%(asctime)s:%(levelname)s:%(message)s'
 LOG_LEVEL = logging.DEBUG
 
 logging.basicConfig(format=FORMAT, level=LOG_LEVEL)
 
+
+# Actions
+
 def send_data(client_handle, device_id, data):
-    """Sends RAW <data> to <device_id>
-
-    All ULE expansion boards are configured to have a Unit 3 which will accept
-    any message payload. Send anything you want.
-    """
-    # send raw data to Unit 3 (ULEasy)
     cookie = client_handle.fun_msg(
-
         ### Message network layer:
-        src_dev_id=0,
-        src_unit_id=2, #unit id of concentrator = 0x02
+        src_dev_id=0x00,
+        src_unit_id=0x02, #unit id of concentrator = 0x02
         dst_dev_id=device_id,
-        # dst_unit_id=3,  # ULEasy unit
-        dst_unit_id=1,
+        dst_unit_id=0x01,
 
         ### Message transport layer:
         # reserved for future
 
         ### Message application layer:
-        msg_type = 1, # command type
-        interface_type=1,  # server
-        #interface_type=0x01,  # client (destination when message type =  command)
-        # interface_id=0x7f16,  # ULeasy interface
-        interface_id=512,  
-        interface_member=3,
+        msg_type = 0x01, # command type
+        interface_type=InterfaceTypes.SERVER.value,
+        interface_id=OnOff.IFACE_ID.value,  
+        interface_member=OnOff.TOGGLE.value,
         data="",
     )
 
     return cookie
 
-"""callback handlers"""
+# callback handlers
 
 def handle_fun_msg(client, msg):
     device_id = int(msg.params["SRC_DEV_ID"])
@@ -49,7 +44,7 @@ def handle_fun_msg(client, msg):
 
     if unit_id == 0 and interface_id == 0x0115:
         # device management unit, keep-alive interface
-        logging.info("Device {}: keep alive".format(device_id))
+        logging.info(f"Device { device_id }: keep alive")
 
     if unit_id == 1:
         # voice call unit
@@ -65,13 +60,15 @@ def handle_fun_msg(client, msg):
 
     if unit_id == 2:
         # smoke unit
-        logging.info("Device {}: message from smoke unit".format(device_id))
+        logging.info(f"Device { device_id }: message from smoke unit")
 
     if unit_id == 3:
         # ULEasy unit (raw data)
         data = msg.data.decode("utf-8")
-        logging.info("Device {}: message from raw data unit: '{}'".format(device_id, data))
+        logging.info(f"Device { device_id }: message from raw data unit: '{ data }'")
 
+
+# console commands
 
 def send_user_data(client_handle, argv):
     """
@@ -86,17 +83,18 @@ def send_user_data(client_handle, argv):
     must not contain spaces. Returns a fail if the specified device is not
     registered.
     """
+    all_arguments = len(argv) == 3
 
-    if len(argv) == 3:
+    if all_arguments:
         _, device_id, user_data = argv
     else:
-        print("send requires a device ID and data")
+        logging.error("send requires a device ID and data")
         return
 
     try:
         device_id = int(device_id)
     except ValueError:
-        logging.info(f"The device ID ({ device_id }) has to be a number")
+        logging.info(f"The device ID ({ device_id }) must be a number")
         return
 
     send_data(client_handle, device_id, user_data)
