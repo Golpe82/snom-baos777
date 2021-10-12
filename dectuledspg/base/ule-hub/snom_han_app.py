@@ -19,7 +19,7 @@ import han_client
 import snom_han_handlers as snom_handler
 
 
-FORMAT = '%(asctime)s:%(levelname)s:%(message)s'
+FORMAT = "%(asctime)s:%(levelname)s:%(message)s"
 LOG_LEVEL = logging.DEBUG
 
 logging.basicConfig(format=FORMAT, level=LOG_LEVEL)
@@ -87,19 +87,16 @@ def send_data(client_handle, device_id, data):
     """
     # send raw data to Unit 3 (ULEasy)
     cookie = client_handle.fun_msg(
-
         ### Message network layer:
         src_dev_id=0,
         src_unit_id=0,
         dst_dev_id=device_id,
         # dst_unit_id=3,  # ULEasy unit
         dst_unit_id=0,
-
         ### Message transport layer:
         # reserved for future
-
         ### Message application layer:
-        #msg_type = 0x01, # command type
+        # msg_type = 0x01, # command type
         # interface_type=0,  # server
         interface_type=0x01,  # client (destination when message type =  command)
         # interface_id=0x7f16,  # ULeasy interface
@@ -109,6 +106,7 @@ def send_data(client_handle, device_id, data):
     )
 
     return cookie
+
 
 #
 # commands
@@ -240,7 +238,7 @@ delete device_id * - where * is not y or Y, blacklists the device for future del
         return
 
     if len(argv) == 3:
-        local_delete = (argv[2].lower() == "y")
+        local_delete = argv[2].lower() == "y"
     else:
         local_delete = False
 
@@ -276,10 +274,12 @@ device is not registered.
         dst_dev_id=device_id,
         dst_unit_id=1,  # ULE Voice Call unit
         interface_type=1,  # server
-        interface_id=0x7f11,  # ULE Voice Call interface
+        interface_id=0x7F11,  # ULE Voice Call interface
         interface_member=1,
     )
-    logging.info("Device {}: message has been queued for delivery ...".format(device_id))
+    logging.info(
+        "Device {}: message has been queued for delivery ...".format(device_id)
+    )
 
 
 def end_voice_call(client_handle, argv):
@@ -329,7 +329,9 @@ registered.
         return
 
     send_data(client_handle, device_id, user_data)
-    logging.info(f"Device { device_id }: message data { user_data } has been queued for delivery ...")
+    logging.info(
+        f"Device { device_id }: message data { user_data } has been queued for delivery ..."
+    )
 
 
 def debug_print(client_handle, argv):
@@ -375,7 +377,7 @@ OPTIONS
 open_reg - opens the base for 120 seconds
 open_reg * - opens the base for * seconds
     """
-    open_duration = "120"   # default value
+    open_duration = "120"  # default value
 
     if len(argv) == 2:
         if not argv[1].isdigit():
@@ -553,14 +555,16 @@ def eeprom_request_valid(param, value):
     request_valid = True
 
     try:
-        int(value, 16)    # check this is a hex number, will hit except ValueError if not
+        int(value, 16)  # check this is a hex number, will hit except ValueError if not
     except ValueError:
         print("Error: the value must be a hex number")
         request_valid = False
 
     length = han_client.EEPROM_PARAMS[param]
     if not len(value) == length * 2:
-        print("Error: the value is the wrong length, it has to be {} bytes".format(length))
+        print(
+            "Error: the value is the wrong length, it has to be {} bytes".format(length)
+        )
         request_valid = False
 
     return request_valid
@@ -605,32 +609,34 @@ help command - prints help on the specified command
         print("The following commands are available, 'help cmd' for more information")
         command_list = commands.keys()
         for command in command_list:
-            print('  ' + command)
+            print("  " + command)
     else:
         try:
             cmd = commands.get(argv[1])
             print(cmd.__doc__)
         except TypeError:
-            print("'{}' is not a command. 'help' for a list of commands".format(argv[1]))
+            print(
+                "'{}' is not a command. 'help' for a list of commands".format(argv[1])
+            )
 
 
 commands = {
-    'open_reg': open_reg,
-    'close_reg': close_reg,
-    'send': snom_handler.send_user_data,
-    'call': start_voice_call,
-    'release': end_voice_call,
-    'devices': list_devices,
-    'device_info': device_info,
-    'delete': delete_device,
-    'get_black_list': get_black_list_dev_table,
-    'get_sw_version': get_software_version,
-    'get_hw_version': get_hardware_version,
-    'get_eeprom_parameter': get_eeprom_parameter,
-    'set_eeprom_parameter': set_eeprom_parameter,
-    'debug_print': debug_print,
-    'help': help_on_commands,
-    'q': end_han_app,
+    "open_reg": open_reg,
+    "close_reg": close_reg,
+    "send": snom_handler.send_user_data,
+    "call": start_voice_call,
+    "release": end_voice_call,
+    "devices": list_devices,
+    "device_info": device_info,
+    "delete": delete_device,
+    "get_black_list": get_black_list_dev_table,
+    "get_sw_version": get_software_version,
+    "get_hw_version": get_hardware_version,
+    "get_eeprom_parameter": get_eeprom_parameter,
+    "set_eeprom_parameter": set_eeprom_parameter,
+    "debug_print": debug_print,
+    "help": help_on_commands,
+    "q": end_han_app,
 }
 
 
@@ -659,11 +665,13 @@ def main():
     command_completer = WordCompleter(command_list, ignore_case=True)
 
     while True:
-        user_command = prompt("> ",
-                              history=history,
-                              patch_stdout=True,
-                              completer=command_completer,
-                              complete_while_typing=False)
+        user_command = prompt(
+            "> ",
+            history=history,
+            patch_stdout=True,
+            completer=command_completer,
+            complete_while_typing=False,
+        )
         argv = shlex.split(user_command)
 
         if not argv:

@@ -33,9 +33,16 @@ class FunctionalInterfaces(IntEnum):
 
 class OnOff(IntEnum):
     IFACE_ID = 0x0200
-    OFF = 0x01
-    ON = 0X02
+    ON = 0x01
+    OFF = 0X02
     TOGGLE = 0X03
+
+    @classmethod
+    def get_on_off_commands(cls):
+        names = [item.name.lower() for item in cls]
+        values = [item.value for item in cls]
+
+        return dict(zip(names, values))
 
 
 class ReserverdInterfaces(Enum):
