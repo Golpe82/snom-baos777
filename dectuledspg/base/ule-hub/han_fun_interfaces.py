@@ -11,6 +11,10 @@ LOG_LEVEL = logging.DEBUG
 
 logging.basicConfig(format=FORMAT, level=LOG_LEVEL)
 
+class InterfaceTypes(IntEnum):
+    CLIENT = 0X00
+    SERVER = 0X01
+
 
 class FunctionalInterfaces(IntEnum):
     ALERT = 0x0100
@@ -26,6 +30,19 @@ class FunctionalInterfaces(IntEnum):
     VISUAL_CONTROL = 0x0305
     AIR_PRESSURE = 0x0306
     LIGHT_SENSOR = 0x0307
+
+class OnOff(IntEnum):
+    IFACE_ID = 0x0200
+    ON = 0x01
+    OFF = 0X02
+    TOGGLE = 0X03
+
+    @classmethod
+    def get_on_off_commands(cls):
+        names = [item.name.lower() for item in cls]
+        values = [item.value for item in cls]
+
+        return dict(zip(names, values))
 
 
 class ReserverdInterfaces(Enum):
