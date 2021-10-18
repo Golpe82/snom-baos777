@@ -11,8 +11,11 @@ LOG_LEVEL = logging.DEBUG
 
 logging.basicConfig(format=FORMAT, level=LOG_LEVEL)
 
+class Profiles(IntEnum):
+    pass
 
-class HomeControlProfiles(IntEnum):
+
+class HomeControlProfiles(Profiles):
     ON_OFF_SWITCHABLE = 0x0100
     ON_OFF_SWITCH = 0x0101
     LEVEL_CONTROLLABLE = 0x0102
@@ -40,7 +43,7 @@ class HomeControlProfiles(IntEnum):
     SIMPLE_KEYPAD = 0x0118
 
 
-class SecurityProfiles(IntEnum):
+class SecurityProfiles(Profiles):
     DETECTOR = 0x0200
     DOOR_OPEN_CLOSE_DETECTOR = 0x0201
     WINDOW_OPEN_CLOSE_DETECTOR = 0x0202
@@ -55,11 +58,11 @@ class SecurityProfiles(IntEnum):
     ALERTABLE = 0x0281
 
 
-class HomecareProfiles(IntEnum):
+class HomecareProfiles(Profiles):
     PENDANT = 0x0300
 
 
-class ApplicationProfiles(IntEnum):
+class ApplicationProfiles(Profiles):
     UI_LOCK = 0x0401
     USER_INTERFACE = 0x0410
     GENERIC_APPLICATION_LOGIC = 0x0411

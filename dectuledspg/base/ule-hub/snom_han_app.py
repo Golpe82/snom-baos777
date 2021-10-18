@@ -16,6 +16,7 @@ from prompt_toolkit.contrib.completers import WordCompleter
 import snom_han_client
 import snom_handlers as snm_hndl
 import snom_commands as snm_cmd
+import snom_actions as snm_actn
 
 
 FORMAT = "%(asctime)s:%(levelname)s:%(message)s"
@@ -43,6 +44,8 @@ def main():
     # Make the list of commands for the completer
     command_list = snm_cmd.commands.keys()
     command_completer = WordCompleter(command_list, ignore_case=True)
+
+    logging.info(snm_actn.get_devices(client_handle))
 
     while True:
         user_command = prompt(

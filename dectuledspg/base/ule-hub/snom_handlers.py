@@ -2,9 +2,11 @@ import logging
 import requests
 
 import snom_actions as snm_actn
+from han_fun_profiles import Profiles
 
 FORMAT = "%(asctime)s:%(levelname)s:%(message)s"
 LOG_LEVEL = logging.DEBUG
+HAN_FUN_PROFILES = Profiles.__subclasses__()
 
 logging.basicConfig(format=FORMAT, level=LOG_LEVEL)
 
