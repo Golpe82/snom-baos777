@@ -53,7 +53,7 @@ def list_devices(client_handle, argv):
     while True:
         resp = client_handle.get_dev_table(index=index, count=count)
         for dev in resp.devices:
-            print(dev)
+            logging.info(dev)
 
         # If there are fewer devices than we have asked for we have retrieved them all,
         # otherwise we need to move the index and check if there are more.

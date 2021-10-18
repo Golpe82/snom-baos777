@@ -13,7 +13,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.contrib.completers import WordCompleter
 
-import han_client
+import snom_han_client
 import snom_handlers as snm_hndl
 import snom_commands as snm_cmd
 
@@ -24,7 +24,7 @@ LOG_LEVEL = logging.DEBUG
 logging.basicConfig(format=FORMAT, level=LOG_LEVEL)
 
 def main():
-    client_handle = han_client.HANClient()
+    client_handle = snom_han_client.HANClient()
     client_handle.set_debug_printing(0)
     client_handle.set_rx_message_callback(snm_hndl.process_rx_data)
     client_handle.subscribe("dev_registered", snm_hndl.handle_dev_registered)
