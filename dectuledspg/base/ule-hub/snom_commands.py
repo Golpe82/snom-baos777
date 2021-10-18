@@ -2,7 +2,12 @@ import sys
 import logging
 
 import han_client
-from snom_han_handlers import send_data
+import snom_actions as snm_actn
+
+FORMAT = "%(asctime)s:%(levelname)s:%(message)s"
+LOG_LEVEL = logging.DEBUG
+
+logging.basicConfig(format=FORMAT, level=LOG_LEVEL)
 
 
 def send_user_data(client_handle, argv):
@@ -33,7 +38,7 @@ def send_user_data(client_handle, argv):
         logging.info("The device ID (%s) must be a number", device_id)
         return
 
-    send_data(client_handle, device_id, user_data)
+    snm_actn.send_data(client_handle, device_id, user_data)
     logging.info(
         "Device %s: message data %s has been queued for delivery ...", device_id, user_data
     )
