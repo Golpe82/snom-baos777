@@ -79,35 +79,6 @@ def handle_call_release_ind(client, msg):
 #
 
 
-def send_data(client_handle, device_id, data):
-    """Sends RAW <data> to <device_id>
-
-    All ULE expansion boards are configured to have a Unit 3 which will accept
-    any message payload. Send anything you want.
-    """
-    # send raw data to Unit 3 (ULEasy)
-    cookie = client_handle.fun_msg(
-        ### Message network layer:
-        src_dev_id=0,
-        src_unit_id=0,
-        dst_dev_id=device_id,
-        # dst_unit_id=3,  # ULEasy unit
-        dst_unit_id=0,
-        ### Message transport layer:
-        # reserved for future
-        ### Message application layer:
-        # msg_type = 0x01, # command type
-        # interface_type=0,  # server
-        interface_type=0x01,  # client (destination when message type =  command)
-        # interface_id=0x7f16,  # ULeasy interface
-        interface_id=0x400,  # = profile!
-        interface_member=0x01,
-        data=data,
-    )
-
-    return cookie
-
-
 #
 # commands
 #
