@@ -40,12 +40,12 @@ def send_data(client_handle, device_id, requested_data):
     return cookie
 
 
-def get_devices(client_handle):
+def get_devices(client_handle, verbose=False):
     devices_objects = client_handle.get_dev_table()
     devices = {}
 
     for device_item in devices_objects.devices:
-        device = f"device { hex(device_item.id) }"
+        device = device_item.ipui
         devices[device] = {
             "name": "no name assigned",
             "location": "no location assigned",
@@ -54,24 +54,25 @@ def get_devices(client_handle):
             "ipui": device_item.ipui
         }
 
-        for unit_item in device_item.units:
-            unit = f"unit { hex(unit_item.id) }"
-            devices[device][unit] = {
-                "id": unit_item.id,
-                "hex id": hex(unit_item.id),
-                "type": unit_item.type,
-                "hex type": hex(unit_item.type),
-                "profile": get_han_fun_profile(unit_item.type)
-            }
-
-            for interface_item in unit_item.interfaces:
-                interface = f"interface { hex(interface_item.id) }"
-                devices[device][unit][interface]={
-                    "id": interface_item.id,
-                    "hex id": hex(interface_item.id),
-                    "type": interface_item.type,
-                    "hex type": hex(interface_item.type),
+        if verbose:
+            for unit_item in device_item.units:
+                unit = f"unit { hex(unit_item.id) }"
+                devices[device][unit] = {
+                    "id": unit_item.id,
+                    "hex id": hex(unit_item.id),
+                    "type": unit_item.type,
+                    "hex type": hex(unit_item.type),
+                    "profile": get_han_fun_profile(unit_item.type)
                 }
+
+                for interface_item in unit_item.interfaces:
+                    interface = f"interface { hex(interface_item.id) }"
+                    devices[device][unit][interface]={
+                        "id": interface_item.id,
+                        "hex id": hex(interface_item.id),
+                        "type": interface_item.type,
+                        "hex type": hex(interface_item.type),
+                    }
 
     return json.dumps(devices, sort_keys=True, indent=4)
 

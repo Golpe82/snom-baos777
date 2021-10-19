@@ -499,6 +499,20 @@ def help_on_commands(client_handle, argv):
                 "'{}' is not a command. 'help' for a list of commands".format(argv[1])
             )
 
+def devices_json(client_handle, argv):
+    command = argv[0]
+    option_name = 'verbose'
+
+    if len(argv) > 1:
+        option = argv[1]
+
+        if option == option_name:
+            logging.info(snm_actn.get_devices(client_handle, verbose=True))
+        else:
+            logging.warning(f"Wrong option.\nCommand: { command }\nOptions: [{ option_name }]")
+    else:
+        logging.info(snm_actn.get_devices(client_handle))
+    
 commands = {
     "open_reg": open_reg,
     "close_reg": close_reg,
@@ -506,6 +520,7 @@ commands = {
     "call": start_voice_call,
     "release": end_voice_call,
     "devices": list_devices,
+    "devices_json": devices_json,
     "device_info": device_info,
     "delete": delete_device,
     "get_black_list": get_black_list_dev_table,
