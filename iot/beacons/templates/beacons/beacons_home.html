@@ -1,0 +1,13 @@
+{% extends 'base_generic.html' %}
+
+{% load static %}
+
+{% block title %}|{{ app }}|{{ page }}{% endblock title %}
+{% block header %}- {{app }} - {{ page }}{% endblock header %}
+
+{% block app_links %}
+    <div class="linkgroup"> BEACONS
+        <a href="http://10.110.16.63:8081">Count </a>|
+        <a href="http://10.110.16.63:8080">Database </a>|
+    </div>
+{% endblock app_links %}

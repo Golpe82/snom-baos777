@@ -1,4 +1,4 @@
-{% extends 'knx/base.html' %}
+{% extends 'base_generic.html' %}
 
 {% block title %}|{{ app }}|{{ page }}{% endblock title %}
 {% block header %}- {{app }} - {{ page }}{% endblock header %}
@@ -7,7 +7,7 @@
 
 {% block content %}
     <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+        {% csrf_token %}
         <label for="csv">
             <p>
                 Export from
@@ -22,7 +22,7 @@
         <button type="submit" name="file_type" value=".csv">Upload csv</button>
     </form>
     <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+        {% csrf_token %}
         <label for="xml">
             <p>You can also download the default xml file, edit it and upload the customized one:</p>
         </label>
