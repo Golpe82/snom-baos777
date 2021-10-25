@@ -1,5 +1,6 @@
 [Unit]
 Description=Service for Snom Iot Applications (Django)
+Requires=network.target
 After=snomiot.service
 StartLimitIntervalSec=0
 
@@ -7,10 +8,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=on-failure
 RestartSec=1
-User=pi
-Group=pi
-WorkingDirectory=/usr/local/gateway/iot/
-ExecStart=/usr/bin/python3 manage.py runserver 0:8000
+ExecStart=/usr/bin/python3 /usr/local/gateway/iot/manage.py runserver 0:8000
 
 [Install]
 WantedBy=multi-user.target
