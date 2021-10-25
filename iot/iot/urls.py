@@ -22,8 +22,8 @@ from dect import urls as dect_urls
 
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name="base_generic.html")),
-    path('dect/', include(dect_urls)),
-    path('knx/', include(knx_urls)),
-    path('admin/', admin.site.urls),
+    path("", TemplateView.as_view(template_name="base_generic.html")),
+    path("dect/", include(dect_urls, namespace="dect")),
+    path("knx/", include(knx_urls, namespace="knx")),
+    path("admin/", admin.site.urls),
 ]

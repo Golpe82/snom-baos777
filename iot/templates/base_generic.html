@@ -21,14 +21,20 @@
             font-weight: bold;
         }
     </style>
-    <title>{{ project }}{% block title %}{% endblock title %}</title>
+    <title>{{ project }}{% block title %}Snom IoT{% endblock title %}</title>
     <link rel="stylesheet" type="text/css" href="{% static '/knx/style.css' %}"></link>
 </head>
 <body>
     <div id="header">
-        <h1>{{project}} {% block header %}{% endblock header %}</h1>
+        <h1>{% block header %}Snom IoT{% endblock header %}</h1>
+        <h2>
+            <a href="{% url 'knx:knx_home' %}">KNX</a>
+            <a href="{% url 'dect:dect_home' %}">DECT ULE</a>
+            <a href="">SNOMSYSLOG</a>
+            <a>BEACONS</a>
+        </h2>
     </div>
-    <nav id="nav">
+    {% comment %} <nav id="nav">
         <div class="linkgroup">KNX
             <a href="{% url 'knx:start' %}">Control </a>|
             <a href="{% url 'knx:knx_status' %}">Status </a>|
@@ -46,7 +52,7 @@
             <a href="http://10.110.16.63:8081">Count </a>|
             <a href="http://10.110.16.63:8080">Database </a>|
         </div>
-    </nav>
+    </nav> {% endcomment %}
     <div id="content">
         {% block content %}
         {% endblock content %}
