@@ -1,7 +1,7 @@
 import sys
 import logging
 
-import han_client
+import snom_han_client
 import snom_actions as snm_actn
 
 FORMAT = "%(asctime)s:%(levelname)s:%(message)s"
@@ -321,8 +321,8 @@ def get_hardware_version(client_handle, argv):
 
 
 def list_eeprom_parameters(list_all):
-    for param in han_client.EEPROM_PARAMS:
-        length = han_client.EEPROM_PARAMS[param]
+    for param in snom_han_client.EEPROM_PARAMS:
+        length = snom_han_client.EEPROM_PARAMS[param]
         if (length > 0) or list_all:
             print(param)
 
@@ -351,11 +351,11 @@ def get_eeprom_parameter(client_handle, argv):
     if argv[1] == "list":
         list_eeprom_parameters(True)
     elif argv[1] == "all":
-        for name in han_client.EEPROM_PARAMS:
+        for name in snom_han_client.EEPROM_PARAMS:
             client_handle.get_eeprom_parameter(name)
     else:
         param = argv[1].upper()  # EEPROM parameter names are upper case
-        if param in han_client.EEPROM_PARAMS:
+        if param in snom_han_client.EEPROM_PARAMS:
             client_handle.get_eeprom_parameter(param)
         else:
             print("Error: unknown EEPROM parameter: '{}'".format(param))
@@ -416,11 +416,11 @@ def eeprom_parameter_is_writable(eeprom_parameter):
 
     is_writable = True
 
-    if eeprom_parameter not in han_client.EEPROM_PARAMS:
+    if eeprom_parameter not in snom_han_client.EEPROM_PARAMS:
         print("Error: unknown EEPROM parameter: '{}'".format(eeprom_parameter))
         is_writable = False
     else:
-        length = han_client.EEPROM_PARAMS[eeprom_parameter]
+        length = snom_han_client.EEPROM_PARAMS[eeprom_parameter]
         if length == 0:
             print("Error: read-only EEPROM parameter: '{}'".format(eeprom_parameter))
             is_writable = False
@@ -441,7 +441,7 @@ def eeprom_request_valid(param, value):
         print("Error: the value must be a hex number")
         request_valid = False
 
-    length = han_client.EEPROM_PARAMS[param]
+    length = snom_han_client.EEPROM_PARAMS[param]
     if not len(value) == length * 2:
         print(
             "Error: the value is the wrong length, it has to be {} bytes".format(length)
@@ -501,15 +501,9 @@ def help_on_commands(client_handle, argv):
 
 def devices_json(client_handle, argv):
     command = argv[0]
-    option_name = 'verbose'
 
     if len(argv) > 1:
-        option = argv[1]
-
-        if option == option_name:
-            logging.info(snm_actn.get_devices(client_handle, verbose=True))
-        else:
-            logging.warning(f"Wrong option.\nCommand: { command }\nOptions: [{ option_name }]")
+        logging.warning(f"Command: { command } does not accept options")
     else:
         logging.info(snm_actn.get_devices(client_handle))
     
