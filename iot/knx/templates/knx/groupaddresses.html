@@ -5,100 +5,109 @@
 {% block title %}|{{ app }}|{{ page }}{% endblock title %}
 {% block header %}- {{app }} - {{ page }}{% endblock header %}
 
+{% block app_links %}
+    <div class="linkgroup">
+        <a href="{% url 'knx:knx_status' %}">Status </a>|
+        <a href="{% url 'knx:knx_monitor' %}">Monitor </a>|
+        <a href="{% url 'knx:minibrowser' %}">Snom minibrowser </a>|
+        <a href="{% url 'knx:upload_file' %}">Upload </a>|
+    </div>
+{% endblock app_links %}
+
 {% block content %}
-{% if addresses %}
-    <table>
-        <tr>
-            <th></th>
-        {% for field in addresses.header %}
-            <th>{{ field }}</th>
-        {% endfor %}
-        </tr>
-        {% for info in addresses.data %}
-            {% if '/-/-' in info.Groupaddress %}
-            <tr bgcolor="grey">
-                <td></td>
-                <td>{{ info.Groupname }}</td>
-                <td></td>
-                <td></td>
-            {% elif '/-' in info.Groupaddress %}
-            <tr bgcolor="lightgrey">
-                <td></td>
-                <td>{{ info.Groupname }}</td>
-                <td></td>
-                <td></td>
-            {% elif info.Datapointtype %}
+    {% if addresses %}
+        <table>
             <tr>
-                {% if 'DPT-1' in info.Datapointtype or 'DPST-1-' in info.Datapointtype %}
-                    {% if info.Datapointtype != 'DPST-1-11' %}
-                        <td>
-                            <form method="get">
-                                <button id="on" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-an" type="submit" name="{{info.Groupname }}" value="on">On</button>
-                                <button id="off" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-aus" type="submit" name="{{info.Groupname }}" value="off">Off</button>
-                                
-                            </form>
-                            <button type="button" id="toggle{{ info.Groupaddress }}">toggle</button>
-                            <script>         
-                                function toggle(){
-                                    'use strict';
-                                    const element = document.getElementById('toggle{{ info.Groupaddress }}');
-                                    
-                                    if(element.classList.toggle('off')){
-                                        element.classList.remove('on');
-                                        element.innerHTML = 'off';
-                                    }
-                                    else {
-                                        element.classList.remove('off');
-                                        element.classList.add('on');
-                                        element.innerHTML = 'on';
-                                    }
-                                    return element.innerHTML == 'on' ? 'an' : 'aus';
-                                }
+                <th></th>
+                {% for field in addresses.header %}
+                    <th>{{ field }}</th>
+                {% endfor %}
+            </tr>
+            {% for info in addresses.data %}
+                {% if '/-/-' in info.Groupaddress %}
+                    <tr bgcolor="grey">
+                        <td></td>
+                        <td>{{ info.Groupname }}</td>
+                        <td></td>
+                        <td></td>
+                {% elif '/-' in info.Groupaddress %}
+                    <tr bgcolor="lightgrey">
+                        <td></td>
+                        <td>{{ info.Groupname }}</td>
+                        <td></td>
+                        <td></td>
+                {% elif info.Datapointtype %}
+                    <tr>
+                        {% if 'DPT-1' in info.Datapointtype or 'DPST-1-' in info.Datapointtype %}
+                            {% if info.Datapointtype != 'DPST-1-11' %}
+                                <td>
+                                    <form method="get">
+                                        <button id="on" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-an" type="submit" name="{{info.Groupname }}" value="on">On</button>
+                                        <button id="off" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-aus" type="submit" name="{{info.Groupname }}" value="off">Off</button>
 
-                                function sendUrl(){
-                                    'use strict';
-                                    let request = new Request('{{ knx_gateway }}{{ info.Groupaddress }}-' + toggle());
-                                    fetch(request);
-                                }
+                                    </form>
+                                    <button type="button" id="toggle{{ info.Groupaddress }}">toggle</button>
+                                    <script>
+                                        function toggle(){
+                                            'use strict';
+                                            const element = document.getElementById('toggle{{ info.Groupaddress }}');
 
-                                {
-                                'use strict';
-                                let button = document.getElementById('toggle{{ info.Groupaddress }}');
-                                button.addEventListener('click', toggle);
-                                button.addEventListener('click', sendUrl);
-                                }
-                            </script>
+                                            if(element.classList.toggle('off')){
+                                                element.classList.remove('on');
+                                                element.innerHTML = 'off';
+                                            }
+                                            else {
+                                                element.classList.remove('off');
+                                                element.classList.add('on');
+                                                element.innerHTML = 'on';
+                                            }
+                                            return element.innerHTML == 'on' ? 'an' : 'aus';
+                                        }
 
-                        </td>
-                    {% endif %}
-                {% elif 'DPT-3' in info.Datapointtype or 'DPST-3-' in info.Datapointtype %}
-                    <td>
-                        <form method="get">
-                            <button id="plus" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-plus" type="submit" name="{{info.Groupname }}" value="plus">+</button>
-                            <button id="minus" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-minus" type="submit" name="{{info.Groupname }}" value="minus">-</button>
-                        </form>
-                    </td>
-                {% elif 'DPT-5' in info.Datapointtype or 'DPST-5-' in info.Datapointtype %}
-                    <td>
-                        <p id="scale{{ info.Groupaddress }}"></p>
-                        <script>
-                            fetch("http://{{ gateway_ip }}:8000/knx/status/{{ info.Groupaddress }}")
-                            .then(data=>{return data.json()})
-                            .then(res=>{document.getElementById("scale{{ info.Groupaddress }}").innerHTML = res.Status})
-                        </script>
-                    </td>
-                {% else %}
-                    <td></td>
-                {% endif %}        
-                <td>{{ info.Groupname }}</td>
-                <td>{{ info.Groupaddress }}</td>
-                <td>{{ info.Datapointtype }}</td>
-            {% endif %}    
-            </tr> 
-        {% endfor %}
-    </table>
-{% else %}
-    <h2><a href="{% url 'knx:upload_file' %}">Upload</a> first your .csv file with the KNX addresses</h2>
-{% endif %}
+                                        function sendUrl(){
+                                            'use strict';
+                                            let request = new Request('{{ knx_gateway }}{{ info.Groupaddress }}-' + toggle());
+                                            fetch(request);
+                                        }
+
+                                        {
+                                            'use strict';
+                                            let button = document.getElementById('toggle{{ info.Groupaddress }}');
+                                            button.addEventListener('click', toggle);
+                                            button.addEventListener('click', sendUrl);
+                                        }
+                                    </script>
+
+                                </td>
+                            {% endif %}
+                        {% elif 'DPT-3' in info.Datapointtype or 'DPST-3-' in info.Datapointtype %}
+                            <td>
+                                <form method="get">
+                                    <button id="plus" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-plus" type="submit" name="{{info.Groupname }}" value="plus">+</button>
+                                    <button id="minus" formaction="{{ knx_gateway }}{{ info.Groupaddress }}-minus" type="submit" name="{{info.Groupname }}" value="minus">-</button>
+                                </form>
+                            </td>
+                        {% elif 'DPT-5' in info.Datapointtype or 'DPST-5-' in info.Datapointtype %}
+                            <td>
+                                <p id="scale{{ info.Groupaddress }}"></p>
+                                <script>
+                                    fetch("http://{{ gateway_ip }}:8000/knx/status/{{ info.Groupaddress }}")
+                                        .then(data=>{return data.json()})
+                                        .then(res=>{document.getElementById("scale{{ info.Groupaddress }}").innerHTML = res.Status})
+                                </script>
+                            </td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                        <td>{{ info.Groupname }}</td>
+                        <td>{{ info.Groupaddress }}</td>
+                        <td>{{ info.Datapointtype }}</td>
+                {% endif %}
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h2><a href="{% url 'knx:upload_file' %}">Upload</a> first your .csv file with the KNX addresses</h2>
+    {% endif %}
 
 {% endblock content %}

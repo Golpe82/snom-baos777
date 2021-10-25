@@ -1,64 +1,46 @@
 {% load static %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html lang="en">
-<head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <style>
-        button {
-            padding: 15px 32px;
-            font-size: 20px;
-            border-radius: 15px;
-        }
-        .on {
-            background-color: green;
-            color: white;
-        }
-        .off {
-            background-color: red;
-            color: white;
-        }
-        .linkgroup {
-            font-weight: bold;
-        }
-    </style>
-    <title>{{ project }}{% block title %}Snom IoT{% endblock title %}</title>
-    <link rel="stylesheet" type="text/css" href="{% static '/knx/style.css' %}"></link>
-</head>
-<body>
-    <div id="header">
-        <h1>{% block header %}Snom IoT{% endblock header %}</h1>
-        <h2>
-            <a href="{% url 'knx:knx_home' %}">KNX</a>
-            <a href="{% url 'dect:dect_home' %}">DECT ULE</a>
-            <a href="">SNOMSYSLOG</a>
-            <a>BEACONS</a>
-        </h2>
-    </div>
-    {% comment %} <nav id="nav">
-        <div class="linkgroup">KNX
-            <a href="{% url 'knx:start' %}">Control </a>|
-            <a href="{% url 'knx:knx_status' %}">Status </a>|
-            <a href="{% url 'knx:knx_monitor' %}">Monitor </a>|
-            <a href="{% url 'knx:minibrowser' %}">Snom minibrowser </a>|
-            <a href="{% url 'knx:upload_file' %}">Upload </a>|
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+        <style>
+            button {
+                padding: 15px 32px;
+                font-size: 20px;
+                border-radius: 15px;
+            }
+            .on {
+                background-color: green;
+                color: white;
+            }
+            .off {
+                background-color: red;
+                color: white;
+            }
+            .linkgroup {
+                font-weight: bold;
+            }
+        </style>
+        <title>{{ project }}{% block title %}Snom IoT{% endblock title %}</title>
+        <link rel="stylesheet" type="text/css" href="{% static '/knx/style.css' %}"></link>
+    </head>
+    <body>
+        <div id="header">
+            <h1>{% block header %}Snom IoT{% endblock header %}</h1>
+            <h2>
+                <a href="{% url 'knx:knx_home' %}">KNX</a>
+                <a href="{% url 'dect:dect_home' %}">DECT ULE</a>
+                <a href="{% url 'snom_sensors:snom_sensors_home' %}">SNOM SENSORS</a>
+                <a href="{% url 'beacons:beacons_home' %}">BEACONS</a>
+            </h2>
+            {% block app_links %}{% endblock app_links %}
         </div>
-        <div class="linkgroup"> SNOMSYSLOG
-            <a href="{% url 'knx:render_values' %}">Ambientlight values </a>|
+        <div id="content">
+            {% block content %}
+            {% endblock content %}
         </div>
-        <div class="linkgroup"> DECT ULE
-            <a href="{% url 'knx:dect_ule' %}">Send command </a>|
-        </div>
-        <div class="linkgroup"> BEACONS
-            <a href="http://10.110.16.63:8081">Count </a>|
-            <a href="http://10.110.16.63:8080">Database </a>|
-        </div>
-    </nav> {% endcomment %}
-    <div id="content">
-        {% block content %}
-        {% endblock content %}
-    </div>
-    <footer id="footer">
-        Simón Golpe Varela
-    </footer>
-</body>
+        <footer id="footer">
+            Simón Golpe Varela
+        </footer>
+    </body>
 </html>

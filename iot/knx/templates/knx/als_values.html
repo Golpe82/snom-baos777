@@ -7,44 +7,44 @@
 
 
 {% block content %}
-<style>
-    table, th, td {
-        border: 1px solid black;
-    }
-    table {border-spacing: 2px;}
-    td    {padding: 6px;}
-    th    {padding: 6px;}
-    caption {font-weight: bold;}
-</style>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+        table {border-spacing: 2px;}
+        td    {padding: 6px;}
+        th    {padding: 6px;}
+        caption {font-weight: bold;}
+    </style>
     <table id="rules">
         <caption>Devices rules</caption>
         <tr>
-        {% for field in rules.0.keys %}
-            <th>{{ field }} {% if field == "min_value" or field == "max_value"%} (Lux){% endif %}</th>
-        {% endfor %}
-        </tr>
-        {% for rule in rules.values reversed%}
-        <tr>
-            {% for value in rules.0.values %}
-            <td>{{ value }}</td>
+            {% for field in rules.0.keys %}
+                <th>{{ field }} {% if field == "min_value" or field == "max_value"%} (Lux){% endif %}</th>
             {% endfor %}
         </tr>
+        {% for rule in rules.values reversed%}
+            <tr>
+                {% for value in rules.0.values %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
         {% endfor %}
     </table>
 
     <table id="als_values">
         <caption>Snom ambientlight sensors</caption>
         <tr>
-        {% for field in status.0.keys %}
-            <th>{{ field }} </th>
-        {% endfor %}
-        </tr>
-        {% for status in status.values reversed%}
-        <tr>
-            {% for value in status.values %}
-            <td>{{ value }}</td>
+            {% for field in status.0.keys %}
+                <th>{{ field }} </th>
             {% endfor %}
         </tr>
+        {% for status in status.values reversed%}
+            <tr>
+                {% for value in status.values %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
         {% endfor %}
     </table>
 

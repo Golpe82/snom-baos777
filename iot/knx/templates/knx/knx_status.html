@@ -7,15 +7,15 @@
 
 
 {% block content %}
-<style>
-    table, th, td {
-        border: 1px solid black;
-    }
-    table {border-spacing: 2px;}
-    td    {padding: 6px;}
-    th    {padding: 6px;}
-    caption {font-weight: bold;}
-</style>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+        table {border-spacing: 2px;}
+        td    {padding: 6px;}
+        th    {padding: 6px;}
+        caption {font-weight: bold;}
+    </style>
     <table id="status">
         <caption>KNX status</caption>
         <tr>
@@ -25,12 +25,12 @@
             <th>Timestamp</th>
         </tr>
         {% for address in status %}
-        <tr>
-            <td>{{ address.groupaddress_name }} </td>
-            <td>{{ address.status }} </td>
-            <td>{{ address.groupaddress }} </td>
-            <td>{{ address.timestamp }} </td>
-        </tr>
+            <tr>
+                <td>{{ address.groupaddress_name }} </td>
+                <td>{{ address.status }} </td>
+                <td>{{ address.groupaddress }} </td>
+                <td>{{ address.timestamp }} </td>
+            </tr>
         {% endfor %}
     </table>
 {% endblock content %}

@@ -9,7 +9,7 @@
 {% block content %}
     <form id="ule_form" method="GET" action="{% url 'knx:dect_ule' %}">
         <label for="cmd">Your command: </label>
-        <input id="cmd" type="text" name="cmd">	
+        <input id="cmd" type="text" name="cmd">
         <input type="submit" value="send command" />
     </form>
     <div id="sent_cmd">
