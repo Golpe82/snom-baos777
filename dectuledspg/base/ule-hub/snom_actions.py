@@ -40,21 +40,22 @@ def send_data(client_handle, device_id, requested_data):
     return cookie
 
 
-def get_devices(client_handle, verbose=False):
-    devices_objects = client_handle.get_dev_table()
+def get_devices(client_handle, to_json=True):
+    index = 0
+    count = 5
     devices = {}
 
-    for device_item in devices_objects.devices:
-        device = device_item.ipui
-        devices[device] = {
-            "name": "no name assigned",
-            "location": "no location assigned",
-            "id": device_item.id,
-            "hex id": hex(device_item.id),
-            "ipui": device_item.ipui
-        }
-
-        if verbose:
+    while True:
+        devices_objects = client_handle.get_dev_table(index=index, count=count)
+        for device_item in devices_objects.devices:
+            device = device_item.ipui
+            devices[device] = {
+                "name": "no name assigned",
+                "location": "no location assigned",
+                "id": device_item.id,
+                "hex id": hex(device_item.id),
+                "ipui": device_item.ipui
+            }
             for unit_item in device_item.units:
                 unit = f"unit { hex(unit_item.id) }"
                 devices[device][unit] = {
@@ -74,7 +75,15 @@ def get_devices(client_handle, verbose=False):
                         "hex type": hex(interface_item.type),
                     }
 
-    return json.dumps(devices, sort_keys=True, indent=4)
+        if len(devices_objects.devices) < count:
+            break
+        else:
+            index += count
+
+    if to_json:
+        return json.dumps(devices, sort_keys=True, indent=4)
+
+    return devices
 
 def get_han_fun_profile(unit_type):
     for profile_type in HAN_FUN_PROFILES:
