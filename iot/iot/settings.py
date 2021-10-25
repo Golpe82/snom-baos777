@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['localhost', GATEWAY_IP]
 # Application definition
 
 INSTALLED_APPS = [
+    'dect.apps.DectConfig',
     'knx.apps.KnxConfig',
     'lists.apps.ListsConfig',
     'django.contrib.admin',
@@ -60,7 +61,7 @@ ROOT_URLCONF = 'iot.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
