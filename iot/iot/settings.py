@@ -138,6 +138,13 @@ KNX_ROOT = f"http://{ GATEWAY_IP }:1234/"
 CSV_SOURCE_PATH = f"{ MEDIA_ROOT }ga.csv"
 XML_TARGET_PATH = f"{ MEDIA_ROOT }knx.xml"
 
+#XML_TARGET_PATH='/usr/local/gateway/iot/knx/media'
+XML_TARGET_FILE='knx.xml'
+XML_TARGET_URL=f'{MEDIA_ROOT}{XML_TARGET_FILE}'
+
+NGINX_HTML_ROOT='/var/www/html'
+
+
 try:
     from iot import local_settings
 
