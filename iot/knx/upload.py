@@ -3,7 +3,7 @@ import os
 from django.core.files.storage import FileSystemStorage
 
 from iot import settings
-from knx import xml
+from knx.xml import SnomXMLFactory
 
 def process_file(request):
     TARGET_NAME = {'.csv': 'ga', '.xml': 'knx'}
@@ -15,7 +15,7 @@ def process_file(request):
             file = request.FILES.get('groupaddresses', False)
             post_request = HandleUploads(file)
 
-            return post_request.handle_file(TARGET_NAME['.csv'], uploaded_type)
+            return post_request.handle_file(TARGET_NAME.get('.csv'), uploaded_type)
 
         if uploaded_type == '.xml':
             file = request.FILES.get('minibrowser', False)
@@ -43,7 +43,7 @@ class HandleUploads():
 
             if file_type == '.csv':
                 self.remove_file_if_exists('minibrowser.xml')
-                xml.create_xml(TARGET_NAME)
+                SnomXMLFactory().create_deskphone_xml(TARGET_NAME)
 
                 return 'Groupaddresses were uploaded and Snom default XML was created.'
 
