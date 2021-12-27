@@ -3,20 +3,26 @@ import csv
 
 from iot import settings
 
-SEPERATOR='S'
-XML_HTTP_ROOT=f'http://{settings.GATEWAY_IP}'
+SEPERATOR='_'
+XML_HTTP_ROOT=f'http://{settings.GATEWAY_IP}/'
 KNX_ROOT=settings.KNX_ROOT
 XML_PHYSICAL_ROOT=settings.NGINX_HTML_ROOT
+MAIN_FILE = "knx_dect.xml"
+MAIN_FILE_PATH = f'{XML_PHYSICAL_ROOT}{MAIN_FILE}'
+ENCODING = 'iso-8859-10'
 
 class SnomXMLFactory:
     def __init__(self):
         self.csv_data = []
 
+    def create_handset_xml(self, csv_file):
+        self.set_csv_data(csv_file)
+        create_xml_files(self.csv_data)
+
     def set_csv_data(self, csv_file):
-        data = csv.reader(
-            open(f"{ settings.MEDIA_ROOT }{ csv_file }", encoding='latin-1')
-        )
-        self.csv_data = [line for line in data]
+        with open(f"{ settings.MEDIA_ROOT }{ csv_file }", encoding=ENCODING) as csv_data:
+            data = csv.reader(csv_data)
+            self.csv_data = list(data)
 
     def create_deskphone_xml(self, csv_file):
         self.set_csv_data(csv_file)
@@ -138,19 +144,14 @@ class SnomXMLFactory:
         </SnomIPPhoneMenu>"""
             )
 
-    def create_handset_xml(self, csv_file):
-        self.set_csv_data(csv_file)
-        create_xml_files(self.csv_data)
 
 def create_xml_files(csv_data):
-    main_menu_file = f'{XML_PHYSICAL_ROOT}/knx_dect.xml'
-
-    if os.path.exists(main_menu_file):
-        os.remove(main_menu_file)
+    if os.path.exists(MAIN_FILE_PATH):
+        os.remove(MAIN_FILE_PATH)
     else:
         print("The file does not exist")
 
-    with open(main_menu_file, 'w', encoding='iso-8859-10') as main_menu_data:
+    with open(MAIN_FILE_PATH, 'w', encoding=ENCODING) as main_menu_data:
         main_menu_data.write(f"""<SnomIPPhoneMenu>
         <Title>Main</Title>""")
 
@@ -164,42 +165,38 @@ def create_xml_files(csv_data):
                 main_menu_data.write(f"""
             <MenuItem>
                 <Name>{menu_name}</Name>
-                <URL>{XML_HTTP_ROOT}/{mid_menu_file}</URL>
+                <URL>{XML_HTTP_ROOT}{mid_menu_file}</URL>
             </MenuItem>""")
-                make_mid_menu(csv_data, menu_name, main_menu)
+                make_mid_menu(csv_data, menu_name, main_menu, mid_menu_file)
         main_menu_data.write(f"""
     </SnomIPPhoneMenu>""")
 
-def make_mid_menu(data, main_menu_name, main_menu):
-    print(main_menu_name)
-    print(main_menu)
-    xml_file=f"{XML_PHYSICAL_ROOT}/{main_menu.replace('/',SEPERATOR)}.xml"
+def make_mid_menu(csv_data, main_menu_name, main_menu, mid_menu_file):
+    mid_file_path = f"{XML_PHYSICAL_ROOT}{mid_menu_file}"
+    main_menu_split = main_menu.split("/")
 
-    if os.path.exists(xml_file):
-        os.remove(xml_file)
+    if os.path.exists(mid_file_path):
+        os.remove(mid_file_path)
     else:
         print("The file does not exist")
 
-    with open(xml_file, 'w', encoding='iso-8859-10') as xml_data:
-        main_menu_split = main_menu.split("/")
-        xml_data.write(f"""<SnomIPPhoneMenu>
+    with open(mid_file_path, 'w', encoding=ENCODING) as mid_menu_data:
+        mid_menu_data.write(f"""<SnomIPPhoneMenu>
         <Title>{main_menu_name}</Title>""")
 
-        for row_mid_menu in data:
-            print(row_mid_menu)
+        for row_mid_menu in csv_data:
             row_split = row_mid_menu[1].split("/")
-            print(row_mid_menu)
             if row_split[0] == main_menu_split[0] and row_split[1] != '-' and row_split[2] == '-':
                 new_file_name = row_mid_menu[1].replace('/',SEPERATOR)
 
-                xml_data.write(f"""
+                mid_menu_data.write(f"""
                 <MenuItem>
                     <Name>{ row_mid_menu[0] }</Name>
-                    <URL>{XML_HTTP_ROOT}/{new_file_name}.xml</URL>
+                    <URL>{XML_HTTP_ROOT}{new_file_name}.xml</URL>
                 </MenuItem>""")
-                make_action_menu(data, row_mid_menu[0], row_mid_menu[1])
+                make_action_menu(csv_data, row_mid_menu[0], row_mid_menu[1])
 
-        xml_data.write(f"""
+        mid_menu_data.write(f"""
         </SnomIPPhoneMenu>""")
 
 def make_action_menu(data, menu_name, top_menu):
@@ -210,7 +207,7 @@ def make_action_menu(data, menu_name, top_menu):
     else:
         print("The file does not exist")
 
-    with open(xml_file, 'w', encoding='iso-8859-10') as xml_data:
+    with open(xml_file, 'w', encoding=ENCODING) as xml_data:
         top_menu_split = top_menu.split("/")
         xml_data.write(f"""<SnomIPPhoneMenu>
         <Title>{menu_name}</Title>""")
