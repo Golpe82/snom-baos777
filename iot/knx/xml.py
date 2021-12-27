@@ -2,6 +2,8 @@ import os
 import csv
 import logging
 
+import chardet
+
 
 from iot import settings
 
@@ -30,12 +32,21 @@ DATAPOINT_SUBTYPES = {
 class SnomXMLFactory:
     def __init__(self, csv_file):
         self.csv_file = csv_file
+        self.encoding = self.get_encoding()
         self.csv_data = self.get_csv_data()
+
+    def get_encoding(self):
+        characters_to_read = 10000
+
+        with open(f"{ settings.MEDIA_ROOT }{self.csv_file}", 'rb') as raw_data:
+            result = chardet.detect(raw_data.read(characters_to_read))
+
+        return result.get("encoding")
 
     def get_csv_data(self):
         csv_file_path = f"{ settings.MEDIA_ROOT }{self.csv_file}"
 
-        with open(csv_file_path, encoding=ENCODING) as csv_data:
+        with open(csv_file_path, encoding=self.encoding) as csv_data:
             data = list(csv.reader(csv_data))
             has_header = "Group name" in data[0]
 
@@ -51,7 +62,8 @@ class SnomXMLFactory:
             print("The file does not exist")
 
         with open(MAIN_FILE_PATH, 'w', encoding=ENCODING) as main_menu_data:
-            main_menu_data.write(f"""<SnomIPPhoneMenu>
+            main_menu_data.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
+            <SnomIPPhoneMenu>
             <Title>KNX</Title>""")
 
             for groupaddress_info in self.csv_data:
@@ -80,7 +92,8 @@ class SnomXMLFactory:
             print("The file does not exist")
 
         with open(mid_file_path, 'w', encoding=ENCODING) as mid_menu_data:
-            mid_menu_data.write(f"""<SnomIPPhoneMenu>
+            mid_menu_data.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
+            <SnomIPPhoneMenu>
             <Title>{main_address_name}</Title>""")
 
             for groupaddress_info in self.csv_data:
@@ -113,7 +126,8 @@ class SnomXMLFactory:
             print("The file does not exist")
 
         with open(sub_file_path, 'w', encoding=ENCODING) as sub_menu_data:
-            sub_menu_data.write(f"""<SnomIPPhoneMenu>
+            sub_menu_data.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
+            <SnomIPPhoneMenu>
             <Title>{mid_address_name}</Title>""")
 
             for groupaddress_info in self.csv_data:
@@ -146,22 +160,26 @@ class SnomXMLFactory:
             print("The file does not exist")
 
         with open(groupaddress_file_path, 'w', encoding=ENCODING) as groupaddress_menu_data:
-            groupaddress_menu_data.write(f"""<SnomIPPhoneMenu>
+            groupaddress_menu_data.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
+            <SnomIPPhoneMenu>
             <Title>{sub_address_name}</Title>""")
 
             for groupaddress_info in self.csv_data:
                 groupaddress = groupaddress_info[1]
                 datapointtype_string = groupaddress_info[5]
+                datapointtype_items = datapointtype_string.split("-")
 
-                if datapointtype_string != '':
-                    datapoint_type_items = datapointtype_string.split("-")
-                    datapoint_type = int(datapoint_type_items[1])
-                    datapoint_subtype = int(datapoint_type_items[2]) or None
+                if len(datapointtype_items) >= 2:
+                    datapointtype = int(datapointtype_items[1])
+                    try: 
+                        datapoint_subtype = int(datapointtype_items[2])
+                    except IndexError:
+                        datapoint_subtype = None
 
                 is_groupaddress = groupaddress == sub_address
 
-                if is_groupaddress and datapoint_type in DATAPOINT_TYPES.values():
-                    if datapoint_type == DATAPOINT_TYPES.get("binary") and datapoint_subtype == DATAPOINT_SUBTYPES["binary"]["on_off"]:
+                if is_groupaddress and datapointtype in DATAPOINT_TYPES.values():
+                    if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype == DATAPOINT_SUBTYPES["binary"]["on_off"]:
                         groupaddress_menu_data.write(f"""
                 <MenuItem>
                     <Name>on</Name>
@@ -172,7 +190,7 @@ class SnomXMLFactory:
                     <URL>{ KNX_ROOT}{groupaddress}-aus</URL>
                 </MenuItem>""")
 
-                    elif datapoint_type == DATAPOINT_TYPES.get("step_code"):
+                    elif datapointtype == DATAPOINT_TYPES.get("step_code"):
                         groupaddress_menu_data.write(f"""
                 <MenuItem>
                     <Name>increase</Name>
@@ -183,7 +201,7 @@ class SnomXMLFactory:
                     <URL>{ KNX_ROOT}{groupaddress}-minus</URL>
                 </MenuItem>""")
 
-                    elif datapoint_type == DATAPOINT_TYPES.get("unsigned_value"):
+                    elif datapointtype == DATAPOINT_TYPES.get("unsigned_value"):
                         groupaddress_menu_data.write(f"""
                 <MenuItem>
                     <Name>Show {groupaddress} value</Name>
