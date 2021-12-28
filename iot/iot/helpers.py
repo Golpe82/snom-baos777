@@ -1,5 +1,6 @@
 """Help functions for iot project"""
 import socket
+import os
 from enum import Enum
 
 class StringEnum(Enum):
@@ -18,3 +19,7 @@ def get_local_ip():
     finally:
         local_socket.close()
     return local_ip
+
+def remove_file_if_exists(file):
+    if os.path.exists(file):
+        os.remove(file)
