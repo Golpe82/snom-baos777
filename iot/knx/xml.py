@@ -2,7 +2,7 @@ import os
 import csv
 import logging
 
-from iot.iot import settings, helpers
+from iot import settings, helpers
 
 SEPERATOR='_'
 XML_HTTP_ROOT=f'http://{settings.GATEWAY_IP}/'
@@ -46,36 +46,43 @@ class SnomXMLFactory:
     def create_xml_menus(self):
         helpers.remove_file_if_exists(MAIN_FILE_PATH)
 
-        with open(MAIN_FILE_PATH, 'w', encoding=ENCODING) as main_menu_data:
-            main_menu_data.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
-            <SnomIPPhoneMenu>
-            <Title>KNX</Title>""")
+        with open(MAIN_FILE_PATH, 'w', encoding=ENCODING) as main_file:
+            self.open_xml_phone_menu(main_file)
 
             for groupaddress_info in self.csv_data:
                 groupaddress_name = groupaddress_info[0]
                 groupaddress = groupaddress_info[1]
                 groupaddress_items = groupaddress.split("/")
                 main_address = groupaddress_items[0]
+                is_main_address = '/-/-' in groupaddress
 
-                if '/-/-' in groupaddress:
+                if is_main_address:
                     mid_menu_file = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    main_menu_data.write(f"""
-                <MenuItem>
-                    <Name>{groupaddress_name}</Name>
-                    <URL>{XML_HTTP_ROOT}{mid_menu_file}</URL>
-                </MenuItem>""")
+                    self.create_xml_menu_item(main_file, groupaddress_name, mid_menu_file)
                     self.create_mid_menu(groupaddress_name, main_address, mid_menu_file)
-            main_menu_data.write(f"""
-        </SnomIPPhoneMenu>""")
+            
+            self.close_xml_phone_menu(main_file)
+
+    def open_xml_phone_menu(self, file, title="KNX"):
+        file.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
+            <SnomIPPhoneMenu>
+            <Title>{title}</Title>""")
+
+    def create_xml_menu_item(self, file, groupaddress_name, sub_file):
+        file.write(f"""
+            <MenuItem>
+                <Name>{groupaddress_name}</Name>
+                <URL>{XML_HTTP_ROOT}{sub_file}</URL>
+            </MenuItem>
+        """)
+
 
     def create_mid_menu(self, main_address_name, main_address, mid_menu_file):
         mid_file_path = f"{XML_PHYSICAL_ROOT}{mid_menu_file}"
         helpers.remove_file_if_exists(mid_file_path)
 
-        with open(mid_file_path, 'w', encoding=ENCODING) as mid_menu_data:
-            mid_menu_data.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
-            <SnomIPPhoneMenu>
-            <Title>{main_address_name}</Title>""")
+        with open(mid_file_path, 'w', encoding=ENCODING) as mid_file:
+            self.open_xml_phone_menu(mid_file, title=main_address_name)
 
             for groupaddress_info in self.csv_data:
                 groupaddress_name = groupaddress_info[0]
@@ -88,15 +95,10 @@ class SnomXMLFactory:
 
                 if belongs_to_main_address and is_mid_address:
                     sub_menu_file = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    mid_menu_data.write(f"""
-                    <MenuItem>
-                        <Name>{groupaddress_name}</Name>
-                        <URL>{XML_HTTP_ROOT}{sub_menu_file}</URL>
-                    </MenuItem>""")
+                    self.create_xml_menu_item(mid_file, groupaddress_name, sub_menu_file)
                     self.create_sub_menu(groupaddress_name, main_address, mid_address, sub_menu_file)
 
-            mid_menu_data.write(f"""
-            </SnomIPPhoneMenu>""")
+            self.close_xml_phone_menu(mid_file)
 
     def create_sub_menu(self, mid_address_name, main_address, mid_address, sub_menu_file):
         sub_file_path = f"{XML_PHYSICAL_ROOT}{sub_menu_file}"
@@ -182,6 +184,9 @@ class SnomXMLFactory:
         
             groupaddress_menu_data.write(f"""
         </SnomIPPhoneMenu>""")
+
+    def close_xml_phone_menu(self, file):
+        file.write(f"""</SnomIPPhoneMenu>""")
 
     def create_deskphone_xml(self):
         xml_file = settings.XML_TARGET_PATH
