@@ -4,10 +4,10 @@ import logging
 from iot import settings, helpers
 
 SEPERATOR = '_'
-XML_HTTP_ROOT = f'http://{settings.GATEWAY_IP}/'
+XML_HTTP_ROOT = f'http://{settings.GATEWAY_IP}/knx_xml/'
 KNX_ROOT = settings.KNX_ROOT
 XML_PHYSICAL_ROOT = settings.XML_TARGET_DIRECTORY
-MAIN_XML_FILE_NAME = "knx_dect.xml"
+MAIN_XML_FILE_NAME = "knx_multi.xml"
 ENCODING = 'iso-8859-10'
 DATAPOINT_TYPES = {
     "binary": 1,
@@ -23,12 +23,13 @@ DATAPOINT_SUBTYPES = {
     "unsigned_value": {}
 }
 
-
+# TODO: check and handle file if it is too big for RTX compability
+# RTX max. size: 16K?
 class SnomXMLFactory:
     def __init__(self, csv_file):
         self.csv_file = csv_file
         self.csv_data = self.get_csv_data()
-        helpers.create_directory_if_not_exists(XML_PHYSICAL_ROOT)
+        helpers.update_directory(XML_PHYSICAL_ROOT)
 
     def get_csv_data(self):
         csv_file_path = f"{ settings.MEDIA_ROOT }{self.csv_file}"
