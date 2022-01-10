@@ -25,3 +25,10 @@ def remove_file_if_exists(file):
     if os.path.exists(file):
         os.remove(file)
         logging.warning(f"Existing file {file} deleted")
+
+def create_directory_if_not_exists(directory):
+    if os.path.exists(directory):
+        logging.warning(f"Directory {directory} already exists")
+    else:
+        os.makedirs(directory)
+        logging.warning(f"Directory {directory} created")

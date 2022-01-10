@@ -142,7 +142,7 @@ XML_TARGET_PATH = f"{ MEDIA_ROOT }knx.xml"
 XML_TARGET_FILE='knx.xml'
 XML_TARGET_URL=f'{MEDIA_ROOT}{XML_TARGET_FILE}'
 
-NGINX_HTML_ROOT='/var/www/html/'
+XML_TARGET_DIRECTORY='/var/www/html/knx_xml/'
 
 
 try:

@@ -6,7 +6,7 @@ from iot import settings, helpers
 SEPERATOR = '_'
 XML_HTTP_ROOT = f'http://{settings.GATEWAY_IP}/'
 KNX_ROOT = settings.KNX_ROOT
-XML_PHYSICAL_ROOT = settings.NGINX_HTML_ROOT
+XML_PHYSICAL_ROOT = settings.XML_TARGET_DIRECTORY
 MAIN_XML_FILE_NAME = "knx_dect.xml"
 ENCODING = 'iso-8859-10'
 DATAPOINT_TYPES = {
@@ -28,6 +28,7 @@ class SnomXMLFactory:
     def __init__(self, csv_file):
         self.csv_file = csv_file
         self.csv_data = self.get_csv_data()
+        helpers.create_directory_if_not_exists(XML_PHYSICAL_ROOT)
 
     def get_csv_data(self):
         csv_file_path = f"{ settings.MEDIA_ROOT }{self.csv_file}"
@@ -130,7 +131,7 @@ class SnomXMLFactory:
 
                     if is_groupaddress and datapointtype in DATAPOINT_TYPES.values():
                         if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype == DATAPOINT_SUBTYPES["binary"]["on_off"]:
-                            groupaddress_menu_data.write(f"""
+                            values_xml.write(f"""
                     <MenuItem>
                         <Name>on</Name>
                         <URL>{ KNX_ROOT }{groupaddress}-an</URL>
@@ -141,7 +142,7 @@ class SnomXMLFactory:
                     </MenuItem>""")
 
                         elif datapointtype == DATAPOINT_TYPES.get("step_code"):
-                            groupaddress_menu_data.write(f"""
+                            values_xml.write(f"""
                     <MenuItem>
                         <Name>increase</Name>
                         <URL>{ KNX_ROOT }{groupaddress}-plus</URL>
@@ -152,7 +153,7 @@ class SnomXMLFactory:
                     </MenuItem>""")
 
                         elif datapointtype == DATAPOINT_TYPES.get("unsigned_value"):
-                            groupaddress_menu_data.write(f"""
+                            values_xml.write(f"""
                     <MenuItem>
                         <Name>Show {groupaddress} value</Name>
                         <URL>Fetch {groupaddress} value</URL>
