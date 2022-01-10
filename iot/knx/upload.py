@@ -44,8 +44,8 @@ class HandleUploads:
             if file_type == '.csv':
                 self.remove_file_if_exists('minibrowser.xml')
                 xml_object = SnomXMLFactory(file)
-                xml_object.create_xml_menus()
-                xml_object.create_deskphone_xml()
+                xml_object.create_multi_xml()
+                xml_object.create_single_xml()
 
                 return 'Groupaddresses were uploaded and Snom default XML was created.'
 

@@ -3,12 +3,11 @@ import logging
 
 from iot import settings, helpers
 
-SEPERATOR='_'
-XML_HTTP_ROOT=f'http://{settings.GATEWAY_IP}/'
-KNX_ROOT=settings.KNX_ROOT
-XML_PHYSICAL_ROOT=settings.NGINX_HTML_ROOT
-MAIN_FILE = "knx_dect.xml"
-MAIN_FILE_PATH = f'{XML_PHYSICAL_ROOT}{MAIN_FILE}'
+SEPERATOR = '_'
+XML_HTTP_ROOT = f'http://{settings.GATEWAY_IP}/'
+KNX_ROOT = settings.KNX_ROOT
+XML_PHYSICAL_ROOT = settings.NGINX_HTML_ROOT
+MAIN_XML_FILE_NAME = "knx_dect.xml"
 ENCODING = 'iso-8859-10'
 DATAPOINT_TYPES = {
     "binary": 1,
@@ -42,11 +41,12 @@ class SnomXMLFactory:
 
             return data
 
-    def create_xml_menus(self):
-        helpers.remove_file_if_exists(MAIN_FILE_PATH)
+    def create_multi_xml(self):
+        main_xml_path = f'{XML_PHYSICAL_ROOT}{MAIN_XML_FILE_NAME}'
+        helpers.remove_file_if_exists(main_xml_path)
 
-        with open(MAIN_FILE_PATH, 'w', encoding=ENCODING) as main_file:
-            self.open_xml_phone_menu(main_file)
+        with open(main_xml_path, 'w', encoding=ENCODING) as main_xml:
+            self.open_xml_phone_menu(main_xml)
 
             for groupaddress_info in self.csv_data:
                 groupaddress_name = groupaddress_info[0]
@@ -56,32 +56,18 @@ class SnomXMLFactory:
                 is_main_address = '/-/-' in groupaddress
 
                 if is_main_address:
-                    mid_menu_file = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    self.create_xml_menu_item(main_file, groupaddress_name, mid_menu_file)
-                    self.create_mid_menu(groupaddress_name, main_address, mid_menu_file)
+                    mid_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
+                    self.create_xml_menu_item(main_xml, groupaddress_name, mid_xml_file_name)
+                    self.create_mid_xml(groupaddress_name, main_address, mid_xml_file_name)
             
-            self.close_xml_phone_menu(main_file)
+            self.close_xml_phone_menu(main_xml)
 
-    def open_xml_phone_menu(self, file, title="KNX"):
-        file.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
-            <SnomIPPhoneMenu>
-            <Title>{title}</Title>""")
+    def create_mid_xml(self, main_address_name, main_address, mid_xml_file_name):
+        mid_xml_path = f"{XML_PHYSICAL_ROOT}{mid_xml_file_name}"
+        helpers.remove_file_if_exists(mid_xml_path)
 
-    def create_xml_menu_item(self, file, groupaddress_name, sub_file):
-        file.write(f"""
-            <MenuItem>
-                <Name>{groupaddress_name}</Name>
-                <URL>{XML_HTTP_ROOT}{sub_file}</URL>
-            </MenuItem>
-        """)
-
-
-    def create_mid_menu(self, main_address_name, main_address, mid_menu_file):
-        mid_file_path = f"{XML_PHYSICAL_ROOT}{mid_menu_file}"
-        helpers.remove_file_if_exists(mid_file_path)
-
-        with open(mid_file_path, 'w', encoding=ENCODING) as mid_file:
-            self.open_xml_phone_menu(mid_file, title=main_address_name)
+        with open(mid_xml_path, 'w', encoding=ENCODING) as mid_xml:
+            self.open_xml_phone_menu(mid_xml, title=main_address_name)
 
             for groupaddress_info in self.csv_data:
                 groupaddress_name = groupaddress_info[0]
@@ -93,20 +79,18 @@ class SnomXMLFactory:
                 is_mid_address = mid_address != '-' and sub_address == '-'
 
                 if belongs_to_main_address and is_mid_address:
-                    sub_menu_file = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    self.create_xml_menu_item(mid_file, groupaddress_name, sub_menu_file)
-                    self.create_sub_menu(groupaddress_name, main_address, mid_address, sub_menu_file)
+                    sub_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
+                    self.create_xml_menu_item(mid_xml, groupaddress_name, sub_xml_file_name)
+                    self.create_sub_xml(groupaddress_name, main_address, mid_address, sub_xml_file_name)
 
-            self.close_xml_phone_menu(mid_file)
+            self.close_xml_phone_menu(mid_xml)
 
-    def create_sub_menu(self, mid_address_name, main_address, mid_address, sub_menu_file):
-        sub_file_path = f"{XML_PHYSICAL_ROOT}{sub_menu_file}"
-        helpers.remove_file_if_exists(sub_file_path)
+    def create_sub_xml(self, mid_address_name, main_address, mid_address, sub_xml_file_name):
+        sub_xml_path = f"{XML_PHYSICAL_ROOT}{sub_xml_file_name}"
+        helpers.remove_file_if_exists(sub_xml_path)
 
-        with open(sub_file_path, 'w', encoding=ENCODING) as sub_menu_data:
-            sub_menu_data.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
-            <SnomIPPhoneMenu>
-            <Title>{mid_address_name}</Title>""")
+        with open(sub_xml_path, 'w', encoding=ENCODING) as sub_xml:
+            self.open_xml_phone_menu(sub_xml, title=mid_address_name)
 
             for groupaddress_info in self.csv_data:
                 groupaddress_name = groupaddress_info[0]
@@ -118,25 +102,18 @@ class SnomXMLFactory:
                 is_sub_address = sub_address != '-'
 
                 if belongs_to_main_address and belongs_to_mid_address and is_sub_address:
-                    action_menu_file = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    sub_menu_data.write(f"""
-                    <MenuItem>
-                        <Name>{groupaddress_name}</Name>
-                        <URL>{XML_HTTP_ROOT}{action_menu_file}</URL>
-                    </MenuItem>""")
-                    self.create_action_menu(groupaddress_name, groupaddress)
+                    values_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
+                    self.create_xml_menu_item(sub_xml, groupaddress_name, values_xml_file_name)
+                    self.create_values_xml(groupaddress_name, groupaddress, values_xml_file_name)
 
-            sub_menu_data.write(f"""
-            </SnomIPPhoneMenu>""")
+            self.close_xml_phone_menu(sub_xml)
 
-    def create_action_menu(self, sub_address_name, sub_address):
-        groupaddress_file_path = f"{XML_PHYSICAL_ROOT}/{sub_address.replace('/',SEPERATOR)}.xml"
-        helpers.remove_file_if_exists(groupaddress_file_path)
+    def create_values_xml(self, sub_address_name, sub_address, values_xml_file_name):
+        values_xml_path = f"{XML_PHYSICAL_ROOT}{values_xml_file_name}"
+        helpers.remove_file_if_exists(values_xml_path)
 
-        with open(groupaddress_file_path, 'w', encoding=ENCODING) as groupaddress_menu_data:
-            groupaddress_menu_data.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
-            <SnomIPPhoneMenu>
-            <Title>{sub_address_name}</Title>""")
+        with open(values_xml_path, 'w', encoding=ENCODING) as values_xml:
+            self.open_xml_phone_menu(values_xml, title=sub_address_name)
 
             for groupaddress_info in self.csv_data:
                 groupaddress = groupaddress_info[1]
@@ -180,14 +157,26 @@ class SnomXMLFactory:
                         <Name>Show {groupaddress} value</Name>
                         <URL>Fetch {groupaddress} value</URL>
                     </MenuItem>""")
-        
-            groupaddress_menu_data.write(f"""
-        </SnomIPPhoneMenu>""")
 
-    def close_xml_phone_menu(self, file):
-        file.write(f"""</SnomIPPhoneMenu>""")
+            self.close_xml_phone_menu(values_xml)
 
-    def create_deskphone_xml(self):
+    def open_xml_phone_menu(self, xml_file, title="KNX"):
+        xml_file.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
+            <SnomIPPhoneMenu>
+            <Title>{title}</Title>""")
+
+    def close_xml_phone_menu(self, xml_file):
+        xml_file.write("</SnomIPPhoneMenu>")
+
+    def create_xml_menu_item(self, xml_file, groupaddress_name, xml_subfile):
+        xml_file.write(f"""
+            <MenuItem>
+                <Name>{groupaddress_name}</Name>
+                <URL>{XML_HTTP_ROOT}{xml_subfile}</URL>
+            </MenuItem>
+        """)
+
+    def create_single_xml(self):
         xml_file = settings.XML_TARGET_PATH
 
         with open(xml_file, "w") as xml_data:
