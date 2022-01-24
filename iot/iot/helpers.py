@@ -1,5 +1,14 @@
 """Help functions for iot project"""
 import socket
+import os
+import shutil
+import logging
+from enum import Enum
+
+class StringEnum(Enum):
+    def __repr__(self):
+        return f"<{ self.__class__.__name__ }.{ self.name }>"
+
 
 def get_local_ip():
     local_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -12,3 +21,16 @@ def get_local_ip():
     finally:
         local_socket.close()
     return local_ip
+
+def remove_file_if_exists(file):
+    if os.path.exists(file):
+        os.remove(file)
+        logging.warning(f"Existing file {file} deleted")
+
+def update_directory(directory):
+    if os.path.exists(directory):
+        shutil.rmtree(directory)
+        logging.warning(f"Existing directory {directory} removed recursively")
+
+    os.makedirs(directory)
+    logging.warning(f"Directory {directory} created")
