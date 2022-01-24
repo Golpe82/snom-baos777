@@ -53,7 +53,7 @@ class SnomXMLFactory:
         helpers.remove_file_if_exists(main_xml_path)
 
         with open(main_xml_path, 'w', encoding=ENCODING) as main_xml:
-            self.open_xml_phone_menu(main_xml)
+            open_xml_phone_menu(main_xml)
 
             for groupaddress_info in self.csv_data:
                 groupaddress_name = groupaddress_info[0]
@@ -64,10 +64,10 @@ class SnomXMLFactory:
 
                 if is_main_address:
                     mid_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    self.create_xml_menu_item(main_xml, groupaddress_name, mid_xml_file_name)
+                    create_xml_menu_item(main_xml, groupaddress_name, mid_xml_file_name)
                     self.create_mid_xml(groupaddress_name, main_address, mid_xml_file_name)
             
-            self.close_xml_phone_menu(main_xml)
+            close_xml_phone_menu(main_xml)
 
     def create_mid_xml(self, main_address_name, main_address, mid_xml_file_name):
         mid_xml_path = f"{XML_PHYSICAL_ROOT}{mid_xml_file_name}"
