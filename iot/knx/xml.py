@@ -1,25 +1,149 @@
 import os
 import csv
+import logging
 
-from iot import settings
+from iot import settings, helpers
 
-SEPERATOR='S'
-XML_HTTP_ROOT=f'http://{settings.GATEWAY_IP}'
-KNX_ROOT=settings.KNX_ROOT
-XML_PHYSICAL_ROOT=settings.NGINX_HTML_ROOT
+SEPERATOR = '_'
+XML_HTTP_ROOT = f'http://{settings.GATEWAY_IP}/knx_xml/'
+KNX_ROOT = settings.KNX_ROOT
+XML_PHYSICAL_ROOT = settings.XML_TARGET_DIRECTORY
+MAIN_XML_FILE_NAME = "knx_multi.xml"
+ENCODING = 'iso-8859-10'
+DATAPOINT_TYPES = {
+    "binary": 1,
+    "step_code": 3,
+    "unsigned_value": 5,
+}
+DATAPOINT_SUBTYPES = {
+    "binary": {
+        "on_off": 1,
+        "state": 11,
+    },
+    "step_code": {},
+    "unsigned_value": {}
+}
+DATAPOINT_VALUES = {
+    1: {"on": "-an", "off": "-aus"},
+    3: {"increase": "-plus", "decrease": "-minus"},
+}
 
+# TODO: check and handle file if it is too big for RTX compability
+# RTX max. size: 16K?
 class SnomXMLFactory:
-    def __init__(self):
-        self.csv_data = []
+    def __init__(self, csv_file):
+        self.csv_file = csv_file
+        self.csv_data = self.get_csv_data()
+        helpers.update_directory(XML_PHYSICAL_ROOT)
 
-    def set_csv_data(self, csv_file):
-        data = csv.reader(
-            open(f"{ settings.MEDIA_ROOT }{ csv_file }", encoding='latin-1')
-        )
-        self.csv_data = [line for line in data]
+    def get_csv_data(self):
+        csv_file_path = f"{ settings.MEDIA_ROOT }{self.csv_file}"
 
-    def create_deskphone_xml(self, csv_file):
-        self.set_csv_data(csv_file)
+        with open(csv_file_path, encoding=ENCODING) as csv_data:
+            data = list(csv.reader(csv_data))
+            has_header = "Group name" in data[0]
+
+            if has_header:
+                data.pop(0)
+
+            return data
+
+    def create_multi_xml(self):
+        main_xml_path = f'{XML_PHYSICAL_ROOT}{MAIN_XML_FILE_NAME}'
+        helpers.remove_file_if_exists(main_xml_path)
+
+        with open(main_xml_path, 'w', encoding=ENCODING) as main_xml:
+            self.open_xml_phone_menu(main_xml)
+
+            for groupaddress_info in self.csv_data:
+                groupaddress_name = groupaddress_info[0]
+                groupaddress = groupaddress_info[1]
+                groupaddress_items = groupaddress.split("/")
+                main_address = groupaddress_items[0]
+                is_main_address = '/-/-' in groupaddress
+
+                if is_main_address:
+                    mid_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
+                    self.create_xml_menu_item(main_xml, groupaddress_name, mid_xml_file_name)
+                    self.create_mid_xml(groupaddress_name, main_address, mid_xml_file_name)
+            
+            self.close_xml_phone_menu(main_xml)
+
+    def create_mid_xml(self, main_address_name, main_address, mid_xml_file_name):
+        mid_xml_path = f"{XML_PHYSICAL_ROOT}{mid_xml_file_name}"
+        helpers.remove_file_if_exists(mid_xml_path)
+
+        with open(mid_xml_path, 'w', encoding=ENCODING) as mid_xml:
+            open_xml_phone_menu(mid_xml, title=main_address_name)
+
+            for groupaddress_info in self.csv_data:
+                groupaddress_name = groupaddress_info[0]
+                groupaddress = groupaddress_info[1]
+                groupaddress_items = groupaddress.split("/")
+                mid_address = groupaddress_items[1]
+                sub_address = groupaddress_items[2]
+                belongs_to_main_address = groupaddress_items[0] == main_address
+                is_mid_address = mid_address != '-' and sub_address == '-'
+
+                if belongs_to_main_address and is_mid_address:
+                    sub_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
+                    create_xml_menu_item(mid_xml, groupaddress_name, sub_xml_file_name)
+                    self.create_sub_xml(groupaddress_name, main_address, mid_address, sub_xml_file_name)
+
+            close_xml_phone_menu(mid_xml)
+
+    def create_sub_xml(self, mid_address_name, main_address, mid_address, sub_xml_file_name):
+        sub_xml_path = f"{XML_PHYSICAL_ROOT}{sub_xml_file_name}"
+        helpers.remove_file_if_exists(sub_xml_path)
+
+        with open(sub_xml_path, 'w', encoding=ENCODING) as sub_xml:
+            open_xml_phone_menu(sub_xml, title=mid_address_name)
+
+            for groupaddress_info in self.csv_data:
+                groupaddress_name = groupaddress_info[0]
+                groupaddress = groupaddress_info[1]
+                groupaddress_items = groupaddress.split("/")
+                sub_address = groupaddress_items[2]
+                belongs_to_main_address = groupaddress_items[0] == main_address
+                belongs_to_mid_address = groupaddress_items[1] == mid_address
+                is_sub_address = sub_address != '-'
+
+                if belongs_to_main_address and belongs_to_mid_address and is_sub_address:
+                    values_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
+                    create_xml_menu_item(sub_xml, groupaddress_name, values_xml_file_name)
+                    self.create_values_xml(groupaddress_name, groupaddress, values_xml_file_name)
+
+            close_xml_phone_menu(sub_xml)
+
+    def create_values_xml(self, sub_address_name, sub_address, values_xml_file_name):
+        values_xml_path = f"{XML_PHYSICAL_ROOT}{values_xml_file_name}"
+        helpers.remove_file_if_exists(values_xml_path)
+
+        with open(values_xml_path, 'w', encoding=ENCODING) as values_xml:
+            open_xml_phone_menu(values_xml, title=sub_address_name)
+
+            for groupaddress_info in self.csv_data:
+                groupaddress = groupaddress_info[1]
+                is_groupaddress = groupaddress == sub_address
+                datapointtype_string = groupaddress_info[5]
+                datapointtype_items = datapointtype_string.split("-")
+
+                if len(datapointtype_items) >= 2:
+                    datapointtype = get_datapoint_type(datapointtype_items)
+                    datapoint_subtype = get_datapoint_subtype(datapointtype_items)
+
+                    if is_groupaddress and datapointtype in DATAPOINT_TYPES.values():
+                        if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype == DATAPOINT_SUBTYPES["binary"]["on_off"]:
+                            create_xml_menu_item_action(values_xml, groupaddress, datapointtype)
+                        elif datapointtype == DATAPOINT_TYPES.get("step_code"):
+                            create_xml_menu_item_action(values_xml, groupaddress, datapointtype)
+                        elif datapointtype == DATAPOINT_TYPES.get("unsigned_value"):
+                            create_xml_menu_item_read_value(values_xml, groupaddress)
+
+            close_xml_phone_menu(values_xml)
+
+    # TODO: Refactor
+    def create_single_xml(self):
         xml_file = settings.XML_TARGET_PATH
 
         with open(xml_file, "w") as xml_data:
@@ -138,100 +262,48 @@ class SnomXMLFactory:
         </SnomIPPhoneMenu>"""
             )
 
-    def create_handset_xml(self, csv_file):
-        self.set_csv_data(csv_file)
-        create_xml_files(self.csv_data)
+def create_xml_menu_item(xml_file, groupaddress_name, xml_subfile):
+    xml_file.write(f"""
+        <MenuItem>
+            <Name>{groupaddress_name}</Name>
+            <URL>{XML_HTTP_ROOT}{xml_subfile}</URL>
+        </MenuItem>
+    """)
 
-def create_xml_files(csv_data):
-    main_menu_file = f'{XML_PHYSICAL_ROOT}/knx_dect.xml'
+def get_datapoint_type(datapointtype_items):
+    return int(datapointtype_items[1])
 
-    if os.path.exists(main_menu_file):
-        os.remove(main_menu_file)
-    else:
-        print("The file does not exist")
+def get_datapoint_subtype(datapointtype_items):
+    try:
+        datapoint_subtype = int(datapointtype_items[2])
+    except IndexError:
+        datapoint_subtype = None
+    except Exception:
+        logging.exception("Uncaught exception:")
 
-    with open(main_menu_file, 'w', encoding='iso-8859-10') as main_menu_data:
-        main_menu_data.write(f"""<SnomIPPhoneMenu>
-        <Title>Main</Title>""")
+    return datapoint_subtype
 
-        for row in csv_data:
-            menu_name = row[0]
-            main_menu = row[1]
-            is_main_menu = '/-/-' in main_menu
-
-            if is_main_menu:
-                mid_menu_file = f"{main_menu.replace('/',SEPERATOR)}.xml"
-                main_menu_data.write(f"""
+def create_xml_menu_item_action(xml_file, groupaddress, datapointtype):
+    for label, value in DATAPOINT_VALUES.get(datapointtype).items():
+        xml_file.write(f"""
             <MenuItem>
-                <Name>{menu_name}</Name>
-                <URL>{XML_HTTP_ROOT}/{mid_menu_file}</URL>
-            </MenuItem>""")
-                make_mid_menu(csv_data, menu_name, main_menu)
-        main_menu_data.write(f"""
-    </SnomIPPhoneMenu>""")
+                <Name>{label}</Name>
+                <URL>{ KNX_ROOT }{groupaddress}{value}</URL>
+            </MenuItem>"""
+        )
 
-def make_mid_menu(data, main_menu_name, main_menu):
-    print(main_menu_name)
-    print(main_menu)
-    xml_file=f"{XML_PHYSICAL_ROOT}/{main_menu.replace('/',SEPERATOR)}.xml"
+def create_xml_menu_item_read_value(xml_file, groupaddress):
+    xml_file.write(f"""
+        <MenuItem>
+            <Name>Show {groupaddress} value</Name>
+            <URL>Fetch {groupaddress} value</URL>
+        </MenuItem>"""
+    )
 
-    if os.path.exists(xml_file):
-        os.remove(xml_file)
-    else:
-        print("The file does not exist")
+def open_xml_phone_menu(xml_file, title="KNX"):
+    xml_file.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
+        <SnomIPPhoneMenu>
+        <Title>{title}</Title>""")
 
-    with open(xml_file, 'w', encoding='iso-8859-10') as xml_data:
-        main_menu_split = main_menu.split("/")
-        xml_data.write(f"""<SnomIPPhoneMenu>
-        <Title>{main_menu_name}</Title>""")
-
-        for row_mid_menu in data:
-            print(row_mid_menu)
-            row_split = row_mid_menu[1].split("/")
-            print(row_mid_menu)
-            if row_split[0] == main_menu_split[0] and row_split[1] != '-' and row_split[2] == '-':
-                new_file_name = row_mid_menu[1].replace('/',SEPERATOR)
-
-                xml_data.write(f"""
-                <MenuItem>
-                    <Name>{ row_mid_menu[0] }</Name>
-                    <URL>{XML_HTTP_ROOT}/{new_file_name}.xml</URL>
-                </MenuItem>""")
-                make_action_menu(data, row_mid_menu[0], row_mid_menu[1])
-
-        xml_data.write(f"""
-        </SnomIPPhoneMenu>""")
-
-def make_action_menu(data, menu_name, top_menu):
-    xml_file=f"{XML_PHYSICAL_ROOT}/{top_menu.replace('/',SEPERATOR)}.xml"
-
-    if os.path.exists(xml_file):
-        os.remove(xml_file)
-    else:
-        print("The file does not exist")
-
-    with open(xml_file, 'w', encoding='iso-8859-10') as xml_data:
-        top_menu_split = top_menu.split("/")
-        xml_data.write(f"""<SnomIPPhoneMenu>
-        <Title>{menu_name}</Title>""")
-
-        for row_action_menu in data:
-            row_split = row_action_menu[1].split("/")
-            if row_split[0] == top_menu_split[0] and row_split[1] == top_menu_split[1] and row_split[2] != '-': 
-                action_split = row_action_menu[5].split("-")
-                if action_split[0] == 'DPST' and action_split[1] == '1' and action_split[2] != '11':
-                    xml_data.write(f"""
-            <MenuItem>
-                <Name>{ row_action_menu[0] }</Name>
-            </MenuItem>
-            <MenuItem>
-                <Name>AN</Name>
-                <URL>{ KNX_ROOT }{ row_action_menu[1] }-an</URL>
-            </MenuItem>
-            <MenuItem>
-                <Name>AUS</Name>
-                <URL>{ KNX_ROOT}{ row_action_menu[1] }-aus</URL>
-            </MenuItem>""")
-        
-        xml_data.write(f"""
-    </SnomIPPhoneMenu>""")
+def close_xml_phone_menu(xml_file):
+    xml_file.write("</SnomIPPhoneMenu>")
