@@ -22,6 +22,10 @@ DATAPOINT_SUBTYPES = {
     "step_code": {},
     "unsigned_value": {}
 }
+DATAPOINT_VALUES = {
+    1: {"on": "-an", "off": "-aus"},
+    3: {"increase": "-plus", "decrease": "-minus"},
+}
 
 # TODO: check and handle file if it is too big for RTX compability
 # RTX max. size: 16K?
@@ -48,7 +52,7 @@ class SnomXMLFactory:
         helpers.remove_file_if_exists(main_xml_path)
 
         with open(main_xml_path, 'w', encoding=ENCODING) as main_xml:
-            self.open_xml_phone_menu(main_xml)
+            open_xml_phone_menu(main_xml)
 
             for groupaddress_info in self.csv_data:
                 groupaddress_name = groupaddress_info[0]
@@ -59,17 +63,17 @@ class SnomXMLFactory:
 
                 if is_main_address:
                     mid_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    self.create_xml_menu_item(main_xml, groupaddress_name, mid_xml_file_name)
+                    create_xml_menu_item(main_xml, groupaddress_name, mid_xml_file_name)
                     self.create_mid_xml(groupaddress_name, main_address, mid_xml_file_name)
             
-            self.close_xml_phone_menu(main_xml)
+            close_xml_phone_menu(main_xml)
 
     def create_mid_xml(self, main_address_name, main_address, mid_xml_file_name):
         mid_xml_path = f"{XML_PHYSICAL_ROOT}{mid_xml_file_name}"
         helpers.remove_file_if_exists(mid_xml_path)
 
         with open(mid_xml_path, 'w', encoding=ENCODING) as mid_xml:
-            self.open_xml_phone_menu(mid_xml, title=main_address_name)
+            open_xml_phone_menu(mid_xml, title=main_address_name)
 
             for groupaddress_info in self.csv_data:
                 groupaddress_name = groupaddress_info[0]
@@ -82,17 +86,17 @@ class SnomXMLFactory:
 
                 if belongs_to_main_address and is_mid_address:
                     sub_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    self.create_xml_menu_item(mid_xml, groupaddress_name, sub_xml_file_name)
+                    create_xml_menu_item(mid_xml, groupaddress_name, sub_xml_file_name)
                     self.create_sub_xml(groupaddress_name, main_address, mid_address, sub_xml_file_name)
 
-            self.close_xml_phone_menu(mid_xml)
+            close_xml_phone_menu(mid_xml)
 
     def create_sub_xml(self, mid_address_name, main_address, mid_address, sub_xml_file_name):
         sub_xml_path = f"{XML_PHYSICAL_ROOT}{sub_xml_file_name}"
         helpers.remove_file_if_exists(sub_xml_path)
 
         with open(sub_xml_path, 'w', encoding=ENCODING) as sub_xml:
-            self.open_xml_phone_menu(sub_xml, title=mid_address_name)
+            open_xml_phone_menu(sub_xml, title=mid_address_name)
 
             for groupaddress_info in self.csv_data:
                 groupaddress_name = groupaddress_info[0]
@@ -105,17 +109,17 @@ class SnomXMLFactory:
 
                 if belongs_to_main_address and belongs_to_mid_address and is_sub_address:
                     values_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    self.create_xml_menu_item(sub_xml, groupaddress_name, values_xml_file_name)
+                    create_xml_menu_item(sub_xml, groupaddress_name, values_xml_file_name)
                     self.create_values_xml(groupaddress_name, groupaddress, values_xml_file_name)
 
-            self.close_xml_phone_menu(sub_xml)
+            close_xml_phone_menu(sub_xml)
 
     def create_values_xml(self, sub_address_name, sub_address, values_xml_file_name):
         values_xml_path = f"{XML_PHYSICAL_ROOT}{values_xml_file_name}"
         helpers.remove_file_if_exists(values_xml_path)
 
         with open(values_xml_path, 'w', encoding=ENCODING) as values_xml:
-            self.open_xml_phone_menu(values_xml, title=sub_address_name)
+            open_xml_phone_menu(values_xml, title=sub_address_name)
 
             for groupaddress_info in self.csv_data:
                 groupaddress = groupaddress_info[1]
@@ -124,60 +128,20 @@ class SnomXMLFactory:
                 datapointtype_items = datapointtype_string.split("-")
 
                 if len(datapointtype_items) >= 2:
-                    datapointtype = int(datapointtype_items[1])
-                    try: 
-                        datapoint_subtype = int(datapointtype_items[2])
-                    except IndexError:
-                        datapoint_subtype = None   
+                    datapointtype = get_datapoint_type(datapointtype_items)
+                    datapoint_subtype = get_datapoint_subtype(datapointtype_items)
 
                     if is_groupaddress and datapointtype in DATAPOINT_TYPES.values():
                         if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype == DATAPOINT_SUBTYPES["binary"]["on_off"]:
-                            values_xml.write(f"""
-                    <MenuItem>
-                        <Name>on</Name>
-                        <URL>{ KNX_ROOT }{groupaddress}-an</URL>
-                    </MenuItem>
-                    <MenuItem>
-                        <Name>off</Name>
-                        <URL>{ KNX_ROOT}{groupaddress}-aus</URL>
-                    </MenuItem>""")
-
+                            create_xml_menu_item_action(values_xml, groupaddress, datapointtype)
                         elif datapointtype == DATAPOINT_TYPES.get("step_code"):
-                            values_xml.write(f"""
-                    <MenuItem>
-                        <Name>increase</Name>
-                        <URL>{ KNX_ROOT }{groupaddress}-plus</URL>
-                    </MenuItem>
-                    <MenuItem>
-                        <Name>decrease</Name>
-                        <URL>{ KNX_ROOT}{groupaddress}-minus</URL>
-                    </MenuItem>""")
-
+                            create_xml_menu_item_action(values_xml, groupaddress, datapointtype)
                         elif datapointtype == DATAPOINT_TYPES.get("unsigned_value"):
-                            values_xml.write(f"""
-                    <MenuItem>
-                        <Name>Show {groupaddress} value</Name>
-                        <URL>Fetch {groupaddress} value</URL>
-                    </MenuItem>""")
+                            create_xml_menu_item_read_value(values_xml, groupaddress)
 
-            self.close_xml_phone_menu(values_xml)
+            close_xml_phone_menu(values_xml)
 
-    def open_xml_phone_menu(self, xml_file, title="KNX"):
-        xml_file.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
-            <SnomIPPhoneMenu>
-            <Title>{title}</Title>""")
-
-    def close_xml_phone_menu(self, xml_file):
-        xml_file.write("</SnomIPPhoneMenu>")
-
-    def create_xml_menu_item(self, xml_file, groupaddress_name, xml_subfile):
-        xml_file.write(f"""
-            <MenuItem>
-                <Name>{groupaddress_name}</Name>
-                <URL>{XML_HTTP_ROOT}{xml_subfile}</URL>
-            </MenuItem>
-        """)
-
+    # TODO: Refactor
     def create_single_xml(self):
         xml_file = settings.XML_TARGET_PATH
 
@@ -296,3 +260,49 @@ class SnomXMLFactory:
             """
         </SnomIPPhoneMenu>"""
             )
+
+def create_xml_menu_item(xml_file, groupaddress_name, xml_subfile):
+    xml_file.write(f"""
+        <MenuItem>
+            <Name>{groupaddress_name}</Name>
+            <URL>{XML_HTTP_ROOT}{xml_subfile}</URL>
+        </MenuItem>
+    """)
+
+def get_datapoint_type(datapointtype_items):
+    return int(datapointtype_items[1])
+
+def get_datapoint_subtype(datapointtype_items):
+    try:
+        datapoint_subtype = int(datapointtype_items[2])
+    except IndexError:
+        datapoint_subtype = None
+    except Exception:
+        logging.exception("Uncaught exception:")
+
+    return datapoint_subtype
+
+def create_xml_menu_item_action(xml_file, groupaddress, datapointtype):
+    for label, value in DATAPOINT_VALUES.get(datapointtype).items():
+        xml_file.write(f"""
+            <MenuItem>
+                <Name>{label}</Name>
+                <URL>{ KNX_ROOT }{groupaddress}{value}</URL>
+            </MenuItem>"""
+        )
+
+def create_xml_menu_item_read_value(xml_file, groupaddress):
+    xml_file.write(f"""
+        <MenuItem>
+            <Name>Show {groupaddress} value</Name>
+            <URL>Fetch {groupaddress} value</URL>
+        </MenuItem>"""
+    )
+
+def open_xml_phone_menu(xml_file, title="KNX"):
+    xml_file.write(f"""<?xml version="1.0" encoding="{ENCODING}"?>
+        <SnomIPPhoneMenu>
+        <Title>{title}</Title>""")
+
+def close_xml_phone_menu(xml_file):
+    xml_file.write("</SnomIPPhoneMenu>")
