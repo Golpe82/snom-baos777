@@ -26,7 +26,9 @@ BOOTSTRAP = {
 POST_STATUS_URL = "http://localhost:8000/knx/values"
 # GET_RULES_URL = "http://localhost:8000/knx/rules/"
 KNX_URL = "http://localhost:1234/"
-GET_STATUS_URL_ROOT = "http://localhost:8000/knx/status/"
+DEVELOPMENT_GATEWAY_URL = "http://10.110.16.63:1234/"
+STATUS_URL = "http://localhost:8000/knx/status/"
+DEV_STATUS_URL = "http://10.110.16.63:8000/knx/status/"
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -103,53 +105,64 @@ class DBActions(object):
             )
 
         except:
-            logging.info(f"Could not save data with post. URL = { POST_STATUS_URL }")
+            logging.info(f"Could not save data with post. URL = {POST_STATUS_URL}")
 
 
 class KNXActions(object):
-    def __init__(self):
-        self.groupaddress = "1/1/21"
-        self.min_value = 100
-        self.max_value = 110
-        # self.rules = requests.get(GET_RULES_URL)
+    def __init__(self, client_info):
+        self.client_label = client_info.get("label")
+        self.client_min_brightness = client_info.get("min brightness")
+        self.client_max_brightness = client_info.get("max brightness")
+        self.switch_groupaddress = client_info.get("switch groupaddress")
+        self.relative_dim_groupaddress = client_info.get("relative dim groupaddress")
 
-    def knx_dimm_relative(self, value):
-        if value < self.min_value:
+    def knx_dimm_relative(self, lux_value):
+        if lux_value < self.client_min_brightness:
             self.knx_increase()
-
-        elif value > self.max_value:
+        elif lux_value > self.client_max_brightness:
             self.knx_decrease()
 
     def knx_increase(self):
-        VALUE = "-plus"
+        value = "-plus"
+        logging.info(f"{self.client_label} dimming up {self.relative_dim_groupaddress}")
 
         try:
-            requests.get(f"{ KNX_URL }{ self.groupaddress }{ VALUE }")
-
+            requests.get(f"{KNX_URL}{self.relative_dim_groupaddress}{value}")
+        except requests.exceptions.ConnectionError:
+            logging.info(f"Default localhost not reachable, trying {DEVELOPMENT_GATEWAY_URL}...")
+            requests.get(f"{DEVELOPMENT_GATEWAY_URL}{self.relative_dim_groupaddress}{value}")
         except:
-            logging.info(
-                "Could not increase. KNX gateway not reachable or invalid groupaddress/value"
+            logging.exception(
+                f"Could not increase { self.relative_dim_groupaddress }. KNX gateway not reachable or invalid groupaddress/value"
             )
 
     def knx_decrease(self):
-        VALUE = "-minus"
+        value = "-minus"
+        logging.info(f"{self.client_label} dimming down {self.relative_dim_groupaddress}")
 
         try:
-            requests.get(f"{ KNX_URL }{ self.groupaddress }{ VALUE }")
-
+            requests.get(f"{ KNX_URL }{ self.relative_dim_groupaddress }{ value }")
+        except requests.exceptions.ConnectionError:
+            logging.info(f"Default localhost not reachable, trying {DEVELOPMENT_GATEWAY_URL}...")
+            requests.get(f"{ DEVELOPMENT_GATEWAY_URL }{ self.relative_dim_groupaddress }{ value }")
         except:
             logging.info(
-                f"Could not decrease { self.groupaddress }. KNX gateway not reachable or invalid groupaddress/value"
+                f"Could not decrease { self.relative_dim_groupaddress }. KNX gateway not reachable or invalid groupaddress/value"
             )
 
-    def get_status(self, request_groupaddress):
+    def get_status(self):
         try:
-            status = requests.get(f"{ GET_STATUS_URL_ROOT }{ request_groupaddress }/")
+            status = requests.get(f"{STATUS_URL}{self.switch_groupaddress}/")
 
-            return status.json().get("Status")
+        except requests.exceptions.ConnectionError:
+            logging.info(f"Default localhost not reachable, trying {DEVELOPMENT_GATEWAY_URL}...")
+            status = requests.get(f"{DEV_STATUS_URL}{self.switch_groupaddress}/")
 
         except:
-            logging.info(f"No status for groupaddress { request_groupaddress }")
+            logging.info(f"No status for groupaddress {self.switch_groupaddress}")
+            raise
+
+        return status.json().get("Status")
 
 
 class RSyslogParser(object):
