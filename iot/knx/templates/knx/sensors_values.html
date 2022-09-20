@@ -1,0 +1,15 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  {% comment %} <h1>Renew: {{ book_instance.book.title }}</h1>
+  <p>Borrower: {{ book_instance.borrower }}</p>
+  <p{% if book_instance.is_overdue %} class="text-danger"{% endif %}>Due date: {{ book_instance.due_back }}</p> {% endcomment %}
+
+  <form action="" method="get">
+    <h3>{{ message }}</h3>
+    <table>
+    {{ form.as_table }}
+    </table>
+    {% comment %} <input type="submit" value="Submit"> {% endcomment %}
+  </form>
+{% endblock %}
