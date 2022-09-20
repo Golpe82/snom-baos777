@@ -1,77 +1,59 @@
-#!/usr/bin/env python3
-
-# TOD0: send syslog messages direct to python programm, instead
-# saving first into a file.
-# Maybe with https://www.rsyslog.com/doc/master/configuration/modules/omprog.html ?
-# example: https://www.bggofurther.com/2021/03/use-rsyslog-omprog-with-a-python-script/
-"""Reads syslog file where ambient light sensor values are stored"""
-import os
-import subprocess
-import select
-import time
 import logging
+import socketserver
 
-import snom_syslog_parser as als_parser
-from snom_syslog_parser import KNXActions, DBActions
+from snom_syslog_parser import KNXActions, DBActions, to_lux
+from syslog_clients import SYSLOG_CLIENTS
 
+HOST, PORT = "0.0.0.0", 514
 
-CONTENTS = {
-    "light sensor value": "ALS_VALUE",
-    "light sensor key": "ALS_KEY",
-}
-
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO, format='%(message)s', datefmt='', filemode='a')
 
 
-def main():
-    LIGHT_SENSOR_VALUE = CONTENTS.get("light sensor value")
-    LIGHT_SENSOR_KEY = CONTENTS.get("light sensor key")
-    FILE_EXISTS = os.path.isfile(als_parser.CONF_FILE)
-    parser = als_parser.RSyslogParser()
+class SyslogUDPHandler(socketserver.BaseRequestHandler):
+    def setup(self):
+        self.client_ip = self.client_address[0]
+        self.client_info = SYSLOG_CLIENTS.get(self.client_ip)
+        self.knx_action = KNXActions(self.client_info)
+        self.database_actions = DBActions()
 
-    if not FILE_EXISTS:
-        open(als_parser.CONF_FILE, "a").close()
+    def handle(self):
+        if self.als_value:
+            self.database_actions.als_save(self.als_value, self.lux_value)
+            logging.info(f"{self.client_info.get('label')}: {self.lux_value} lux")
 
-    FILE_SIZE = os.path.getsize(als_parser.CONF_FILE)
+            if self.knx_action.get_status() == "on":
+                self.knx_action.knx_dimm_relative(self.als_value)
+            else:
+                logging.info(f"Not switched on")
 
-    if not FILE_SIZE:
-        ip_address = input("Log ALS values of ip: ")
-        als_parser.add_ip_client(ip_address)
+    @property
+    def message(self):
+        raw_data = self.request[0].strip()
+        return str(bytes.decode(raw_data))
 
-    f = subprocess.Popen(
-        ["tail", "-F", als_parser.SYSLOG_FILE],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    p = select.poll()
-    p.register(f.stdout)
+    @property
+    def message_data(self):
+        return self.message.split()
 
-    # als_parser.assign_groupaddresses("10.110.16.59", "1/1/20", "/1/1/21")
+    @property
+    def als_value(self):
+        return self.get_als_value()
 
-    while True:
-        # TODO: Create a class "Phone" an create an instance of it for each client in
-        # '/etc/rsyslog.d/als_snom.conf'
+    @property
+    def lux_value(self):
+        return to_lux(self.als_value)
 
-        if p.poll(0.1):
-            last_message = f.stdout.readline()
-            last_message = last_message.decode("utf-8")
-
-            if LIGHT_SENSOR_VALUE in last_message:
-                logging.info(f"Syslog message: { last_message }")
-
-                message = parser.get_message(last_message, LIGHT_SENSOR_VALUE)
-                raw_value = message.get("value")
-                value = als_parser.to_lux(raw_value)
-                DBActions().als_save(raw_value, value)
-                status = KNXActions().get_status("1/1/10")
-
-                logging.info(f"Status: { status }")
-
-                if status == "on":
-                    KNXActions().knx_dimm_relative(value)
-
-        time.sleep(0.1)
-
+    def get_als_value(self):
+        for message_item in self.message_data:
+            if "ALS_VALUE" in message_item:
+                ambient_light = message_item.split(":")
+                return int(ambient_light[1])
 
 if __name__ == "__main__":
-    main()
+    try:
+        server = socketserver.UDPServer((HOST,PORT), SyslogUDPHandler)
+        server.serve_forever()
+    except (IOError, SystemExit):
+        raise
+    except KeyboardInterrupt:
+        print ("\nCrtl+C Pressed. Shutting down.")
