@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from knx.models import AlsStatus
+
+admin.site.register(AlsStatus)
