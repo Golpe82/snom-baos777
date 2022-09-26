@@ -1,8 +1,8 @@
 SYSLOG_CLIENTS = {
     "192.168.178.36": {
         "label": "Sofa lamp",
-        "min brightness": 100,
-        "max brightness": 110,
+        "min brightness": 170,
+        "max brightness": 200,
         "switch groupaddress": "1/1/10",
         "relative dim groupaddress": "1/1/11",
     },
