@@ -22,7 +22,7 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
             logging.info(f"{self.client_info.get('label')}: {self.lux_value} lux")
 
             if self.knx_action.get_status() == "on":
-                self.knx_action.knx_dimm_relative(self.als_value)
+                self.knx_action.knx_dimm_relative(self.lux_value)
             else:
                 logging.info(f"Not switched on")
 
