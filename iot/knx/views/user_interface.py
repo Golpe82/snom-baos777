@@ -71,7 +71,8 @@ def render_sensor_values(request):
         message = "Ambientlight sensor values"
     
     form = AlsFormSet()
-    print(form.initial)
+    print(dir(form))
+
     context = {
         "form": form,
         "message": message

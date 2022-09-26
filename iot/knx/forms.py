@@ -1,5 +1,3 @@
-from email.policy import default
-from ipaddress import ip_address
 from django import forms
 
 from knx.models import AlsStatus
