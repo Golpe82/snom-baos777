@@ -8,6 +8,11 @@ class AmbientlightSensor(forms.ModelForm):
 
     class Meta:
         model = AlsStatus
-        fields = ["ip_address", "value"]
+        fields = [
+            "device_name",
+            "ip_address",
+            "mac_address",
+            "value"
+        ]
 
 AlsFormSet = forms.modelformset_factory(AlsStatus,form=AmbientlightSensor)

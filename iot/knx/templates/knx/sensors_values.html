@@ -7,9 +7,22 @@
   <h3>{{ message }}</h3>
   <form action="" method="get">
     {{ form.management_form }}
-    {% for item in form %}
-      <table>{{item.value}}</table>
-    {% endfor %}
+      <table>
+        <tr>
+          <th>Device</th>
+          <th>IP address</th>
+          <th>MAC address</th>
+          <th>Brightness</th>
+        </tr>
+        {% for item in form %}
+          <tr>
+            <td>{{ item.device_name }}</td>
+            <td>{{ item.ip_address }}</td>
+            <td>{{ item.mac_address }}</td>
+            <td>{{ item.value }}</td>
+          </tr>
+        {% endfor %}
+      </table>
     {% comment %} {{form}} {% endcomment %}
     {% comment %} <input type="submit" value="Submit"> {% endcomment %}
   </form>

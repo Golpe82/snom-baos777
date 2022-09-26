@@ -1,6 +1,8 @@
 import logging
 import socketserver
 
+import getmac
+
 from snom_syslog_parser import KNXActions, DBActions, to_lux
 from syslog_clients import SYSLOG_CLIENTS
 
@@ -12,13 +14,14 @@ logging.basicConfig(level=logging.INFO, format='%(message)s', datefmt='', filemo
 class SyslogUDPHandler(socketserver.BaseRequestHandler):
     def setup(self):
         self.client_ip = self.client_address[0]
+        self.client_mac = getmac.get_mac_address(ip=self.client_ip)
         self.client_info = SYSLOG_CLIENTS.get(self.client_ip)
         self.knx_action = KNXActions(self.client_info)
         self.database_actions = DBActions()
 
     def handle(self):
         if self.als_value:
-            self.database_actions.als_save(self.als_value, self.lux_value)
+            self.database_actions.als_save(self.client_ip, self.client_mac, self.als_value, self.lux_value)
             logging.info(f"{self.client_info.get('label')}: {self.lux_value} lux")
 
             if self.knx_action.get_status() == "on":

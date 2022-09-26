@@ -92,13 +92,13 @@ def to_lux(raw_value):
 
 
 class DBActions(object):
-    def als_save(self, raw_value, value):
+    def als_save(self, client_ip, client_mac, raw_value, value):
         try:
             requests.post(
                 POST_STATUS_URL,
                 data={
-                    "mac_address": get_phones_info()[0].get("MAC"),
-                    "ip_address": get_phones_info()[0].get("IP"),
+                    "mac_address": client_mac,
+                    "ip_address": client_ip,
                     "raw_value": raw_value,
                     "value": value,
                 },
