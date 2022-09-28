@@ -26,9 +26,9 @@ BOOTSTRAP = {
 POST_STATUS_URL = "http://localhost:8000/knx/values"
 # GET_RULES_URL = "http://localhost:8000/knx/rules/"
 KNX_URL = "http://localhost:1234/"
-DEVELOPMENT_GATEWAY_URL = "http://10.110.16.63:1234/"
+DEVELOPMENT_GATEWAY_URL = "http://192.168.178.25:1234/"
 STATUS_URL = "http://localhost:8000/knx/status/"
-DEV_STATUS_URL = "http://10.110.16.63:8000/knx/status/"
+DEV_STATUS_URL = "http://192.168.178.25:8000/knx/status/"
 
 logging.basicConfig(level=logging.DEBUG)
 

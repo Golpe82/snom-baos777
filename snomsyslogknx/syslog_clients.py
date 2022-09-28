@@ -1,5 +1,5 @@
 SYSLOG_CLIENTS = {
-    "192.168.178.36": {
+    "192.168.178.20": {
         "label": "Sofa lamp",
         "min brightness": 170,
         "max brightness": 200,
