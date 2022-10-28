@@ -42,9 +42,9 @@ That means reading values from the KNX Bus (e.g. to visualize stati) is still no
 3. Delete this in the file `/boot/cmdline.txt`:  
     `console=serial0,115200`
 4. Adjust the group of the device with:  
-    `chgrp dialout /dev/ttyAMA0`
+    `sudo chgrp dialout /dev/ttyAMA0`
 5. Add the user in the group with:  
-    `usermod -a -G dialout pi`
+    `sudo usermod -a -G dialout pi`
 <!-- 6. Type `sudo crontab -e`, append this and save the changes:  
     `@reboot /usr/local/gateway/launcher.sh >/usr/local/gateway/cronlog 2>&1` -->
 7. Install [NGINX](https://www.nginx.com/) and git
