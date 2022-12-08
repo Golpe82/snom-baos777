@@ -26,9 +26,9 @@ BOOTSTRAP = {
 POST_STATUS_URL = "http://localhost:8000/knx/values"
 # GET_RULES_URL = "http://localhost:8000/knx/rules/"
 KNX_URL = "http://localhost:1234/"
-DEVELOPMENT_GATEWAY_URL = "http://10.110.16.63:1234/"
+DEVELOPMENT_GATEWAY_URL = "http://192.168.178.25:1234/"
 STATUS_URL = "http://localhost:8000/knx/status/"
-DEV_STATUS_URL = "http://10.110.16.63:8000/knx/status/"
+DEV_STATUS_URL = "http://192.168.178.25:8000/knx/status/"
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -92,13 +92,13 @@ def to_lux(raw_value):
 
 
 class DBActions(object):
-    def als_save(self, raw_value, value):
+    def als_save(self, client_ip, client_mac, raw_value, value):
         try:
             requests.post(
                 POST_STATUS_URL,
                 data={
-                    "mac_address": get_phones_info()[0].get("MAC"),
-                    "ip_address": get_phones_info()[0].get("IP"),
+                    "mac_address": client_mac,
+                    "ip_address": client_ip,
                     "raw_value": raw_value,
                     "value": value,
                 },

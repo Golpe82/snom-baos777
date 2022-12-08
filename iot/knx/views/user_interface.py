@@ -10,6 +10,7 @@ from django.http import HttpResponse, JsonResponse
 
 from knx import groupaddresses, upload
 from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus
+from knx.forms import AmbientlightSensor, AlsFormSet
 
 APP = "KNX"
 logging.basicConfig(level=logging.DEBUG)
@@ -63,28 +64,21 @@ def upload_file(request):
 
 
 def render_sensor_values(request):
-    if BrightnessRules.objects.filter(mac_address="000413A34795"):
-        BrightnessRules.objects.filter(mac_address="000413A34795").delete()
-
-    BrightnessRules.objects.create(
-        mac_address="000413A34795",
-        ip_address="192.168.178.66",
-        min_value="100",
-        max_value="110",
-    )
-
-    status = AlsStatus.objects.all()
-    rules = BrightnessRules.objects.all()
+    if request.method == "POST":
+        message = "No post requests allowed"
+        logging.warning(message)
+    else:
+        message = "Ambientlight sensor values"
+    
+    form = AlsFormSet()
+    print(dir(form))
 
     context = {
-        "status": status.values,
-        "rules": rules.values,
-        "project": settings.PROJECT_NAME,
-        "app": APP,
-        "page": "values",
+        "form": form,
+        "message": message
     }
 
-    return render(request, "knx/als_values.html", context)
+    return render(request, "knx/sensors_values.html", context)
 
 
 def get_rules(request):

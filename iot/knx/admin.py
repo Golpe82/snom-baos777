@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from knx.models import AlsStatus, Device
+
+admin.site.register(AlsStatus)
+admin.site.register(Device)
