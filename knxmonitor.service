@@ -1,5 +1,5 @@
 [Unit]
-Description=Service for reading from KNX bus and savin status
+Description=Service for reading from KNX bus and saving status
 After=knxurlgateway.service
 StartLimitIntervalSec=0
 

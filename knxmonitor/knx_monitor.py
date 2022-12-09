@@ -1,5 +1,4 @@
 """Module for reading telegrams from KNX bus"""
-import os
 import re
 import csv
 import requests
@@ -51,10 +50,21 @@ def get_value(frame, datapoint_type):
 
 
 def get_groupaddress_info(groupaddress):
+    logging.info(f"Searching for {groupaddress} in ETS file")
+
     with open(ETS_FILE) as groupaddresses_info:
+        fieldnames = [
+            "Group name",
+            "Address",
+            "Central",
+            "Unfiltered",
+            "Description",
+            "DatapointType",
+            "Security",
+        ]
         data = [
             info
-            for info in csv.DictReader(groupaddresses_info)
+            for info in csv.DictReader(groupaddresses_info, fieldnames=fieldnames)
             if groupaddress in info.get("Address")
         ]
 
@@ -87,7 +97,7 @@ class DBActions(object):
         try:
             requests.post(POST_MONITOR_URL, data=post_data)
 
-        except:
+        except Exception:
             logging.warning(f"Could not save data = { post_data }")
             logging.warning(f"from URL = { POST_MONITOR_URL }")
 
@@ -104,6 +114,6 @@ class DBActions(object):
         try:
             requests.post(POST_STATUS_URL, data=post_data)
 
-        except:
+        except Exception:
             logging.warning(f"Could not save data = { post_data }")
             logging.warning(f"from URL = { POST_STATUS_URL }")
