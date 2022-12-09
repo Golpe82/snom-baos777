@@ -33,7 +33,7 @@ class DBActions(object):
             "ip_address": client_ip,
             "raw_value": raw_value,
             "value": value,
-        },
+        }
         try:
             requests.post(POST_STATUS_URL, data=data)
         except requests.exceptions.ConnectionError:
