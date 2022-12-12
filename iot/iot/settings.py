@@ -32,7 +32,7 @@ SECRET_KEY = '-+%-e(6*1_!dcomw3yod)^8iobzhhu9u4yv83izw3@x2in6c)8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', GATEWAY_IP]
+ALLOWED_HOSTS = ['localhost', 'urlknxgw.local', GATEWAY_IP]
 
 # Application definition
 
