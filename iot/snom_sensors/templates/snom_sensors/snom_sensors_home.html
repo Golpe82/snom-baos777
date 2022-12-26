@@ -5,8 +5,8 @@
 {% block title %}|{{ app }}|{{ page }}{% endblock title %}
 {% block header %}- {{app }} - {{ page }}{% endblock header %}
 
-{% block app_links %}
-    <div class="linkgroup"> SNOMS SENSORS
+{% block app_nav %}
+    <h3>
         <a href="{% url 'knx:render_values' %}">Ambientlight values </a>|
-    </div>
-{% endblock app_links %}
+    </h3>
+{% endblock app_nav %}
