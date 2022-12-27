@@ -5,8 +5,6 @@
 {% block title %}|{{ app }}|{{ page }}{% endblock title %}
 {% block header %}- {{app }} - {{ page }}{% endblock header %}
 
-{% block app_links %}
-    <div class="linkgroup"> DECT ULE
-        <a href="{% url 'knx:dect_ule' %}">Send command </a>|
-    </div>
-{% endblock app_links %}
+{% block app_nav %}
+    <h3><a href="{% url 'knx:dect_ule' %}">Send command </a></h3>
+{% endblock app_nav %}

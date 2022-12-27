@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 
 from knx import groupaddresses, upload
-from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus
+from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus, Groupaddress
 from knx.forms import AmbientlightSensor, AlsFormSet
 
 APP = "KNX"
@@ -17,21 +17,32 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def index(request):
-    data = None
-
-    if os.path.exists(settings.CSV_SOURCE_PATH):
-        data = groupaddresses.get_data()
+    addresses_groups = {
+        maingroup[0]: {item.subgroup for item in Groupaddress.objects.filter(maingroup=maingroup[0])}
+        for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
+    }
 
     context = {
         "project": settings.PROJECT_NAME,
         "app": APP,
         "page": "Groupaddresses",
-        "addresses": data,
+        "addresses_groups": addresses_groups,
         "knx_gateway": settings.KNX_ROOT,
         "gateway_ip": settings.GATEWAY_IP,
     }
 
+    return render(request, "knx/addresses_groups.html", context)
+
+def addresses(request, maingroup, subgroup):
+    groupaddresses = Groupaddress.objects.filter(maingroup=maingroup, subgroup=subgroup)
+    context = {
+        "app": APP,
+        "page": f"{maingroup} {subgroup}",
+        "groupaddresses": groupaddresses
+    }
+    
     return render(request, "knx/groupaddresses.html", context)
+
 
 
 def minibrowser(request):

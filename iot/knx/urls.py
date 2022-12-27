@@ -10,6 +10,7 @@ app_name = 'knx'
 
 urlpatterns = [
     path('', views.index, name='knx_home'),
+    path('addresses/<str:maingroup>/<str:subgroup>/', views.addresses, name='addresses'),
     path('minibrowser/', views.minibrowser, name='minibrowser'),
     path('upload/', views.upload_file, name='upload_file'),
     path('values/', views.render_sensor_values, name='render_values'),

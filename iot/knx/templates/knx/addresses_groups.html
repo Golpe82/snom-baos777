@@ -1,0 +1,32 @@
+{% extends 'base_generic.html' %}
+
+{% load static %}
+
+{% block title %}{{block.super}}|{{ app }}|{{ page }}{% endblock title %}
+{% block header %}{{block.super}} - {{app }} - {{ page }}{% endblock header %}
+
+{% block app_nav %}
+    <h3>
+        <a href="{% url 'knx:knx_status' %}">Status </a>|
+        <a href="{% url 'knx:knx_monitor' %}">Monitor </a>|
+        <a href="{% url 'knx:minibrowser' %}">Snom minibrowser </a>|
+        <a href="{% url 'knx:upload_file' %}">Upload </a>|
+    </h3>
+{% endblock app_nav %}
+
+{% block content %}
+    {% if addresses_groups %}
+        {% for maingroup, subgroups in addresses_groups.items %}
+            <div class="maingroup">{{maingroup}}
+            {% for subgroup in subgroups %}
+                <div class="subgroup">
+                    <a href={% url 'knx:addresses' maingroup subgroup %}>{{subgroup}}</a>
+                </div>
+            {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <h2><a href="{% url 'knx:upload_file' %}">Upload</a> first your .csv file with the KNX addresses</h2>
+    {% endif %}
+
+{% endblock content %}

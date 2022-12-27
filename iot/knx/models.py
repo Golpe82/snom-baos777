@@ -54,3 +54,15 @@ class Device(models.Model):
     type = models.CharField(max_length=4, choices=types, default="D735")
     label = models.CharField(max_length=30, default=None)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
+
+class Groupaddress(models.Model):
+    maingroup = models.CharField(max_length=50, default=None, editable=False)
+    subgroup = models.CharField(max_length=50, default=None, editable=False)
+    address = models.CharField(max_length=9, default=None, editable=False)
+    name = models.CharField(max_length=50, default=None, editable=False)
+    alias = models.CharField(max_length=50, default=None)
+    datapoint_type = models.CharField(max_length=50, default=None, editable=False)
+    html_action = models.CharField(max_length=500, default=None)
+
+    def __str__(self) -> str:
+        return f"{self.maingroup} | {self.subgroup} | {self.name}"
