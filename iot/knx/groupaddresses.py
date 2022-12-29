@@ -51,7 +51,7 @@ def update_groupaddresses():
                 )
 
 
-def _get_dom_action(self, datapoint_type, groupaddress, groupaddress_name):
+def _get_dom_action(datapoint_type, groupaddress, groupaddress_name):
     is_dpt1 = 'DPT-1' in datapoint_type or 'DPST-1-' in datapoint_type
     is_dpt3 = 'DPT-3' in datapoint_type or 'DPST-3-' in datapoint_type
     is_status = "DPST-1-11" in datapoint_type
