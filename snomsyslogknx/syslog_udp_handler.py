@@ -6,7 +6,7 @@ import getmac
 from syslog_actions import KNXActions, DBActions
 from syslog_clients import SYSLOG_CLIENTS
 
-logging.basicConfig(level=logging.INFO, format='%(message)s', datefmt='', filemode='a')
+logging.basicConfig(level=logging.INFO)
 
 # TODO: REFACTOR
 
