@@ -135,6 +135,7 @@ class KNXActions(object):
         except Exception:
             logging.exception(f"No status for groupaddress {groupaddress}")
 
+        logging.info(f"Url sent: {status.url}")
         logging.info(status)
         logging.info(status.json())
         return status.json().get("Status")
