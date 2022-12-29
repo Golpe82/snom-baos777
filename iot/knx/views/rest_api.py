@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def get_groupaddress_status(request, main, midd, sub):
     request_address = f"{ main }/{ midd }/{ sub }"
-    status_object = KnxStatus.objects.get(groupaddress=request_address)
+    status_object = KnxStatus.objects.filter(groupaddress=request_address).latest("status")
 
     logging.info(f"Status of { status_object.groupaddress }: { status_object.status }")
 
