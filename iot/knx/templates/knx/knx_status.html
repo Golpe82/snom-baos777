@@ -1,6 +1,7 @@
-{% extends 'base_generic.html' %}
+{% extends 'knx/base_knx.html' %}
 
 {% load static %}
+
 
 {% block title %}|{{ app }}|{{ page }}{% endblock title %}
 {% block header %}- {{app }} - {{ page }}{% endblock header %}
@@ -17,7 +18,6 @@
         caption {font-weight: bold;}
     </style>
     <table id="status">
-        <caption>KNX status</caption>
         <tr>
             <th>Name</th>
             <th>Status</th>

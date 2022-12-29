@@ -1,18 +1,7 @@
-{% extends 'base_generic.html' %}
+{% extends 'knx/base_knx.html' %}
 
 {% load static %}
 
-{% block title %}{{block.super}}|{{ app }}|{{ page }}{% endblock title %}
-{% block header %}{{block.super}} - {{app }} - {{ page }}{% endblock header %}
-
-{% block app_nav %}
-    <h3>
-        <a href="{% url 'knx:knx_status' %}">Status </a>|
-        <a href="{% url 'knx:knx_monitor' %}">Monitor </a>|
-        <a href="{% url 'knx:minibrowser' %}">Snom minibrowser </a>|
-        <a href="{% url 'knx:upload_file' %}">Upload </a>|
-    </h3>
-{% endblock app_nav %}
 
 {% block content %}
     <a href="{% url 'knx:knx_home' %}">Back</a>
