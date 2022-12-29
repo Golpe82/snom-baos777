@@ -1,15 +1,14 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 import requests
 import logging
+
 
 class Hosts:
     DEV_HOST = "10.110.16.101"
     LOCALHOST = "localhost"
 
+
 POST_STATUS_URL = f"http://{Hosts.LOCALHOST}:8000/knx/values"
-DEV_POST_STATUS_URL = F"http://{Hosts.DEV_HOST}:8000/knx/values"
+DEV_POST_STATUS_URL = f"http://{Hosts.DEV_HOST}:8000/knx/values"
 # GET_RULES_URL = "http://localhost:8000/knx/rules/"
 KNX_URL = f"http://{Hosts.LOCALHOST}:1234/"
 DEV_GATEWAY_URL = f"http://{Hosts.DEV_HOST}:1234/"
@@ -18,8 +17,6 @@ DEV_STATUS_URL = f"http://{Hosts.DEV_HOST}:8000/knx/status/"
 
 logging.basicConfig(level=logging.INFO)
 
-
-# TODO: REFACTOR
 
 class DPT3Values:
     INCREASE = "-plus"
@@ -69,9 +66,7 @@ class KNXActions(object):
             logging.warning(
                 f"Default localhost not reachable, trying {DEV_GATEWAY_URL}..."
             )
-            requests.get(
-                f"{DEV_GATEWAY_URL}{groupaddress}{value}"
-            )
+            requests.get(f"{DEV_GATEWAY_URL}{groupaddress}{value}")
         except Exception:
             logging.exception(
                 f"Could not increase {groupaddress}."
@@ -80,9 +75,7 @@ class KNXActions(object):
 
     def _knx_decrease(self, groupaddress):
         value = DPT3Values.DECREASE
-        logging.info(
-            f"{self.client_label} dimming down {groupaddress}"
-        )
+        logging.info(f"{self.client_label} dimming down {groupaddress}")
 
         try:
             requests.get(f"{KNX_URL}{groupaddress}{value}")
@@ -90,9 +83,7 @@ class KNXActions(object):
             logging.warning(
                 f"Default localhost not reachable, trying {DEV_GATEWAY_URL}..."
             )
-            requests.get(
-                f"{DEV_GATEWAY_URL}{groupaddress}{value}"
-            )
+            requests.get(f"{DEV_GATEWAY_URL}{groupaddress}{value}")
         except Exception:
             logging.exception(
                 f"Could not decrease {groupaddress}."
@@ -100,9 +91,7 @@ class KNXActions(object):
             )
 
     def knx_send_celsius(self, groupaddress, celsius_value):
-        logging.info(
-            f"{self.client_label} sending {celsius_value}°C to {groupaddress}"
-        )
+        logging.info(f"{self.client_label} sending {celsius_value}°C to {groupaddress}")
         path = f"{groupaddress}-send_celsius={celsius_value}"
 
         try:

@@ -1,6 +1,3 @@
-from email.policy import default
-from random import choices
-from unittest.util import _MAX_LENGTH
 from django.core.validators import RegexValidator
 from django.db import models
 

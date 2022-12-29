@@ -4,13 +4,12 @@ import subprocess
 import logging
 
 from django.conf import settings
-from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
+from django.http import HttpResponse
 
-from knx import groupaddresses, upload
-from knx.models import AlsStatus, BrightnessRules, KnxMonitor, KnxStatus, Groupaddress
-from knx.forms import AmbientlightSensor, AlsFormSet
+from knx import upload
+from knx.models import BrightnessRules, KnxMonitor, KnxStatus, Groupaddress
+from knx.forms import AlsFormSet
 
 APP = "KNX"
 logging.basicConfig(level=logging.DEBUG)

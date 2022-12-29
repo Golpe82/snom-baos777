@@ -6,7 +6,7 @@ HOST, PORT = "0.0.0.0", 514
 
 if __name__ == "__main__":
     try:
-        server = socketserver.UDPServer((HOST,PORT), SyslogUDPHandler)
+        server = socketserver.UDPServer((HOST, PORT), SyslogUDPHandler)
         server.serve_forever()
     except (IOError, SystemExit):
         raise

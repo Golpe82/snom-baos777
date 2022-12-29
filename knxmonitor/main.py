@@ -1,6 +1,5 @@
 """ Main programm for reading knx bus traffic"""
 import serial
-from datetime import datetime
 import logging
 
 from knx_monitor import DBActions
