@@ -96,14 +96,14 @@ class KNXActions(object):
 
         try:
             url = f"{KNX_URL}{path}"
-            logging.info(f"Trying to send url {url}...")
+            logging.debug(f"Trying to send url {url}...")
             requests.get(url)
         except requests.exceptions.ConnectionError:
             logging.warning(
                 f"Default localhost not reachable, trying {DEV_GATEWAY_URL}..."
             )
             url = f"{DEV_GATEWAY_URL}{path}"
-            logging.info(f"Trying to send url {url}...")
+            logging.debug(f"Trying to send url {url}...")
             requests.get(url)
         except Exception:
             logging.exception(
