@@ -52,7 +52,7 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                 else:
                     logging.warning("Not switched on")
 
-            elif message_item == "usb_temperature_event:":
+            elif message_item == "temperature:":
                 send_celsius_groupaddress = self.client_info.get("send celsius groupaddress")
                 temp_value_message = self.message_data[-1:]
                 temp_value = temp_value_message[0]
