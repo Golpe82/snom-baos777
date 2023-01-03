@@ -13,13 +13,14 @@ logging.basicConfig(level=logging.INFO)
 class SyslogUDPHandler(socketserver.BaseRequestHandler):
     def setup(self):
         self.client_ip = self.client_address[0]
+        logging.info(self.client_ip)
         self.client_mac = str(getmac.get_mac_address(ip=self.client_ip)).replace(":", "")
+        logging.info(self.client_mac)
         self.client_info = SYSLOG_CLIENTS.get(self.client_ip)
         self.knx_action = KNXActions(self.client_info)
         self.database_actions = DBActions()
         self.als_value =  None
         self.temp_value = None
-        logging.info(self.client_mac)
 
     @property
     def message(self):
