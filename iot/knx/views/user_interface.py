@@ -81,7 +81,6 @@ def render_sensor_values(request):
         message = "Ambientlight sensor values"
     
     form = AlsFormSet()
-    print(dir(form))
 
     context = {
         "form": form,
@@ -89,6 +88,18 @@ def render_sensor_values(request):
     }
 
     return render(request, "knx/sensors_values.html", context)
+
+def render_groupaddresses(request):
+    groupaddresses = Groupaddress.objects.all()
+
+    context = {
+        "project": settings.PROJECT_NAME,
+        "app": APP,
+        "page": "Groupaddresses data",
+        "groupaddresses": groupaddresses,
+    }
+
+    return render(request, "knx/groupaddresses_data.html", context)
 
 
 def get_rules(request):

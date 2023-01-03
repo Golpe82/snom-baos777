@@ -38,6 +38,7 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         for message_item in self.message_data:
+            logging.info(message_item)
             if "ALS_VALUE" in message_item:
                 switch_groupaddress = self.client_info.get("switch groupaddress")
                 relative_dim_groupaddress = self.client_info.get("relative dim groupaddress")
@@ -52,7 +53,7 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                     logging.warning("Not switched on")
 
             elif message_item == "usb_temperature_event:":
-                send_celsius_groupaddress = self.client_info.get("send celsius gropuaddress")
+                send_celsius_groupaddress = self.client_info.get("send celsius groupaddress")
                 temp_value_message = self.message_data[-1:]
                 temp_value = temp_value_message[0]
                 self.temp_value = temp_value[:5]

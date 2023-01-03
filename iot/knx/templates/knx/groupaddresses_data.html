@@ -1,0 +1,27 @@
+{% extends "knx/base_knx.html" %}
+
+{% load static %}
+
+
+{% block content %}
+      <table>
+        <tr>
+          <th>Alias</th>
+          <th>Maingroup</th>
+          <th>Subgroup</th>
+          <th>Address name</th>
+          <th>Address</th>
+          <th>Datapoint type</th>
+        </tr>
+        {% for groupaddress in groupaddresses %}
+          <tr>
+            <td>{{ groupaddress.alias }}</td>
+            <td>{{ groupaddress.maingroup }}</td>
+            <td>{{ groupaddress.subgroup }}</td>
+            <td>{{ groupaddress.name }}</td>
+            <td>{{ groupaddress.address }}</td>
+            <td>{{ groupaddress.datapoint_type }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+{% endblock %}

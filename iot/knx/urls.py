@@ -14,6 +14,7 @@ urlpatterns = [
     path('minibrowser/', views.minibrowser, name='minibrowser'),
     path('upload/', views.upload_file, name='upload_file'),
     path('values/', views.render_sensor_values, name='render_values'),
+    path('groupaddresses/', views.render_groupaddresses, name='groupaddresses'),
     path('rules/', views.get_rules, name='get_rules'),
     path('dect-ule/', views.dect_ule, name='dect_ule'),
     path('monitor/', views.knx_monitor, name='knx_monitor'),
