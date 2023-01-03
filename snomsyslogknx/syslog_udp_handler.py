@@ -39,7 +39,6 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         for message_item in self.message_data:
-            logging.info(message_item)
             if "ALS_VALUE" in message_item:
                 switch_groupaddress = self.client_info.get("switch groupaddress")
                 relative_dim_groupaddress = self.client_info.get("relative dim groupaddress")
