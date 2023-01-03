@@ -17,6 +17,8 @@ DATAPOINT_TYPES = {
 DATAPOINT_SUBTYPES = {
     "binary": {
         "on_off": 1,
+        "up_down": 8,
+        "open_close": 9,
         "state": 11,
     },
     "step_code": {},
@@ -132,7 +134,7 @@ class SnomXMLFactory:
                     datapoint_subtype = get_datapoint_subtype(datapointtype_items)
 
                     if is_groupaddress and datapointtype in DATAPOINT_TYPES.values():
-                        if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype == DATAPOINT_SUBTYPES["binary"]["on_off"]:
+                        if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype in (DATAPOINT_SUBTYPES["binary"]).values():
                             create_xml_menu_item_action(values_xml, groupaddress, datapointtype)
                         elif datapointtype == DATAPOINT_TYPES.get("step_code"):
                             create_xml_menu_item_action(values_xml, groupaddress, datapointtype)
