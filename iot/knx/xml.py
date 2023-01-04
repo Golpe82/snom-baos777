@@ -17,8 +17,13 @@ DATAPOINT_TYPES = {
 DATAPOINT_SUBTYPES = {
     "binary": {
         "on_off": 1,
+        "false_true": 2,
+        "enable_disable": 3,
+        "alarm_no_alarm": 5,
+        "increase_decrease": 7,
         "up_down": 8,
         "open_close": 9,
+        "start_stop": 10,
         "state": 11,
     },
     "step_code": {},
