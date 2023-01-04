@@ -8,8 +8,6 @@
     {% for groupaddress in groupaddresses %}
         <div class="address" style="border: 1px solid black; padding: 1em; margin: 1em;">
             <div class="address_name" style="display: inline-block"><b>{{groupaddress.alias}}</b></div>
-            <div class="groupaddress" style="display: inline-block">{{groupaddress.address}}</div>
-            <div class="datapoint_type" style="display: inline-block">{{groupaddress.datapoint_type}}</div>
             <div class="action" style="display: inline-block">{{groupaddress.html_action | safe}}</div>
         </div>
     {% endfor %}

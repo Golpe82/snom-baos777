@@ -128,13 +128,16 @@ class SnomXMLFactory:
                 is_groupaddress = groupaddress == sub_address
                 datapointtype_string = groupaddress_info[5]
                 datapointtype_items = datapointtype_string.split("-")
+                is_datapoint_subtype = len(datapointtype_items) >= 2
 
-                if len(datapointtype_items) >= 2:
+                if is_datapoint_subtype:
                     datapointtype = get_datapoint_type(datapointtype_items)
+                    is_valid_datapoint_type = is_groupaddress and datapointtype in DATAPOINT_TYPES.values()
                     datapoint_subtype = get_datapoint_subtype(datapointtype_items)
+                    binary_subtypes = (DATAPOINT_SUBTYPES["binary"]).values()
 
-                    if is_groupaddress and datapointtype in DATAPOINT_TYPES.values():
-                        if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype in (DATAPOINT_SUBTYPES["binary"]).values():
+                    if is_valid_datapoint_type:
+                        if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype in binary_subtypes:
                             create_xml_menu_item_action(values_xml, groupaddress, datapointtype)
                         elif datapointtype == DATAPOINT_TYPES.get("step_code"):
                             create_xml_menu_item_action(values_xml, groupaddress, datapointtype)
