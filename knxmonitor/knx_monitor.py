@@ -35,6 +35,7 @@ def get_groupaddress(frame):
 
 
 def get_value(frame, datapoint_type):
+    logging.info(f"datapoint {datapoint_type}")
     if datapoint_type == "DPST-5-1":
         raw_value = frame[PAYLOAD.get("Byte1")]
     else:
@@ -82,7 +83,11 @@ def to_string(frame):
 
 
 class DBActions(object):
+    # not in use, too much traffic:
     def monitor_status_save(frame):
+        logging.info(f"debugging mon frame {frame}")
+        logging.info(f"debugging mon unformatted {get_groupaddress(frame)}")
+
         groupaddress = get_groupaddress(frame).get("formatted")
         info = get_groupaddress_info(groupaddress)
         status = get_value(frame, info.get("datapoint type")).get("formatted")
@@ -104,16 +109,22 @@ class DBActions(object):
     def status_save(frame):
         groupaddress = get_groupaddress(frame).get("formatted")
         info = get_groupaddress_info(groupaddress)
-        status = get_value(frame, info.get("datapoint type")).get("formatted")
-        post_data = {
-            "groupaddress_name": info.get("groupaddress name"),
-            "groupaddress": groupaddress,
-            "status": status,
-        }
+        datapointtype  = info.get("datapoint type")
+        is_dpt1 = "DPT-1" in datapointtype or "DPST-1" in datapointtype
 
-        try:
-            requests.post(POST_STATUS_URL, data=post_data)
+        # save only dpt1 otherwise too much to save
+        if is_dpt1:
+            status = get_value(frame, datapointtype).get("formatted")
+            logging.info(f"saving status {status} for groupaddress {groupaddress} with dpt {datapointtype}")
+            post_data = {
+                "groupaddress_name": info.get("groupaddress name"),
+                "groupaddress": groupaddress,
+                "status": status,
+            }
 
-        except Exception:
-            logging.warning(f"Could not save data = { post_data }")
-            logging.warning(f"from URL = { POST_STATUS_URL }")
+            try:
+                requests.post(POST_STATUS_URL, data=post_data)
+
+            except Exception:
+                logging.warning(f"Could not save data = { post_data }")
+                logging.warning(f"from URL = { POST_STATUS_URL }")

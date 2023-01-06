@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def get_groupaddress_status(request, main, midd, sub):
-    request_address = f"{ main }/{ midd }/{ sub }"
+    request_address = f"{main}/{midd}/{sub}"
     status_object = KnxStatus.objects.filter(groupaddress=request_address).latest("status")
 
     logging.info(f"Status of { status_object.groupaddress }: { status_object.status }")
@@ -26,22 +26,24 @@ def get_groupaddress_status(request, main, midd, sub):
 
 @csrf_exempt
 def post_sensor_value(request):
-    if AlsStatus.objects.count() > 100:
-        first = AlsStatus.objects.first().id
-        AlsStatus.objects.filter(id=first).delete()
-
-    AlsStatus.objects.create(
-        mac_address=request.POST.get("mac_address"),
-        ip_address=request.POST.get("ip_address"),
-        raw_value=request.POST.get("raw_value"),
-        value= request.POST.get("value")
+    device_mac = request.POST.get("mac_address")
+    obj, created = AlsStatus.objects.update_or_create(
+        mac_address = device_mac,
+        defaults = {
+            "ip_address": request.POST.get("ip_address"),
+            "raw_value": request.POST.get("raw_value"),
+            "value": request.POST.get("value"),
+            "time_stamp": datetime.now()
+        }
     )
+    logging.info(f"als value for mac {device_mac} created = {created}, updated to {obj.value} Lux")
 
     return JsonResponse(POST_RESPONSE)
 
 @csrf_exempt
 def post_knx_status(request):
-    status_object, _created = KnxStatus.objects.update_or_create(
+    logging.info(f"groupaddress {request.POST.get('groupaddress')} status to save {request.POST.get('status')}")
+    obj, _created = KnxStatus.objects.update_or_create(
         groupaddress_name=request.POST.get("groupaddress_name"),
         groupaddress=request.POST.get("groupaddress"),
         defaults={
@@ -49,10 +51,11 @@ def post_knx_status(request):
             "timestamp": datetime.now()
         }
     )
-    logging.info(f"{ status_object.groupaddress_name }: { status_object.status }")
+    logging.info(f"{obj.groupaddress_name}: {obj.status}")
 
     return JsonResponse(POST_RESPONSE)
 
+# not in use, too much traffic
 @csrf_exempt
 def post_knx_monitor(request):
     if KnxMonitor.objects.count() > 2000:
