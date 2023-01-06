@@ -25,6 +25,7 @@ DATAPOINT_SUBTYPES = {
         "open_close": 9,
         "start_stop": 10,
         "state": 11,
+        "window_door": 19
     },
     "step_code": {},
     "unsigned_value": {}
@@ -110,14 +111,25 @@ class SnomXMLFactory:
                 groupaddress = groupaddress_info[1]
                 groupaddress_items = groupaddress.split("/")
                 sub_address = groupaddress_items[2]
+
                 belongs_to_main_address = groupaddress_items[0] == main_address
                 belongs_to_mid_address = groupaddress_items[1] == mid_address
                 is_sub_address = sub_address != '-'
 
                 if belongs_to_main_address and belongs_to_mid_address and is_sub_address:
-                    values_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
-                    create_xml_menu_item(sub_xml, groupaddress_name, values_xml_file_name)
-                    self.create_values_xml(groupaddress_name, groupaddress, values_xml_file_name)
+                    datapointtype_string = groupaddress_info[5]
+                    datapointtype_items = datapointtype_string.split("-")
+                    is_datapoint_subtype = len(datapointtype_items) >= 2
+
+                    if not is_datapoint_subtype:
+                        values_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
+                        create_xml_menu_item(sub_xml, groupaddress_name, values_xml_file_name)
+                        self.create_values_xml(groupaddress_name, groupaddress, values_xml_file_name)  
+
+                    elif is_datapoint_subtype and datapointtype_items[2] != "11":
+                        values_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
+                        create_xml_menu_item(sub_xml, groupaddress_name, values_xml_file_name)
+                        self.create_values_xml(groupaddress_name, groupaddress, values_xml_file_name)
 
             close_xml_phone_menu(sub_xml)
 
@@ -139,10 +151,10 @@ class SnomXMLFactory:
                     datapointtype = get_datapoint_type(datapointtype_items)
                     is_valid_datapoint_type = is_groupaddress and datapointtype in DATAPOINT_TYPES.values()
                     datapoint_subtype = get_datapoint_subtype(datapointtype_items)
-                    binary_subtypes = (DATAPOINT_SUBTYPES["binary"]).values()
+                    binary_subtypes = DATAPOINT_SUBTYPES["binary"]
 
                     if is_valid_datapoint_type:
-                        if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype in binary_subtypes:
+                        if datapointtype == DATAPOINT_TYPES.get("binary") and datapoint_subtype in binary_subtypes.values():
                             create_xml_menu_item_action(values_xml, groupaddress, datapointtype)
                         elif datapointtype == DATAPOINT_TYPES.get("step_code"):
                             create_xml_menu_item_action(values_xml, groupaddress, datapointtype)

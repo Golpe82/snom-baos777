@@ -41,13 +41,13 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
         for message_item in self.message_data:
             if "ALS_VALUE" in message_item:
                 switch_groupaddress = self.client_info.get("switch groupaddress")
-                relative_dim_groupaddress = self.client_info.get("relative dim groupaddress")
                 ambient_light = message_item.split(":")
                 self.als_value =  int(ambient_light[1])
                 self.database_actions.als_save(self.client_ip, self.client_mac, self.als_value, self.lux_value)
                 logging.info(f"{self.client_info.get('label')}: {self.lux_value} lux")
 
                 if self.knx_action.get_groupaddress_status(switch_groupaddress) == "on":
+                    relative_dim_groupaddress = self.client_info.get("relative dim groupaddress")
                     self.knx_action.knx_dimm_relative(relative_dim_groupaddress, self.lux_value)
                 else:
                     logging.warning("Not switched on")

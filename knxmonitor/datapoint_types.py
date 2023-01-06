@@ -1,4 +1,6 @@
 """Handles frame payload depending on datapointtype"""
+import logging
+
 PATTERNS = {
     "DPT1": "^DPS?T-1-",
     "DPT3": "^DPS?T-3-",
@@ -35,9 +37,13 @@ def get_DPT3_formatted(raw_value):
 
 def get_DPT5_formatted(raw_value):
     VALUES = {"scale": range(0xFF)}
+    logging.info(f"dpt5 value {hex(raw_value)}")
 
     if raw_value in VALUES.get("scale"):
         return f"{round((raw_value * 100) / 255)}%"
+    
+    elif raw_value == 0xFF:
+        return "100%"
 
     return "wrong value"
 
