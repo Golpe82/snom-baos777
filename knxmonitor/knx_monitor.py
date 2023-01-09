@@ -5,6 +5,7 @@ import requests
 import logging
 
 import datapoint_types
+from dect_ule_actions import DECTULEActions, BLIND_GROUPADDRESS
 
 
 ETS_FILE = "/usr/local/gateway/iot/knx/media/ga.csv"
@@ -31,7 +32,10 @@ def get_groupaddress(frame):
 
     groupaddress = f"{ mainaddress }/{ midaddress }/{ subaddress }"
 
-    return {"raw": raw_address, "formatted": groupaddress}
+    return {
+        "raw": raw_address,
+        "formatted": groupaddress,
+        }
 
 
 def get_value(frame, datapoint_type):
@@ -116,6 +120,10 @@ class DBActions(object):
         if is_dpt1:
             status = get_value(frame, datapointtype).get("formatted")
             logging.info(f"saving status {status} for groupaddress {groupaddress} with dpt {datapointtype}")
+
+            if groupaddress == BLIND_GROUPADDRESS:
+                DECTULEActions().control_blind(status)
+
             post_data = {
                 "groupaddress_name": info.get("groupaddress name"),
                 "groupaddress": groupaddress,
