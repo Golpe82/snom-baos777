@@ -2,6 +2,7 @@
 import os
 import subprocess
 import logging
+import requests
 
 from django.conf import settings
 from django.shortcuts import render
@@ -32,6 +33,105 @@ def index(request):
 
     return render(request, "knx/addresses_groups.html", context)
 
+def knx_write(request, main, midd, sub, value):
+    groupaddress = f"{main}/{midd}/{sub}"
+    
+    address_info = Groupaddress.objects.filter(address=groupaddress)
+
+    #address has a code
+    if address_code := address_info.values_list("code", flat=True).first():
+        print(address_code)
+
+        return HttpResponse(
+            f"""
+            <SnomIPPhoneInput track=no>
+                <InputItem>
+                    <DisplayName>Enter code for {groupaddress}</DisplayName>
+                    <InputToken>__Y__</InputToken>
+                    <InputFlags>n</InputFlags>
+                </InputItem>
+                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/{value}/__Y__</Url>
+            </SnomIPPhoneInput>
+        """,
+            content_type="text/xml",
+        )
+        
+
+    if value == "on":
+        value = "an"
+        requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+
+        return HttpResponse(
+            f"""
+        <SnomIPPhoneText>
+            <Text>Groupaddress {groupaddress} changed to {value}</Text>
+            <LED number="5" color="green">On</LED>
+            <LED number="6">Off</LED>
+            <fetch mil=1500>snom://mb_exit</fetch>
+        </SnomIPPhoneText>
+        """,
+            content_type="text/xml",
+        )
+    value = "aus"
+    requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+    return HttpResponse(
+        f"""
+    <SnomIPPhoneText>
+        <Text>Groupaddress {groupaddress} changed to {value}</Text>
+        <LED number="5">Off</LED>
+        <LED number="6" color="green">On</LED>
+        <fetch mil=1500>snom://mb_exit&applyline</fetch>
+    </SnomIPPhoneText>
+    """,
+        content_type="text/xml",
+    )
+
+def check_code(request, main, midd, sub, value, code):
+    groupaddress = f"{main}/{midd}/{sub}"
+    address_info = Groupaddress.objects.filter(address=groupaddress)
+
+    #address has a code
+    if code == address_info.values_list("code", flat=True).first():
+        if value == "on":
+            value = "an"
+            requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+            return HttpResponse(
+                f"""
+            <SnomIPPhoneText>
+                <Text>Groupaddress {groupaddress} changed to {value}</Text>
+                <LED number="5" color="green">On</LED>
+                <LED number="6">Off</LED>
+                <fetch mil=1500>snom://mb_exit</fetch>
+            </SnomIPPhoneText>
+            """,
+                content_type="text/xml",
+            )
+        
+        value = "aus"
+        requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+
+        return HttpResponse(
+            f"""
+        <SnomIPPhoneText>
+            <Text>Groupaddress {groupaddress} changed to {value}</Text>
+            <LED number="5">Off</LED>
+            <LED number="6" color="green">On</LED>
+            <fetch mil=1500>snom://mb_exit&applyline</fetch>
+        </SnomIPPhoneText>
+        """,
+            content_type="text/xml",
+        )
+    
+    return HttpResponse(
+            """
+        <SnomIPPhoneText>
+            <Text>Wrong code</Text>
+            <fetch mil=1500>snom://mb_exit</fetch>
+        </SnomIPPhoneText>
+        """,
+            content_type="text/xml",
+        )
+
 def addresses(request, maingroup, subgroup):
     groupaddresses = Groupaddress.objects.filter(maingroup=maingroup, subgroup=subgroup)
     context = {
@@ -41,8 +141,6 @@ def addresses(request, maingroup, subgroup):
     }
     
     return render(request, "knx/groupaddresses.html", context)
-
-
 
 def minibrowser(request):
     if os.path.exists(settings.XML_TARGET_PATH):

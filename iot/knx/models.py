@@ -60,6 +60,7 @@ class Groupaddress(models.Model):
     alias = models.CharField(max_length=50, default=None)
     datapoint_type = models.CharField(max_length=50, default=None, editable=False)
     html_action = models.CharField(max_length=500, default=None)
+    code = models.CharField(max_length=4, blank=True)
 
     def __str__(self) -> str:
         return f"{self.maingroup} | {self.subgroup} | {self.name}"
