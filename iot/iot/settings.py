@@ -144,6 +144,7 @@ XML_TARGET_PATH = f"{ MEDIA_ROOT }knx.xml"
 XML_TARGET_FILE='knx.xml'
 XML_TARGET_URL=f'{MEDIA_ROOT}{XML_TARGET_FILE}'
 
+# XML_TARGET_DIRECTORY='/var/www/html/knx_xml/'
 XML_TARGET_DIRECTORY='/var/www/html/knx_xml/'
 
 
