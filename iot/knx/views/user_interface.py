@@ -37,9 +37,10 @@ def knx_write(request, main, midd, sub, value):
     groupaddress = f"{main}/{midd}/{sub}"
     
     address_info = Groupaddress.objects.filter(address=groupaddress)
+    address_code = address_info.values_list("code", flat=True).first()
 
     #address has a code
-    if address_code := address_info.values_list("code", flat=True).first():
+    if address_code:
         print(address_code)
 
         return HttpResponse(
