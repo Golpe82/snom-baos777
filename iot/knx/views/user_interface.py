@@ -18,7 +18,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 def index(request):
     addresses_groups = {
-        maingroup[0]: {item.subgroup for item in Groupaddress.objects.filter(maingroup=maingroup[0])}
+        maingroup[0]: {
+            item.subgroup
+            for item in Groupaddress.objects.filter(maingroup=maingroup[0])
+        }
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     }
 
@@ -33,13 +36,14 @@ def index(request):
 
     return render(request, "knx/addresses_groups.html", context)
 
+
 def knx_write(request, main, midd, sub, value):
     groupaddress = f"{main}/{midd}/{sub}"
-    
+
     address_info = Groupaddress.objects.filter(address=groupaddress)
     address_code = address_info.values_list("code", flat=True).first()
 
-    #address has a code
+    # address has a code
     if address_code:
         print(address_code)
 
@@ -49,14 +53,13 @@ def knx_write(request, main, midd, sub, value):
                 <InputItem>
                     <DisplayName>Enter code for {groupaddress}</DisplayName>
                     <InputToken>__Y__</InputToken>
-                    <InputFlags>n</InputFlags>
+                    <InputFlags>p</InputFlags>
                 </InputItem>
                 <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/{value}/__Y__</Url>
             </SnomIPPhoneInput>
         """,
             content_type="text/xml",
         )
-        
 
     if value == "on":
         value = "an"
@@ -87,11 +90,12 @@ def knx_write(request, main, midd, sub, value):
         content_type="text/xml",
     )
 
+
 def check_code(request, main, midd, sub, value, code):
     groupaddress = f"{main}/{midd}/{sub}"
     address_info = Groupaddress.objects.filter(address=groupaddress)
 
-    #address has a code
+    # address has a code
     if code == address_info.values_list("code", flat=True).first():
         if value == "on":
             value = "an"
@@ -107,7 +111,7 @@ def check_code(request, main, midd, sub, value, code):
             """,
                 content_type="text/xml",
             )
-        
+
         value = "aus"
         requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
 
@@ -122,26 +126,28 @@ def check_code(request, main, midd, sub, value, code):
         """,
             content_type="text/xml",
         )
-    
+
     return HttpResponse(
-            """
+        """
         <SnomIPPhoneText>
             <Text>Wrong code</Text>
             <fetch mil=1500>snom://mb_exit</fetch>
         </SnomIPPhoneText>
         """,
-            content_type="text/xml",
-        )
+        content_type="text/xml",
+    )
+
 
 def addresses(request, maingroup, subgroup):
     groupaddresses = Groupaddress.objects.filter(maingroup=maingroup, subgroup=subgroup)
     context = {
         "app": APP,
         "page": f"{maingroup} {subgroup}",
-        "groupaddresses": groupaddresses
+        "groupaddresses": groupaddresses,
     }
-    
+
     return render(request, "knx/groupaddresses.html", context)
+
 
 def minibrowser(request):
     if os.path.exists(settings.XML_TARGET_PATH):
@@ -178,15 +184,13 @@ def render_sensor_values(request):
         logging.warning(message)
     else:
         message = "Ambientlight sensor values"
-    
+
     form = AlsFormSet()
 
-    context = {
-        "form": form,
-        "message": message
-    }
+    context = {"form": form, "message": message}
 
     return render(request, "knx/sensors_values.html", context)
+
 
 def render_groupaddresses(request):
     groupaddresses = Groupaddress.objects.all()
