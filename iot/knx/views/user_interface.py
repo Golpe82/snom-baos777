@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from knx import upload
-from knx.models import BrightnessRules, KnxMonitor, KnxStatus, Groupaddress
+from knx.models import BrightnessRules, KnxMonitor, KnxStatus, Groupaddress, FunctionKeyLEDSubscriptions
 from knx.forms import AlsFormSet
 
 APP = "KNX"
@@ -137,6 +137,20 @@ def check_code(request, main, midd, sub, value, code):
         content_type="text/xml",
     )
 
+def update_led_subscriptors(request, main, midd, sub, status):
+    groupaddress = f"{main}/{midd}/{sub}"
+    subscripted_leds = FunctionKeyLEDSubscriptions.objects.filter(knx_subscription=groupaddress)
+    if subscripted_leds:
+        logging.error(f"{status} updating snom led subscriptors {subscripted_leds}")
+        for led in subscripted_leds:
+            if status == "off":
+                requests.get(led.on_change_xml_for_off_url)
+            elif status == "on":
+                requests.get(led.on_change_xml_for_on_url)
+            else:
+                logging.error(f"wrong value {status} for groupaddress {groupaddress}")
+
+    return HttpResponse()
 
 def addresses(request, maingroup, subgroup):
     groupaddresses = Groupaddress.objects.filter(maingroup=maingroup, subgroup=subgroup)

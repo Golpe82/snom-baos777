@@ -125,9 +125,9 @@ class FunctionKeyLEDSubscriptions(models.Model):
             <?xml version="1.0" encoding="UTF-8"?>
             <SnomIPPhoneText>
                 <Text>Groupaddress {self.knx_subscription} changed to on</Text>
-                <LED number="{self.led_number_for_off}">Off</LED>
                 <LED number="{self.led_number_for_on}" color="green">On</LED>
-                <fetch mil=1500>snom://mb_exit&applyline</fetch>
+                <LED number="{self.led_number_for_off}">Off</LED>
+                <fetch mil=1500>snom://mb_exit</fetch>
             </SnomIPPhoneText>
         """
 
@@ -139,7 +139,7 @@ class FunctionKeyLEDSubscriptions(models.Model):
     @property
     def on_change_xml_for_on_url(self):
         file_name = f"{self.knx_subscription.replace('/', '_')}_on.xml"
-        return f"{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{file_name}"
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{file_name}"
 
     @property
     def on_change_xml_for_off(self):
@@ -158,9 +158,9 @@ class FunctionKeyLEDSubscriptions(models.Model):
         <?xml version="1.0" encoding="UTF-8"?>
         <SnomIPPhoneText>
             <Text>Groupaddress {self.knx_subscription} changed to off</Text>
-            <LED number="{self.led_number_for_on}">On</LED>
-            <LED number="{self.led_number_for_off}" color="green">Off</LED>
-            <fetch mil=1500>snom://mb_exit&applyline</fetch>
+            <LED number="{self.led_number_for_on}">Off</LED>
+            <LED number="{self.led_number_for_off}" color="green">On</LED>
+            <fetch mil=1500>snom://mb_exit</fetch>
         </SnomIPPhoneText>
         """
 
@@ -172,7 +172,7 @@ class FunctionKeyLEDSubscriptions(models.Model):
     @property
     def on_change_xml_for_off_url(self):
         file_name = f"{self.knx_subscription.replace('/', '_')}_off.xml"
-        return f"{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{file_name}"
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{file_name}"
 
     def __str__(self) -> str:
         return f"Phone: {self.ip_address} | LED on: {self.led_number_for_on} | LED off: {self.led_number_for_off} | Groupaddress: {self.knx_subscription}"

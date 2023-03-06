@@ -73,13 +73,20 @@ def get_groupaddress_info(groupaddress):
             if groupaddress in info.get("Address")
         ]
 
-    info = data[0]
-
-    return {
-        "groupaddress": info.get("Address"),
-        "groupaddress name": info.get("Group name"),
-        "datapoint type": info.get("DatapointType"),
-    }
+    try:
+        info = data[0]
+        return {
+            "groupaddress": info.get("Address"),
+            "groupaddress name": info.get("Group name"),
+            "datapoint type": info.get("DatapointType"),
+        }
+    except IndexError:
+        logging.exception(f"Groupaddress {groupaddress} not found in ETS file")
+        return {
+            "groupaddress": "",
+            "groupaddress name": "",
+            "datapoint type": "",   
+        }
 
 
 def to_string(frame):
@@ -123,6 +130,10 @@ class DBActions(object):
 
             # if groupaddress == BLIND_GROUPADDRESS:
             #     DECTULEActions().control_blind(status)
+
+            knx_gateway = "localhost:8000"
+            logging.error("update led subscriptors")
+            requests.get(f"http://{knx_gateway}/knx/update_led_subscriptors/{groupaddress}/{status}")
 
             post_data = {
                 "groupaddress_name": info.get("groupaddress name"),
