@@ -1,5 +1,9 @@
+import os
+import logging
+
 from django.core.validators import RegexValidator
 from django.db import models
+from django.conf import settings
 
 
 class KnxMonitor(models.Model):
@@ -69,3 +73,106 @@ class Groupaddress(models.Model):
 
     def __str__(self) -> str:
         return f"{self.maingroup} | {self.subgroup} | {self.name}"
+
+LED_SUBSCRIPTIONS_XML_PATH = f"{settings.XML_TARGET_DIRECTORY}led_subscriptions/"
+
+
+class FunctionKeyLEDSubscriptions(models.Model):
+    mac_address_validator = RegexValidator(
+        regex="^[0-9a-fA-F]{12}$", message="Invalid MAC address"
+    )
+    mac_address = models.CharField(
+        verbose_name="MAC address",
+        max_length=12,
+        validators=[mac_address_validator],
+    )
+    ip_address = models.GenericIPAddressField()
+    types = [
+        ("D713", "D713"),
+        ("D785", "D785"),
+        ]
+    type = models.CharField(max_length=4, choices=types, default="D785")
+    led_number_for_on = models.CharField(max_length= 2, default=None)
+    led_number_for_off = models.CharField(max_length=2, default=None)
+    knx_subscription = models.CharField(max_length=8, default=None)
+    on_subscription_change_url = models.URLField(max_length=200, blank=True, default=None)
+    fkey_no = models.CharField(max_length=2, blank=True, default=None)
+    phone_location = models.CharField(max_length=30, default=None)
+    timestamp = models.DateTimeField(null=True, auto_now_add=True)
+
+    @property
+    def knx_write_url_for_on(self):
+        return f"http://{settings.GATEWAY_IP}:8000/write/{self.knx_subscription}/on"
+
+    @property
+    def knx_write_url_for_off(self):
+        return f"http://{settings.GATEWAY_IP}:8000/write/{self.knx_subscription}/off"
+
+    @property
+    def on_change_xml_for_on(self):
+        if not os.path.exists(LED_SUBSCRIPTIONS_XML_PATH):
+            os.makedirs(LED_SUBSCRIPTIONS_XML_PATH)
+            logging.warning(f"Directory {LED_SUBSCRIPTIONS_XML_PATH} created")
+
+        file_name = f"{self.knx_subscription.replace('/', '_')}_on.xml"
+        led_subscription_file_path = f"{LED_SUBSCRIPTIONS_XML_PATH}{file_name}"
+
+        if os.path.exists(led_subscription_file_path):
+            os.remove(led_subscription_file_path)
+            logging.warning(f"Existing file {led_subscription_file_path} deleted")
+
+        content = f"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <SnomIPPhoneText>
+                <Text>Groupaddress {self.knx_subscription} changed to on</Text>
+                <LED number="{self.led_number_for_off}">Off</LED>
+                <LED number="{self.led_number_for_on}" color="green">On</LED>
+                <fetch mil=1500>snom://mb_exit&applyline</fetch>
+            </SnomIPPhoneText>
+        """
+
+        with open(led_subscription_file_path, 'w', encoding="UTF-8") as subscription_for_on:
+            subscription_for_on.write(content)
+
+        return content
+
+    @property
+    def on_change_xml_for_on_url(self):
+        file_name = f"{self.knx_subscription.replace('/', '_')}_on.xml"
+        return f"{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{file_name}"
+
+    @property
+    def on_change_xml_for_off(self):
+        if not os.path.exists(LED_SUBSCRIPTIONS_XML_PATH):
+            os.makedirs(LED_SUBSCRIPTIONS_XML_PATH)
+            logging.warning(f"Directory {LED_SUBSCRIPTIONS_XML_PATH} created")
+
+        file_name = f"{self.knx_subscription.replace('/', '_')}_off.xml"
+        led_subscription_file_path = f"{LED_SUBSCRIPTIONS_XML_PATH}{file_name}"
+
+        if os.path.exists(led_subscription_file_path):
+            os.remove(led_subscription_file_path)
+            logging.warning(f"Existing file {led_subscription_file_path} deleted")
+
+        content =  f"""
+        <?xml version="1.0" encoding="UTF-8"?>
+        <SnomIPPhoneText>
+            <Text>Groupaddress {self.knx_subscription} changed to off</Text>
+            <LED number="{self.led_number_for_on}">On</LED>
+            <LED number="{self.led_number_for_off}" color="green">Off</LED>
+            <fetch mil=1500>snom://mb_exit&applyline</fetch>
+        </SnomIPPhoneText>
+        """
+
+        with open(led_subscription_file_path, 'w', encoding="UTF-8") as subscription_for_off:
+            subscription_for_off.write(content)
+
+        return content
+
+    @property
+    def on_change_xml_for_off_url(self):
+        file_name = f"{self.knx_subscription.replace('/', '_')}_off.xml"
+        return f"{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{file_name}"
+
+    def __str__(self) -> str:
+        return f"Phone: {self.ip_address} | LED on: {self.led_number_for_on} | LED off: {self.led_number_for_off} | Groupaddress: {self.knx_subscription}"

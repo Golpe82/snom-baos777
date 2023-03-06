@@ -121,8 +121,8 @@ class DBActions(object):
             status = get_value(frame, datapointtype).get("formatted")
             logging.info(f"saving status {status} for groupaddress {groupaddress} with dpt {datapointtype}")
 
-            if groupaddress == BLIND_GROUPADDRESS:
-                DECTULEActions().control_blind(status)
+            # if groupaddress == BLIND_GROUPADDRESS:
+            #     DECTULEActions().control_blind(status)
 
             post_data = {
                 "groupaddress_name": info.get("groupaddress name"),
