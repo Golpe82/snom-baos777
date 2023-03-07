@@ -21,7 +21,6 @@ def main():
             connection.read_until(STARTBYTE)
             frame = bytearray(STARTBYTE)
             frame.extend(connection.read_until(STOPBYTE))
-
             # not in use, too much traffic:
             # DBActions.monitor_status_save(frame)
             DBActions.status_save(frame)

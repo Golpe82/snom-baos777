@@ -9,6 +9,13 @@ from dect_ule_actions import DECTULEActions, BLIND_GROUPADDRESS
 
 
 ETS_FILE = "/usr/local/gateway/iot/knx/media/ga.csv"
+MESSAGE_CODE_BYTE = 5
+MESSAGE_CODES = {
+    "L_Data.req": 0x11,
+    "L_Data.con": 0x2E,
+    "L_Data.ind": 0x29,
+    "L_Busmon.ind": 0x2B
+}
 DEST_HIGH_BYTE = 11
 DEST_LOW_BYTE = 12
 PAYLOAD_LENGTH = 13
@@ -119,6 +126,16 @@ class DBActions(object):
 
     def status_save(frame):
         groupaddress = get_groupaddress(frame).get("formatted")
+        if groupaddress == "1/2/20":
+            logging.error("-----Incoming knx telegram----")
+            #frame[MESSAGE_CODE_BYTE] == MESSAGE_CODES.get("L_Data.ind")
+
+            for idx, byte in enumerate(frame):
+                if idx == 5:
+                    logging.error(f"Byte {idx}: {hex(byte)}")
+                    logging.error(f"{hex(frame[MESSAGE_CODE_BYTE])}")
+            logging.error("-----")
+
         info = get_groupaddress_info(groupaddress)
         datapointtype  = info.get("datapoint type")
         is_dpt1 = "DPT-1" in datapointtype or "DPST-1" in datapointtype
