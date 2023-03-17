@@ -13,6 +13,7 @@ DATAPOINT_TYPES = {
     "binary": 1,
     "step_code": 3,
     "unsigned_value": 5,
+    "string": 16
 }
 DATAPOINT_SUBTYPES = {
     "binary": {
@@ -28,7 +29,11 @@ DATAPOINT_SUBTYPES = {
         "window_door": 19
     },
     "step_code": {},
-    "unsigned_value": {}
+    "unsigned_value": {},
+    "string": {
+        "ascii": 0,
+        "iso-8859-1": 1
+    }
 }
 DATAPOINT_VALUES = {
     1: {"on": "-an", "off": "-aus"},
@@ -119,7 +124,7 @@ class SnomXMLFactory:
                 if belongs_to_main_address and belongs_to_mid_address and is_sub_address:
                     datapointtype_string = groupaddress_info[5]
                     datapointtype_items = datapointtype_string.split("-")
-                    is_datapoint_subtype = len(datapointtype_items) >= 2
+                    is_datapoint_subtype = len(datapointtype_items) > 2
 
                     if not is_datapoint_subtype:
                         values_xml_file_name = f"{groupaddress.replace('/',SEPERATOR)}.xml"
