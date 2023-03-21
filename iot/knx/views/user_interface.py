@@ -3,6 +3,8 @@ import os
 import subprocess
 import logging
 import requests
+from requests.auth import HTTPDigestAuth
+from time import sleep
 
 from django.conf import settings
 from django.shortcuts import render
@@ -140,15 +142,25 @@ def check_code(request, main, midd, sub, value, code):
 def update_led_subscriptors(request, main, midd, sub, status):
     groupaddress = f"{main}/{midd}/{sub}"
     subscripted_leds = FunctionKeyLEDSubscriptions.objects.filter(knx_subscription=groupaddress)
+
     if subscripted_leds:
         logging.error(f"{status} updating snom led subscriptors {subscripted_leds}")
         for led in subscripted_leds:
             if status == "off":
-                requests.get(led.on_change_xml_for_off_url)
+                response = requests.get(led.on_change_xml_for_off_url)
+                if response.status_code == 401:
+                    logging.error(response.status_code)
+                    r = requests.post(led.on_change_xml_for_off_url, auth=HTTPDigestAuth("admin", "7666"))
+                    logging.error(r.status_code)
             elif status == "on":
-                requests.get(led.on_change_xml_for_on_url)
+                response = requests.get(led.on_change_xml_for_on_url)
+                if response.status_code == 401:
+                    logging.error(response.status_code)
+                    r = requests.get(led.on_change_xml_for_on_url, auth=HTTPDigestAuth("admin", "7666"))
+                    logging.error(r.status_code)
             else:
                 logging.error(f"wrong value {status} for groupaddress {groupaddress}")
+            sleep(3)
 
     return HttpResponse()
 

@@ -9,16 +9,7 @@ from dect_ule_actions import DECTULEActions, BLIND_GROUPADDRESS
 
 
 ETS_FILE = "/usr/local/gateway/iot/knx/media/ga.csv"
-MESSAGE_CODE_BYTE = 5
-MESSAGE_CODES = {
-    "L_Data.req": 0x11,
-    "L_Data.con": 0x2E,
-    "L_Data.ind": 0x29,
-    "L_Busmon.ind": 0x2B
-}
-DEST_HIGH_BYTE = 11
-DEST_LOW_BYTE = 12
-PAYLOAD_LENGTH = 13
+
 PAYLOAD = {
     "Byte0": 15,
     "Byte1": 16,
@@ -26,13 +17,27 @@ PAYLOAD = {
 POST_MONITOR_URL = "http://localhost:8000/knx/groupaddress_monitor"
 POST_STATUS_URL = "http://localhost:8000/knx/status"
 
+
+class OctectIndex:
+    FT12_STARTBYTE = 0
+    FT12_LENGTH = 1
+    MESSAGE_CODE = 5
+    DEST_HIGH = 11
+    DEST_LOW = 12
+    PAYLOAD_LENGTH = 13
+
+class MessageCode:
+    L_DATA_REQ = 0x11
+    L_DATA_CON = 0x2E
+    L_DATA_IND = 0x29
+
 logging.basicConfig(level=logging.DEBUG)
 
 
 def get_groupaddress(frame):
-    raw_address = f"{ frame[DEST_HIGH_BYTE] } { frame[DEST_LOW_BYTE] }"
-    subaddress = frame[DEST_LOW_BYTE]
-    high_byte = frame[DEST_HIGH_BYTE]
+    raw_address = f"{frame[OctectIndex.DEST_HIGH]} { frame[OctectIndex.DEST_LOW] }"
+    subaddress = frame[OctectIndex.DEST_LOW]
+    high_byte = frame[OctectIndex.DEST_HIGH]
     midaddress_mask = 0x07
     midaddress = high_byte & midaddress_mask
     mainaddress = high_byte >> 0x03
@@ -128,12 +133,12 @@ class DBActions(object):
         groupaddress = get_groupaddress(frame).get("formatted")
         if groupaddress == "1/2/20":
             logging.error("-----Incoming knx telegram----")
-            #frame[MESSAGE_CODE_BYTE] == MESSAGE_CODES.get("L_Data.ind")
+            # frame[OctectIndex.MESSAGE_CODE] == MessageCode.L_DATA_IND
 
             for idx, byte in enumerate(frame):
                 if idx == 5:
                     logging.error(f"Byte {idx}: {hex(byte)}")
-                    logging.error(f"{hex(frame[MESSAGE_CODE_BYTE])}")
+                    logging.error(f"{hex(frame[OctectIndex.MESSAGE_CODE])}")
             logging.error("-----")
 
         info = get_groupaddress_info(groupaddress)
