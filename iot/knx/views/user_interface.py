@@ -66,30 +66,12 @@ def knx_write(request, main, midd, sub, value):
         value = "an"
         requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
 
-        return HttpResponse(
-            f"""
-        <SnomIPPhoneText>
-            <Text>Groupaddress {groupaddress} changed to {value}</Text>
-            <LED number="5" color="green">On</LED>
-            <LED number="6">Off</LED>
-            <fetch mil=1500>snom://mb_exit</fetch>
-        </SnomIPPhoneText>
-        """,
-            content_type="text/xml",
-        )
+        return HttpResponse()
+
     value = "aus"
     requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
-    return HttpResponse(
-        f"""
-    <SnomIPPhoneText>
-        <Text>Groupaddress {groupaddress} changed to {value}</Text>
-        <LED number="5">Off</LED>
-        <LED number="6" color="green">On</LED>
-        <fetch mil=1500>snom://mb_exit&applyline</fetch>
-    </SnomIPPhoneText>
-    """,
-        content_type="text/xml",
-    )
+
+    return HttpResponse()
 
 
 def check_code(request, main, midd, sub, value, code):
@@ -130,14 +112,16 @@ def update_led_subscriptors(request, main, midd, sub, status):
                 response = requests.get(led.on_change_xml_for_off_url)
                 if response.status_code == 401:
                     response = requests.get(led.on_change_xml_for_off_url, auth=HTTPDigestAuth("admin", "7666"))
+                    # implement also for httpBasic (setting could be changed in the phone Wui or provisioning server)
             elif status == "on":
                 response = requests.get(led.on_change_xml_for_on_url)
                 if response.status_code == 401:
                     logging.error(response.status_code)
                     response = requests.get(led.on_change_xml_for_on_url, auth=HTTPDigestAuth("admin", "7666"))
+                    # implement also for httpBasic (setting could be changed in the phone Wui or provisioning server)
             else:
                 logging.error(f"wrong value {status} for groupaddress {groupaddress}")
-            sleep(3)
+            sleep(1)
 
     return HttpResponse()
 

@@ -74,8 +74,6 @@ class Groupaddress(models.Model):
     def __str__(self) -> str:
         return f"{self.maingroup} | {self.subgroup} | {self.name}"
 
-LED_SUBSCRIPTIONS_XML_PATH = f"{settings.XML_TARGET_DIRECTORY}led_subscriptions/"
-
 
 class FunctionKeyLEDSubscriptions(models.Model):
     mac_address_validator = RegexValidator(
@@ -102,20 +100,22 @@ class FunctionKeyLEDSubscriptions(models.Model):
 
     @property
     def knx_write_url_for_on(self):
-        return f"http://{settings.GATEWAY_IP}:8000/write/{self.knx_subscription}/on"
+        return f"http://{settings.GATEWAY_IP}:8000/knx/write/{self.knx_subscription}/on"
 
     @property
     def knx_write_url_for_off(self):
-        return f"http://{settings.GATEWAY_IP}:8000/write/{self.knx_subscription}/off"
+        return f"http://{settings.GATEWAY_IP}:8000/knx/write/{self.knx_subscription}/off"
 
     @property
     def on_change_xml_for_on(self):
-        if not os.path.exists(LED_SUBSCRIPTIONS_XML_PATH):
-            os.makedirs(LED_SUBSCRIPTIONS_XML_PATH)
-            logging.warning(f"Directory {LED_SUBSCRIPTIONS_XML_PATH} created")
+        subscriptions_path = f"{settings.XML_TARGET_DIRECTORY}led_subscriptions/{self.mac_address}/"
+
+        if not os.path.exists(subscriptions_path):
+            os.makedirs(subscriptions_path)
+            logging.warning(f"Directory {subscriptions_path} created")
 
         file_name = f"{self.knx_subscription.replace('/', '_')}_on.xml"
-        led_subscription_file_path = f"{LED_SUBSCRIPTIONS_XML_PATH}{file_name}"
+        led_subscription_file_path = f"{subscriptions_path}{file_name}"
 
         if os.path.exists(led_subscription_file_path):
             os.remove(led_subscription_file_path)
@@ -139,16 +139,18 @@ class FunctionKeyLEDSubscriptions(models.Model):
     @property
     def on_change_xml_for_on_url(self):
         file_name = f"{self.knx_subscription.replace('/', '_')}_on.xml"
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{file_name}"
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{self.mac_address}/{file_name}"
 
     @property
     def on_change_xml_for_off(self):
-        if not os.path.exists(LED_SUBSCRIPTIONS_XML_PATH):
-            os.makedirs(LED_SUBSCRIPTIONS_XML_PATH)
-            logging.warning(f"Directory {LED_SUBSCRIPTIONS_XML_PATH} created")
+        subscriptions_path = f"{settings.XML_TARGET_DIRECTORY}led_subscriptions/{self.mac_address}/"
+
+        if not os.path.exists(subscriptions_path):
+            os.makedirs(subscriptions_path)
+            logging.warning(f"Directory {subscriptions_path} created")
 
         file_name = f"{self.knx_subscription.replace('/', '_')}_off.xml"
-        led_subscription_file_path = f"{LED_SUBSCRIPTIONS_XML_PATH}{file_name}"
+        led_subscription_file_path = f"{subscriptions_path}{file_name}"
 
         if os.path.exists(led_subscription_file_path):
             os.remove(led_subscription_file_path)
@@ -172,7 +174,7 @@ class FunctionKeyLEDSubscriptions(models.Model):
     @property
     def on_change_xml_for_off_url(self):
         file_name = f"{self.knx_subscription.replace('/', '_')}_off.xml"
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{file_name}"
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{self.mac_address}/{file_name}"
 
     def __str__(self) -> str:
         return f"Phone: {self.ip_address} | LED on: {self.led_number_for_on} | LED off: {self.led_number_for_off} | Groupaddress: {self.knx_subscription}"
