@@ -10,6 +10,7 @@ app_name = 'knx'
 
 urlpatterns = [
     path('', views.index, name='knx_home'),
+    path("update_led_subscriptors/<int:main>/<int:midd>/<int:sub>/<str:status>", views.update_led_subscriptors, name="update_led_subscriptors"),
     re_path(
         r"^write/([0-9]+)/([0-9]+)/([0-9]+)/(on|off|increase|decrease)/(.*)$", views.check_code, name="check_code"
     ),

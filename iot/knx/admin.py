@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from knx.models import AlsStatus, Device, Groupaddress
+from knx.models import AlsStatus, Device, Groupaddress, FunctionKeyLEDSubscriptions
 
 admin.site.register(AlsStatus)
 admin.site.register(Device)
@@ -15,4 +15,16 @@ class GroupaddressAdmin(admin.ModelAdmin):
         "name",
         "datapoint_type",
         "html_action",
+    ]
+
+@admin.register(FunctionKeyLEDSubscriptions)
+class FunctionKeyLEDSubscriptionsAdmin(admin.ModelAdmin):
+    readonly_fields = [
+        "knx_write_url_for_on",
+        "knx_write_url_for_off",
+        "on_change_xml_for_on_url",
+        "on_change_xml_for_off_url",
+        "on_change_xml_for_on",
+        "on_change_xml_for_off",
+        "timestamp",
     ]
