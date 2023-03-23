@@ -1,9 +1,12 @@
 import os
 import logging
+import json
 
 from django.core.validators import RegexValidator
 from django.db import models
 from django.conf import settings
+
+from knx.constants import FkeyLEDNo
 
 
 class KnxMonitor(models.Model):
@@ -74,6 +77,9 @@ class Groupaddress(models.Model):
     def __str__(self) -> str:
         return f"{self.maingroup} | {self.subgroup} | {self.name}"
 
+PHONE_MODEL_CHOICES = [(phone_model.name, phone_model.name) for phone_model in FkeyLEDNo]
+groupaddresses = Groupaddress.objects.values_list("address", flat=True)
+KNX_SUBSCRIPTION_CHOICES= [(groupaddress, groupaddress) for groupaddress in groupaddresses]
 
 class FunctionKeyLEDSubscriptions(models.Model):
     mac_address_validator = RegexValidator(
@@ -85,18 +91,22 @@ class FunctionKeyLEDSubscriptions(models.Model):
         validators=[mac_address_validator],
     )
     ip_address = models.GenericIPAddressField()
-    types = [
-        ("D713", "D713"),
-        ("D785", "D785"),
-        ]
-    type = models.CharField(max_length=4, choices=types, default="D785")
-    led_number_for_on = models.CharField(max_length= 2, default=None)
-    led_number_for_off = models.CharField(max_length=2, default=None)
-    knx_subscription = models.CharField(max_length=8, default=None)
+    phone_model = models.CharField(max_length=4, null=True, choices=PHONE_MODEL_CHOICES)
+    led_number_for_on = models.PositiveSmallIntegerField(null=True)
+    led_number_for_off = models.PositiveSmallIntegerField(default=None)
+    knx_subscription = models.CharField(max_length=8, null=True, choices=KNX_SUBSCRIPTION_CHOICES)
     on_subscription_change_url = models.URLField(max_length=200, blank=True, default=None)
     fkey_no = models.CharField(max_length=2, blank=True, default=None)
     phone_location = models.CharField(max_length=30, default=None)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
+
+    @property
+    def led_number_mapping(self):
+        return {
+            phone_model.name: [led_number for led_number in phone_model.value]
+            for phone_model in FkeyLEDNo
+        }
+            
 
     @property
     def knx_write_url_for_on(self):
@@ -177,4 +187,4 @@ class FunctionKeyLEDSubscriptions(models.Model):
         return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{self.mac_address}/{file_name}"
 
     def __str__(self) -> str:
-        return f"Phone: {self.ip_address} | LED on: {self.led_number_for_on} | LED off: {self.led_number_for_off} | Groupaddress: {self.knx_subscription}"
+        return f"{self.phone_model}: {self.ip_address} | LED on: {self.led_number_for_on} | LED off: {self.led_number_for_off} | Groupaddress: {self.knx_subscription}"

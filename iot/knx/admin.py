@@ -1,9 +1,10 @@
 from django.contrib import admin
 
-from knx.models import AlsStatus, Device, Groupaddress, FunctionKeyLEDSubscriptions
+from knx.models import AlsStatus, Device, Groupaddress, FunctionKeyLEDSubscriptions#, FkeyLEDNo
 
 admin.site.register(AlsStatus)
 admin.site.register(Device)
+#admin.site.register(FkeyLEDNo)
 
 
 @admin.register(Groupaddress)
@@ -20,6 +21,7 @@ class GroupaddressAdmin(admin.ModelAdmin):
 @admin.register(FunctionKeyLEDSubscriptions)
 class FunctionKeyLEDSubscriptionsAdmin(admin.ModelAdmin):
     readonly_fields = [
+        "led_number_mapping",
         "knx_write_url_for_on",
         "knx_write_url_for_off",
         "on_change_xml_for_on_url",
