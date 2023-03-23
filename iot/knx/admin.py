@@ -1,10 +1,9 @@
 from django.contrib import admin
 
-from knx.models import AlsStatus, Device, Groupaddress, FunctionKeyLEDSubscriptions#, FkeyLEDNo
+from knx.models import AlsStatus, Device, Groupaddress, FunctionKeyLEDSubscriptions
 
 admin.site.register(AlsStatus)
 admin.site.register(Device)
-#admin.site.register(FkeyLEDNo)
 
 
 @admin.register(Groupaddress)
