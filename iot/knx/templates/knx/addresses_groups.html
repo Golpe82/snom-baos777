@@ -2,8 +2,8 @@
 
 {% load static %}
 
-{% block title %}{{block.super}}|{{ app }}|{{ page }}{% endblock title %}
-{% block header %}{{block.super}} - {{app }} - {{ page }}{% endblock header %}
+{% block title %}{{app}}|Control{% endblock title %}
+{% block header %}{{app}} - Control{% endblock header %}
 
 {% block content %}
     {% if addresses_groups %}
@@ -11,7 +11,7 @@
             <div class="maingroup">{{maingroup}}
             {% for subgroup in subgroups %}
                 <div class="subgroup">
-                    <a href={% url 'knx:addresses' maingroup subgroup %}>{{subgroup}}</a>
+                    <a href="{% url 'knx:addresses' maingroup subgroup %}">{{subgroup}}</a>
                 </div>
             {% endfor %}
             </div>
