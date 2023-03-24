@@ -53,9 +53,3 @@ class FunctionKeyLEDSubscriptionsAdmin(admin.ModelAdmin):
         "timestamp",
     ]
     search_fields = ["ip_address", "mac_address", "knx_subscription", "phone_model", "phone_location"]
-
-    def led_number_mapping(self, instance):
-        return [
-            f"{phone_model}: {led_numbers}"
-            for phone_model, led_numbers in instance.led_number_mapping.items()
-        ]
