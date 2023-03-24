@@ -2,8 +2,8 @@
 
 {% load static %}
 
-{% block title %}{{block.super}}|{{ app }}|{{ page }}{% endblock title %}
-{% block header %}{{block.super}} - {{app }} - {{ page }}{% endblock header %}
+{% block title %}{{app}}|Control{% endblock title %}
+{% block header %}{{app}} - Control{% endblock header %}
 
 {% block content %}
     {% if addresses_groups %}
