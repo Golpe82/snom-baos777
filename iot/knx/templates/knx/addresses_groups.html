@@ -11,7 +11,7 @@
             <div class="maingroup">{{maingroup}}
             {% for subgroup in subgroups %}
                 <div class="subgroup">
-                    <a href={% url 'knx:addresses' maingroup subgroup %}>{{subgroup}}</a>
+                    <a href="{% url 'knx:addresses' maingroup subgroup %}">{{subgroup}}</a>
                 </div>
             {% endfor %}
             </div>
