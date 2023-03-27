@@ -33,13 +33,13 @@ def main():
                 logging.info(f"with value {value}")
 
                 if telegram_old != telegram:
-                    telegram_old = telegram
                     knx_gateway = "localhost:8000"
                     logging.error("update led subscriptors")
                     requests.get(f"http://{knx_gateway}/knx/update_led_subscriptors/{groupaddress}/{value}")
-            # not in use, too much traffic:
-            # DBActions.monitor_status_save(frame)
-            #DBActions.status_save(frame)
+
+                    #knx_monitor.DBActions.monitor_status_save(telegram)
+                    knx_monitor.DBActions.status_save(telegram)
+                    telegram_old = telegram
 
 
 if __name__ == "__main__":

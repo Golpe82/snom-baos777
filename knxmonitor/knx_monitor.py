@@ -131,16 +131,6 @@ class DBActions(object):
 
     def status_save(frame):
         groupaddress = get_groupaddress(frame).get("formatted")
-        if groupaddress == "1/2/20":
-            logging.error("-----Incoming knx telegram----")
-            # frame[OctectIndex.MESSAGE_CODE] == MessageCode.L_DATA_IND
-
-            for idx, byte in enumerate(frame):
-                if idx == 5:
-                    logging.error(f"Byte {idx}: {hex(byte)}")
-                    logging.error(f"{hex(frame[OctectIndex.MESSAGE_CODE])}")
-            logging.error("-----")
-
         info = get_groupaddress_info(groupaddress)
         datapointtype  = info.get("datapoint type")
         is_dpt1 = "DPT-1" in datapointtype or "DPST-1" in datapointtype
@@ -149,9 +139,6 @@ class DBActions(object):
         if is_dpt1:
             status = get_value(frame, datapointtype).get("formatted")
             logging.info(f"saving status {status} for groupaddress {groupaddress} with dpt {datapointtype}")
-
-            # if groupaddress == BLIND_GROUPADDRESS:
-            #     DECTULEActions().control_blind(status)
 
             knx_gateway = "localhost:8000"
             logging.error("update led subscriptors")
