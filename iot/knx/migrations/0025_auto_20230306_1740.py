@@ -21,7 +21,6 @@ class Migration(migrations.Migration):
                 ('led_number_for_on', models.CharField(default=None, max_length=2)),
                 ('led_number_for_off', models.CharField(default=None, max_length=2)),
                 ('knx_subscription', models.CharField(default=None, max_length=8)),
-                ('on_subscription_change_url', models.URLField(blank=True, default=None)),
                 ('fkey_no', models.CharField(blank=True, default=None, max_length=2)),
                 ('phone_location', models.CharField(default=None, max_length=30)),
                 ('timestamp', models.DateTimeField(auto_now_add=True, null=True)),
