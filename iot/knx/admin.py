@@ -41,6 +41,14 @@ class FunctionKeyLEDSubscriptionsAdmin(admin.ModelAdmin):
                 "fields":(("knx_write_url_for_on", "knx_write_url_for_off"))
             }
         ),
+        ("Snom XML",
+            {
+                "fields":(
+                    ("on_change_xml_for_on_url", "on_change_xml_for_off_url"),
+                    ("on_change_xml_for_on", "on_change_xml_for_off")
+                )
+            }
+        ),
     )
     readonly_fields = [
         "led_number_mapping",

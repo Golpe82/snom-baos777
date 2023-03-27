@@ -111,17 +111,26 @@ def update_led_subscriptors(request, main, midd, sub, status):
         logging.error(f"{status} updating snom led subscriptors {subscripted_leds}")
         for led in subscripted_leds:
             if status == "off":
-                response = requests.get(led.on_change_xml_for_off_url)
-                if response.status_code == 401:
-                    response = requests.get(led.on_change_xml_for_off_url, auth=HTTPDigestAuth(phone_wui_user, phone_wui_passwd))
+                try: 
+                    response = requests.get(led.on_change_xml_for_off_url, timeout=5)
+                except requests.exceptions.ConnectionError:
+                    logging.error(f"Target not reachable: {led.on_change_xml_for_off_url}")
+
+                else:
                     if response.status_code == 401:
-                        requests.get(led.on_change_xml_for_off_url, auth=HTTPBasicAuth(phone_wui_user, phone_wui_passwd))
+                        response = requests.get(led.on_change_xml_for_off_url, auth=HTTPDigestAuth(phone_wui_user, phone_wui_passwd))
+                        if response.status_code == 401:
+                            requests.get(led.on_change_xml_for_off_url, auth=HTTPBasicAuth(phone_wui_user, phone_wui_passwd))
             elif status == "on":
-                response = requests.get(led.on_change_xml_for_on_url)
-                if response.status_code == 401:
-                    response = requests.get(led.on_change_xml_for_on_url, auth=HTTPDigestAuth(phone_wui_user, phone_wui_passwd))
+                try:
+                    response = requests.get(led.on_change_xml_for_on_url, timeout=5)
+                except requests.exceptions.ConnectionError:
+                    logging.error(f"Target not reachable: {led.on_change_xml_for_on_url}")
+                else:
                     if response.status_code == 401:
-                        requests.get(led.on_change_xml_for_on_url, auth=HTTPBasicAuth(phone_wui_user, phone_wui_passwd))
+                        response = requests.get(led.on_change_xml_for_on_url, auth=HTTPDigestAuth(phone_wui_user, phone_wui_passwd))
+                        if response.status_code == 401:
+                            requests.get(led.on_change_xml_for_on_url, auth=HTTPBasicAuth(phone_wui_user, phone_wui_passwd))
             else:
                 logging.error(f"wrong value {status} for groupaddress {groupaddress}")
             sleep(1)

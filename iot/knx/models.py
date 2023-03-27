@@ -75,7 +75,7 @@ class Groupaddress(models.Model):
     def __str__(self) -> str:
         return f"{self.maingroup} | {self.subgroup} | {self.name}"
 
-PHONE_MODEL_CHOICES = [(phone_model.name, phone_model.name) for phone_model in FkeyLEDNo]
+PHONE_MODEL_CHOICES = [(phone_model, phone_model) for phone_model in FkeyLEDNo.__dataclass_fields__]
 
 class FunctionKeyLEDSubscriptions(models.Model):
     mac_address_validator = RegexValidator(
@@ -91,16 +91,14 @@ class FunctionKeyLEDSubscriptions(models.Model):
     led_number_for_on = models.PositiveSmallIntegerField(null=True)
     led_number_for_off = models.PositiveSmallIntegerField(default=None)
     knx_subscription = models.CharField(max_length=8, null=True)
-    on_subscription_change_url = models.URLField(max_length=200, blank=True, default=None)
-    fkey_no = models.CharField(max_length=2, blank=True, default=None)
     phone_location = models.CharField(max_length=30, default=None)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
     @property
     def led_number_mapping(self):
         return {
-            phone_model.name: [led_number for led_number in phone_model.value]
-            for phone_model in FkeyLEDNo
+            phone_model.name: [*phone_model.default]
+            for phone_model in FkeyLEDNo.__dataclass_fields__.values()
         }
 
     @property
@@ -113,7 +111,7 @@ class FunctionKeyLEDSubscriptions(models.Model):
 
     @property
     def on_change_xml_for_on(self):
-        subscriptions_path = f"{settings.XML_TARGET_DIRECTORY}led_subscriptions/{self.mac_address}/"
+        subscriptions_path = f"/var/www/html/knx_led_subscriptions/{self.mac_address}/"
 
         if not os.path.exists(subscriptions_path):
             os.makedirs(subscriptions_path)
@@ -144,11 +142,15 @@ class FunctionKeyLEDSubscriptions(models.Model):
     @property
     def on_change_xml_for_on_url(self):
         file_name = f"{self.knx_subscription.replace('/', '_')}_on.xml"
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{self.mac_address}/{file_name}"
+
+        if self.phone_model.startswith("D8"):
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_led_subscriptions/{self.mac_address}/{file_name}"
+
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_led_subscriptions/{self.mac_address}/{file_name}"
 
     @property
     def on_change_xml_for_off(self):
-        subscriptions_path = f"{settings.XML_TARGET_DIRECTORY}led_subscriptions/{self.mac_address}/"
+        subscriptions_path = f"/var/www/html/knx_led_subscriptions/{self.mac_address}/"
 
         if not os.path.exists(subscriptions_path):
             os.makedirs(subscriptions_path)
@@ -179,7 +181,11 @@ class FunctionKeyLEDSubscriptions(models.Model):
     @property
     def on_change_xml_for_off_url(self):
         file_name = f"{self.knx_subscription.replace('/', '_')}_off.xml"
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_xml/led_subscriptions/{self.mac_address}/{file_name}"
+
+        if self.phone_model.startswith("D8"):
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_led_subscriptions/{self.mac_address}/{file_name}"
+
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_led_subscriptions/{self.mac_address}/{file_name}"
 
     def __str__(self) -> str:
         return f"Groupaddress: {self.knx_subscription} | {self.phone_model}: {self.ip_address} | LED on: {self.led_number_for_on} | LED off: {self.led_number_for_off}"
