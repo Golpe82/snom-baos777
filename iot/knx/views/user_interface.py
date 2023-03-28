@@ -2,13 +2,16 @@
 import os
 import subprocess
 import logging
+import requests
+from requests.auth import HTTPDigestAuth, HTTPBasicAuth
+from time import sleep
 
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
 
 from knx import upload
-from knx.models import BrightnessRules, KnxMonitor, KnxStatus, Groupaddress
+from knx.models import BrightnessRules, KnxMonitor, KnxStatus, Groupaddress, FunctionKeyLEDSubscriptions
 from knx.forms import AlsFormSet
 
 APP = "KNX"
@@ -17,7 +20,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 def index(request):
     addresses_groups = {
-        maingroup[0]: {item.subgroup for item in Groupaddress.objects.filter(maingroup=maingroup[0])}
+        maingroup[0]: {
+            item.subgroup
+            for item in Groupaddress.objects.filter(maingroup=maingroup[0])
+        }
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     }
 
@@ -32,16 +38,114 @@ def index(request):
 
     return render(request, "knx/addresses_groups.html", context)
 
+
+def knx_write(request, main, midd, sub, value):
+    groupaddress = f"{main}/{midd}/{sub}"
+
+    address_info = Groupaddress.objects.filter(address=groupaddress)
+    address_code = address_info.values_list("code", flat=True).first()
+
+    # address has a code
+    if address_code:
+
+        return HttpResponse(
+            f"""
+            <SnomIPPhoneInput track=no>
+                <InputItem>
+                    <DisplayName>Enter code for {groupaddress}</DisplayName>
+                    <InputToken>__Y__</InputToken>
+                    <InputFlags>p</InputFlags>
+                </InputItem>
+                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/{value}/__Y__</Url>
+            </SnomIPPhoneInput>
+        """,
+            content_type="text/xml",
+        )
+
+    if value == "on":
+        value = "an"
+        requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+
+        return HttpResponse()
+
+    value = "aus"
+    requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+
+    return HttpResponse()
+
+
+def check_code(request, main, midd, sub, value, code):
+    groupaddress = f"{main}/{midd}/{sub}"
+    address_info = Groupaddress.objects.filter(address=groupaddress)
+    expected_code = address_info.values_list("code", flat=True).first()
+
+    # address has a code
+    if code != expected_code:
+        return HttpResponse(
+            """
+            <SnomIPPhoneText>
+                <Text>Wrong code</Text>
+                <fetch mil=1500>snom://mb_exit</fetch>
+            </SnomIPPhoneText>
+            """,
+            content_type="text/xml",
+        )
+    if value == "on":
+        value = "an"
+        requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+
+        return HttpResponse()
+
+    value = "aus"
+    requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+
+    return HttpResponse()
+
+def update_led_subscriptors(request, main, midd, sub, status):
+    groupaddress = f"{main}/{midd}/{sub}"
+    subscripted_leds = FunctionKeyLEDSubscriptions.objects.filter(knx_subscription=groupaddress)
+    phone_wui_user = "admin"
+    phone_wui_passwd = "7666"
+
+    if subscripted_leds:
+        logging.error(f"{status} updating snom led subscriptors {subscripted_leds}")
+        for led in subscripted_leds:
+            if status == "off":
+                try: 
+                    response = requests.get(led.on_change_xml_for_off_url, timeout=5)
+                except requests.exceptions.ConnectionError:
+                    logging.error(f"Target not reachable: {led.on_change_xml_for_off_url}")
+
+                else:
+                    if response.status_code == 401:
+                        response = requests.get(led.on_change_xml_for_off_url, auth=HTTPDigestAuth(phone_wui_user, phone_wui_passwd))
+                        if response.status_code == 401:
+                            requests.get(led.on_change_xml_for_off_url, auth=HTTPBasicAuth(phone_wui_user, phone_wui_passwd))
+            elif status == "on":
+                try:
+                    response = requests.get(led.on_change_xml_for_on_url, timeout=5)
+                except requests.exceptions.ConnectionError:
+                    logging.error(f"Target not reachable: {led.on_change_xml_for_on_url}")
+                else:
+                    if response.status_code == 401:
+                        response = requests.get(led.on_change_xml_for_on_url, auth=HTTPDigestAuth(phone_wui_user, phone_wui_passwd))
+                        if response.status_code == 401:
+                            requests.get(led.on_change_xml_for_on_url, auth=HTTPBasicAuth(phone_wui_user, phone_wui_passwd))
+            else:
+                logging.error(f"wrong value {status} for groupaddress {groupaddress}")
+            sleep(1)
+
+    return HttpResponse()
+
 def addresses(request, maingroup, subgroup):
     groupaddresses = Groupaddress.objects.filter(maingroup=maingroup, subgroup=subgroup)
     context = {
         "app": APP,
         "page": f"{maingroup} {subgroup}",
-        "groupaddresses": groupaddresses
+        "groupaddresses": groupaddresses,
     }
-    
-    return render(request, "knx/groupaddresses.html", context)
 
+    return render(request, "knx/groupaddresses.html", context)
 
 
 def minibrowser(request):
@@ -79,15 +183,13 @@ def render_sensor_values(request):
         logging.warning(message)
     else:
         message = "Ambientlight sensor values"
-    
+
     form = AlsFormSet()
 
-    context = {
-        "form": form,
-        "message": message
-    }
+    context = {"form": form, "message": message}
 
     return render(request, "knx/sensors_values.html", context)
+
 
 def render_groupaddresses(request):
     groupaddresses = Groupaddress.objects.all()

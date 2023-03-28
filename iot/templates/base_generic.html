@@ -8,14 +8,12 @@
     </head>
     <body>
         <header>
-            <h1>{% block header %}IoT{% endblock header %}</h1>
+            <h1>{% block header %}Snom IoT{% endblock header %}</h1>
         </header>
         <nav id="base">
             <h2>
                 <a href="{% url 'knx:knx_home' %}">KNX</a>
-                <a href="{% url 'dect:dect_home' %}">DECT ULE</a>
-                <a href="{% url 'snom_sensors:snom_sensors_home' %}">SNOM SENSORS</a>
-                <a href="{% url 'beacons:beacons_home' %}">BEACONS</a>
+                <a href="{% url 'admin:index' %}">Administration</a>
             </h2>
         </nav>
         <nav id="app">{% block app_nav %}{% endblock app_nav %}</nav>

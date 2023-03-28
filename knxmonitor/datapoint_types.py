@@ -2,11 +2,10 @@
 import logging
 
 PATTERNS = {
-    "DPT1": "^DPS?T-1-",
-    "DPT3": "^DPS?T-3-",
-    "DPT5": "^DPS?T-5-",
+    "DPT1": "^DPS?T-1-?",
+    "DPT3": "^DPS?T-3-?",
+    "DPT5": "^DPS?T-5-?",
 }
-
 
 def get_DPT1_formatted(raw_value):
     VALUES = {"on": 0x81, "off": 0x80}
