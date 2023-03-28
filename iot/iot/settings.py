@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
+import socket
 from pathlib import Path
 
 from iot import helpers
@@ -23,6 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # IP Address of the KNX Gateway
 GATEWAY_IP = helpers.get_local_ip()
 
+HOSTNAME = f"{socket.gethostname()}.local"
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -32,7 +35,7 @@ SECRET_KEY = '-+%-e(6*1_!dcomw3yod)^8iobzhhu9u4yv83izw3@x2in6c)8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'urlknxgw.local', GATEWAY_IP]
+ALLOWED_HOSTS = ['localhost', HOSTNAME, GATEWAY_IP]
 
 # Application definition
 
