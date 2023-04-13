@@ -56,41 +56,25 @@ def get_token():
 
 class BAOSMonitor:
     def __init__(self):  
-        websocket.enableTrace(True)
-        while True:
-            self.connect()
-            # wait until next try
-            logging.info(f"Connect BAOS Webservice again.")
-            time.sleep(2)
-
-    def connect(self):
-        print('connect')
-
+        websocket.enableTrace(False)
         self.token = get_token()
         WS_HOST = 'ws://10.110.16.63/websocket'
         URL = '{}?token={}'.format(WS_HOST, self.token)
-
-        try:
-            self.ws = websocket.WebSocketApp(URL,
-                                            on_open=self.on_open,
-                                            on_message=self.on_message,
-                                            on_error=self.on_error,
-                                            on_close=self.on_close
-                                            )
-
-            # Set dispatcher to automatic reconnection, 5 second reconnect delay if connection closed unexpectedly
-            self.ws.run_forever(#dispatcher=rel, reconnect=5,
-                                ping_interval=60, ping_timeout=2, ping_payload="keep alive")  
-            #rel.signal(2, rel.abort)  # Keyboard Interrupt
-            #rel.dispatch()
-        except Exception:
-            logging.critical(f"BAOS Webservice down, try reconnect")
-            pass 
-        print('done')
+  
+        self.ws = websocket.WebSocketApp(URL,
+                                         on_open=self.on_open,
+                                         on_message=self.on_message,
+                                         on_error=self.on_error,
+                                         on_close=self.on_close)
+        # Set dispatcher to automatic reconnection, 5 second reconnect delay if connection closed unexpectedly
+        self.ws.run_forever(dispatcher=rel, reconnect=2)  
+        rel.signal(2, rel.abort)  # Keyboard Interrupt
+        rel.dispatch()
+        self.opened = False
         
     def on_message(self, ws, message):
         print(F'Message:::{message}')
-     
+
         # message should be a json message already.
         message = json.loads(message)
         knx_monitor.DBActions.monitor_status_save_777(message)
@@ -102,10 +86,10 @@ class BAOSMonitor:
         print("### closed ###")
         rel.abort()
         print("### re-connect ###")
-        self.ws.close()
-        self.ws.keep_running = False
-
-        self.connect()
+        self.token = get_token()
+        self.ws.run_forever(dispatcher=rel)
+        rel.signal(2, rel.abort)
+        rel.dispatch()
 
     def on_open(self, ws):
         print("Opened connection")
@@ -113,7 +97,6 @@ class BAOSMonitor:
     
 def main_777():
     baos_777_ws = BAOSMonitor()
-    print('not blocked')
     
 def main():
     with serial.Serial(DEVICE, BAUDRATE, CHARACTER_SIZE, PARITY) as connection:
