@@ -106,13 +106,6 @@ def to_string(frame):
 
 
 class DBActions(object):
-
-    ID_2_GROUPADDRESS = {
-                "1": "3/1/10",
-                "2": "3/1/11",
-                "3": "4/1/0",
-            }
-
     # not in use, too much traffic:
     def monitor_status_save(frame):
         logging.info(f"debugging mon frame {frame}")
@@ -127,68 +120,6 @@ class DBActions(object):
             "datapoint_type": info.get("datapoint type"),
             "status": status,
             "raw_frame": to_string(frame),
-        }
-
-        try:
-            requests.post(POST_MONITOR_URL, data=post_data)
-
-        except Exception:
-            logging.warning(f"Could not save data = { post_data }")
-            logging.warning(f"from URL = { POST_MONITOR_URL }")
-
-    def get_groupaddress_777(id):
-        # look up group address via 777 id
-        groupaddress = DBActions.ID_2_GROUPADDRESS.get(str(id))
-        if groupaddress is not None:
-            return {
-                #"raw": '',
-                "formatted": groupaddress,
-                }
-
-    def get_value_and_groupaddress_777(message):
-        # DPT might be unknown yet, make sure we return an error value instead
-        value_formatted = 'UNDEFINED'
-
-        message = message['indications']
-        type = message["type"] 
-        if type == 'datapoint_ind':
-
-            # a list of values could be returned. We use the last entry in the list. 
-            value_list = message['values']
-            for element in value_list:
-                dpt = element['Format']
-                id = element['id']
-                gaddr = DBActions.get_groupaddress_777(str(id))
-                state = element['state']
-
-                logging.info(f"datapoint {dpt}")
-
-                # DPT already comes in clear text  
-                if dpt == "DPT1":
-                    value = element['value']
-                    value_formatted = "On" if value else "Off"
-                # different call to handler - get formatted ?
-
-                #handler = datapoint_types.DptHandlers(raw_value)
-                #value = handler.get_formatted_value(dpt)
-            return {"groupaddress": gaddr, "DPT": dpt, "value_formatted": value_formatted}
-
-    def monitor_status_save_777(message):
-        logging.info(f"debugging mon message {message}")
-
-        result = DBActions.get_value_and_groupaddress_777(message)
-
-        groupaddress = result['groupaddress']['formatted']
-        dpt = result['DPT']
-        #info = get_groupaddress_info(groupaddress)
-
-        status = result['value_formatted']
-        post_data = {
-            #"groupaddress_name": info.get("groupaddress name"),
-            "groupaddress": groupaddress,
-            "datapoint_type": dpt,
-            "status": status,
-            "raw_frame": '',
         }
 
         try:
