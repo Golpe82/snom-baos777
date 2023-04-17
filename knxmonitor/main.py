@@ -65,7 +65,7 @@ def main_baos_838():
 
 
 if __name__ == "__main__":
-    # TODO: add the device type as option. E.g. 'python3 main.py --baos777' or 'python3 main.py --baos838'
+    # TODO: add the device to use as option. E.g. 'python3 main.py --baos777' or 'python3 main.py --baos838'
     device = "BAOS 777"
 
     if device == "BAOS 777":
