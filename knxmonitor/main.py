@@ -23,12 +23,16 @@ STOPBYTE = b"\x16"
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 def main_baos_777():
     username = "admin"
     password = "admin"
-    websocket = baos_ws.MonitorWebsocket()
-    websocket.login(username, password)
-    websocket.connect()
+
+    while True:
+        websocket = baos_ws.MonitorWebsocket()
+        websocket.login(username, password)
+        logging.error("Unable to login. Trying again...")
+
 
 def main_baos_838():
     with serial.Serial(DEVICE, BAUDRATE, CHARACTER_SIZE, PARITY) as connection:
@@ -65,7 +69,7 @@ def main_baos_838():
 
 
 if __name__ == "__main__":
-    # TODO: add the device type as option. E.g. 'python3 main.py --baos777' or 'python3 main.py --baos838'
+    # TODO: add the device to use as option. E.g. 'python3 main.py --baos777' or 'python3 main.py --baos838'
     device = "BAOS 777"
 
     if device == "BAOS 777":
