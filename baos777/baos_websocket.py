@@ -1,4 +1,3 @@
-
 from abc import ABC, abstractmethod
 import logging
 import json
@@ -14,6 +13,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 if logging.getLogger().level == logging.DEBUG:
     websocket.enableTrace(True)
+
 
 class BaseWebsocket(ABC):
     def __init__(self):
@@ -34,18 +34,25 @@ class BaseWebsocket(ABC):
                 raise response.raise_for_status()
 
         except requests.exceptions.HTTPError as e:
-            logging.error(f"\nUnable to authenticate BAOS 777 websocket!:\n\tBAOS returned: {response.text}\n\tfor HTTP code {response.status_code}")
+            logging.error(
+                f"\nUnable to authenticate BAOS 777 websocket!:\n\tBAOS returned: {response.text}\n\tfor HTTP code {response.status_code}"
+            )
             http_handler = HTTPHandler(self, response, credentials)
             http_handler.handle(exception=e)
 
         except requests.exceptions.ConnectionError:
-            logging.exception(f"Unable to connect to BAOS 777!:\n\tBAOS returned: {response.text}")
+            logging.error("BAOS 777 not reachable, ConnectionError.")
 
         else:
             self.set_token(response)
-            logging.info(f"{response.status_code}: Logged into BAOS 777 with credentials {credentials}")
+            logging.info(
+                f"{response.status_code}: Logged into BAOS 777 with credentials {credentials} and token {self.token}"
+            )
+            self.connect()
+            logging.info(f"Running websocket id {id(self.ws)} forever...")
 
     def set_token(self, login_response):
+        # must be really longer than 10?
         if len(login_response.text) <= 10:
             raise Exception(f"Token length < 10: {login_response.text}")
 
@@ -68,7 +75,6 @@ class BaseWebsocket(ABC):
         except Exception:
             logging.exception("BAOS Webservice down, try reconnect")
 
-        logging.info(f"Running websocket id {id(self.ws)} forever...")
         # Set dispatcher to automatic reconnection, 5 second reconnect delay if connection closed unexpectedly
         self.ws.run_forever(ping_interval=60, ping_timeout=2, ping_payload="keep alive")
 
@@ -79,9 +85,10 @@ class BaseWebsocket(ABC):
         logging.error(error)
 
     def on_close(self, ws, close_status_code, close_msg):
-        logging.info(f"Closing websocket id {id(self.ws)}")
+        logging.info(f"Closing websocket id {id(self.ws)} with token {self.token}")
         self.ws.close()
         self.ws.keep_running = False
+
 
 class MonitorWebsocket(BaseWebsocket):
     def on_message(self, ws, message):
@@ -89,9 +96,7 @@ class MonitorWebsocket(BaseWebsocket):
         message = json.loads(message)
         knx_monitor.DBActions.monitor_status_save_777(message)
 
+
 class KNXWriteWebsocket(BaseWebsocket):
     def on_message(self, ws, message):
         ...
-
-
-

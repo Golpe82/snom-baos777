@@ -1,6 +1,7 @@
 import time
 import sys
 
+
 def wait(seconds):
     for remaining in range(seconds, 0, -1):
         sys.stdout.write("\r")

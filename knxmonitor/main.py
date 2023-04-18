@@ -23,12 +23,16 @@ STOPBYTE = b"\x16"
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 def main_baos_777():
     username = "admin"
     password = "admin"
-    websocket = baos_ws.MonitorWebsocket()
-    websocket.login(username, password)
-    websocket.connect()
+
+    while True:
+        websocket = baos_ws.MonitorWebsocket()
+        websocket.login(username, password)
+        logging.error("Unable to login. Trying again...")
+
 
 def main_baos_838():
     with serial.Serial(DEVICE, BAUDRATE, CHARACTER_SIZE, PARITY) as connection:
