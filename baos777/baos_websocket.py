@@ -7,6 +7,7 @@ import requests
 import websocket
 
 from baos777.http_handler import HTTPHandler
+from baos777.baos_data import BAOS777Data
 from knxmonitor import knx_monitor
 
 logging.basicConfig(level=logging.DEBUG)
@@ -18,6 +19,7 @@ if logging.getLogger().level == logging.DEBUG:
 class BaseWebsocket(ABC):
     def __init__(self):
         self.token = None
+        self.baos_data = None
 
     @abstractmethod
     def on_message(self, ws, message):
@@ -35,7 +37,7 @@ class BaseWebsocket(ABC):
 
         except requests.exceptions.HTTPError as e:
             logging.error(
-                f"\nUnable to authenticate BAOS 777 websocket!:\n\tBAOS returned: {response.text}\n\tfor HTTP code {response.status_code}"
+                f"\nUnable to authenticate BAOS 777 websocket!:\n\tBAOS returned: {response.text}\n\tfor HTTP code {response.status_code}\n"
             )
             http_handler = HTTPHandler(self, response, credentials)
             http_handler.handle(exception=e)
@@ -46,10 +48,9 @@ class BaseWebsocket(ABC):
         else:
             self.set_token(response)
             logging.info(
-                f"{response.status_code}: Logged into BAOS 777 with credentials {credentials} and token {self.token}"
+                f"\n{response.status_code}:\nLogged into BAOS 777:\nCredentials: {credentials}\nToken {self.token}\n"
             )
             self.connect()
-            logging.info(f"Running websocket id {id(self.ws)} forever...")
 
     def set_token(self, login_response):
         # must be really longer than 10?
@@ -75,17 +76,19 @@ class BaseWebsocket(ABC):
         except Exception:
             logging.exception("BAOS Webservice down, try reconnect")
 
+        logging.info(f"Running websocket forever:\nId {id(self.ws)}\nToken: {self.token}\n")
+        self.baos_data = BAOS777Data(self.token)
         # Set dispatcher to automatic reconnection, 5 second reconnect delay if connection closed unexpectedly
         self.ws.run_forever(ping_interval=60, ping_timeout=2, ping_payload="keep alive")
 
     def on_open(self, ws):
-        logging.info(f"Opened connection for websocket id {id(self.ws)}")
+        logging.info(f"\nOpened connection:\nWebsocket id {id(self.ws)}\nToken {self.token}")
 
     def on_error(self, ws, error):
         logging.error(error)
 
     def on_close(self, ws, close_status_code, close_msg):
-        logging.info(f"Closing websocket id {id(self.ws)} with token {self.token}")
+        logging.info(f"\nClosing conection:\nWebsocket id {id(self.ws)}\nToken {self.token}")
         self.ws.close()
         self.ws.keep_running = False
 
@@ -94,7 +97,11 @@ class MonitorWebsocket(BaseWebsocket):
     def on_message(self, ws, message):
         logging.info(f"BAOS event:\n{message}\n")
         message = json.loads(message)
-        knx_monitor.DBActions.monitor_status_save_777(message)
+        self.baos_data.baos_message = message
+        self.baos_data.print_message()
+        
+        
+        # knx_monitor.DBActions.monitor_status_save_777(message)
 
 
 class KNXWriteWebsocket(BaseWebsocket):
