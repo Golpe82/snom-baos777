@@ -9,6 +9,8 @@ REST_API_PATH = "rest/"
 DATAPOINTS_PATH = f"{REST_API_PATH}datapoints/"
 GROUPADDRESSES_PATH = f"{DATAPOINTS_PATH}addresses/"
 
+SENDING_GROUPADDRESS = 0
+
 
 class BAOS777Data:
     def __init__(self, token, baos_message=None):
@@ -17,8 +19,8 @@ class BAOS777Data:
         self.datapoints = self._get_datapoints()
         self.datapoints_ids = self._get_datapoints_ids()
         self.datapoints_urls = self._get_datapoints_urls()
-        self.datapoint_information = {}
-        self._set_datapoint_information()
+        self.datapoints_information = {}
+        self._set_datapoints_information()
         self.baos_message = baos_message
 
     def _get_datapoints(self):
@@ -32,7 +34,6 @@ class BAOS777Data:
             logging.error(("unable to get datapoints"))
         
         response_text = json.loads(response.text)
-        logging.info(response_text)
         
         return response_text.get("datapoints")
 
@@ -42,12 +43,12 @@ class BAOS777Data:
     def _get_datapoints_urls(self):
         return [datapoint.get("url") for datapoint in self.datapoints]
     
-    def _set_datapoint_information(self):
-        self._set_datapoint_types_by_id()
-        self._set_datapoint_groupaddresses()
-        logging.info(self.datapoint_information)
+    def _set_datapoints_information(self):
+        self._set_datapoints_type_by_id()
+        self._set_datapoints_groupaddresses()
+        logging.info(self.datapoints_information)
 
-    def _set_datapoint_types_by_id(self):
+    def _set_datapoints_type_by_id(self):
         for datapoint_url in self.datapoints_urls:
             try:
                 response = requests.get(datapoint_url, headers=self.auth_header)
@@ -61,7 +62,7 @@ class BAOS777Data:
                 response_text = json.loads(response.text)
                 datapoint_id = response_text.get("id")
                 datapoint_format = response_text.get("Format")
-                self.datapoint_information[datapoint_id] = {
+                self.datapoints_information[datapoint_id] = {
                     "datapoint format": datapoint_format,
                     "datapoint type": self._get_datapoint_type(response_text)
                 }
@@ -71,7 +72,7 @@ class BAOS777Data:
 
         return datapoint_description.get("datapoint_type")
 
-    def _set_datapoint_groupaddresses(self):
+    def _set_datapoints_groupaddresses(self):
         try:
             response = requests.get(f"{SERVER_URL}{GROUPADDRESSES_PATH}", headers=self.auth_header)
             if response.status_code != HTTPStatus.OK:
@@ -83,20 +84,25 @@ class BAOS777Data:
         else:
             response_text = json.loads(response.text)
             datapoints_addresses = response_text.get("datapoints_addresses")
-            self._update_datapoint_information(datapoints_addresses)
+            self._update_datapoints_information(datapoints_addresses)
 
-    def _update_datapoint_information(self, datapoints_addresses):
+    def _update_datapoints_information(self, datapoints_addresses):
         for datapoint_address in datapoints_addresses:
             datapoint_id = datapoint_address.get("id")
             datapoint_groupaddresses = datapoint_address.get("addresses")
-            datapoint = self.datapoint_information.get(datapoint_id)
+            datapoint = self.datapoints_information.get(datapoint_id)
             datapoint.update({"groupaddresses": datapoint_groupaddresses})
-        
-    def get_groupaddresses(self):
-        ...
 
-    def print_message(self):
-        print(f"Incoming BAOS message:\n{self.baos_message}")
+    @property
+    def sending_groupaddresses(self):
+        return {
+            datapoint_id: information.get("groupaddresses")[SENDING_GROUPADDRESS]
+            for datapoint_id, information in self.datapoints_information.items()
+            if information.get("groupaddresses")
+        }
+
+    def get_sending_groupaddress(self, datapoint_id):
+        return self.sending_groupaddresses.get(datapoint_id)
 
     def get_value(self):
         ...

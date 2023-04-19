@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 import logging
 import json
 from http import HTTPStatus
@@ -14,6 +15,12 @@ logging.basicConfig(level=logging.DEBUG)
 
 if logging.getLogger().level == logging.DEBUG:
     websocket.enableTrace(True)
+
+class BAOSIndicationsMessage:
+    def __init__(self, message):
+        self.message = message
+        indications = self.message.get("indications")
+        self.values = indications.get("values")
 
 
 class BaseWebsocket(ABC):
@@ -78,6 +85,7 @@ class BaseWebsocket(ABC):
 
         logging.info(f"Running websocket forever:\nId {id(self.ws)}\nToken: {self.token}\n")
         self.baos_data = BAOS777Data(self.token)
+        logging.info(self.baos_data.sending_groupaddresses)
         # Set dispatcher to automatic reconnection, 5 second reconnect delay if connection closed unexpectedly
         self.ws.run_forever(ping_interval=60, ping_timeout=2, ping_payload="keep alive")
 
@@ -96,12 +104,49 @@ class BaseWebsocket(ABC):
 class MonitorWebsocket(BaseWebsocket):
     def on_message(self, ws, message):
         logging.info(f"BAOS event:\n{message}\n")
-        message = json.loads(message)
-        self.baos_data.baos_message = message
-        self.baos_data.print_message()
-        
-        
-        # knx_monitor.DBActions.monitor_status_save_777(message)
+        self.baos_data.baos_message = json.loads(message)
+        indication_message = BAOSIndicationsMessage(self.baos_data.baos_message)
+        led_update_urls = self.build_led_update_urls(indication_message)
+        self.send_urls(led_update_urls)
+
+    def build_led_update_urls(self, indication_message):
+        urls_to_send = []
+        knx_gateway = "10.110.16.59:8000"
+        led_update_url = f"http://{knx_gateway}/knx/update_led_subscriptors/"
+
+        for datapoint in indication_message.values:
+            datapoint_id = datapoint.get("id")
+            datapoint_sending_groupaddress = self.baos_data.get_sending_groupaddress(datapoint_id)
+            led_update_groupaddress_url = f"{led_update_url}{datapoint_sending_groupaddress}/"
+            datapoint_value = datapoint.get("value")
+
+            # TODO: make a class for mapping all possible values
+            if datapoint_value == True:
+                value = "on"
+                urls_to_send.append(f"{led_update_groupaddress_url}{value}")
+            elif datapoint_value == False:
+                value = "off"
+                urls_to_send.append(f"{led_update_groupaddress_url}{value}")
+            else:
+                logging.error("Invalid value")
+
+        return urls_to_send
+    
+    def send_urls(self, urls):
+        # when urls coming from phone must be checked if groupaddress is in baos sending groupaddress list.
+        # E.g. if phone http://10.110.16.59:1234/4/1/10-aus, check if 4/1/10 is a sending groupaddress in baos device
+        # otherwise request must be discarded or inform user "is not a sending address in baos device"
+        for url in urls:
+            try:
+                response = requests.get(url)
+
+                if response.status_code != HTTPStatus.OK:
+                    raise response.raise_for_status()
+            except Exception:
+                logging.error(f"exception sending {url}:")
+            
+            logging.info(f"Sent url {url}")
+
 
 
 class KNXWriteWebsocket(BaseWebsocket):
