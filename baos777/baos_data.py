@@ -21,9 +21,6 @@ class BAOS777Data:
         self._set_datapoint_information()
         self.baos_message = baos_message
 
-    def print_message(self):
-        print(f"Incoming BAOS message:\n{self.baos_message}")
-
     def _get_datapoints(self):
         try:
             logging.info("Trying to get BAOS777 datapoints")
@@ -35,6 +32,7 @@ class BAOS777Data:
             logging.error(("unable to get datapoints"))
         
         response_text = json.loads(response.text)
+        logging.info(response_text)
         
         return response_text.get("datapoints")
 
@@ -62,8 +60,16 @@ class BAOS777Data:
             else:
                 response_text = json.loads(response.text)
                 datapoint_id = response_text.get("id")
-                datapoint_type = response_text.get("Format")
-                self.datapoint_information[datapoint_id] = {"datapoint type": datapoint_type}
+                datapoint_format = response_text.get("Format")
+                self.datapoint_information[datapoint_id] = {
+                    "datapoint format": datapoint_format,
+                    "datapoint type": self._get_datapoint_type(response_text)
+                }
+
+    def _get_datapoint_type(self, datapoint_response):
+        datapoint_description = datapoint_response.get("description")
+
+        return datapoint_description.get("datapoint_type")
 
     def _set_datapoint_groupaddresses(self):
         try:
@@ -88,6 +94,9 @@ class BAOS777Data:
         
     def get_groupaddresses(self):
         ...
+
+    def print_message(self):
+        print(f"Incoming BAOS message:\n{self.baos_message}")
 
     def get_value(self):
         ...
