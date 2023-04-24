@@ -15,6 +15,7 @@ def wait(seconds):
 
     sys.stdout.write("\n0 seconds remaining\n")
 
+
 def send_urls(urls: list) -> None:
     for url in urls:
         try:
@@ -24,5 +25,5 @@ def send_urls(urls: list) -> None:
                 raise response.raise_for_status()
         except Exception:
             logging.error(f"exception sending {url}:")
-        
+
         logging.info(f"Sent url {url}")

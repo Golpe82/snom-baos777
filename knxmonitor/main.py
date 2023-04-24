@@ -29,8 +29,7 @@ def main_baos_777():
     password = "admin"
 
     while True:
-        websocket = baos_ws.MonitorWebsocket(username, password)
-        # websocket.login(username, password)
+        baos_ws.MonitorWebsocket(username, password)
         logging.error("Unable to login. Trying again...")
 
 

@@ -21,6 +21,7 @@ if logging.getLogger().level == logging.DEBUG:
 
 KNX_GATEWAY = "10.110.16.59:8000"
 
+
 class BaseWebsocket(ABC):
     def __init__(self, username, password):
         self.user = username
@@ -81,7 +82,9 @@ class BaseWebsocket(ABC):
         except Exception:
             logging.exception("BAOS Webservice down, try reconnect")
 
-        logging.info(f"Running websocket forever:\nId {id(self.ws)}\nToken: {self.token}\n")
+        logging.info(
+            f"Running {type(self.ws)} forever:\nId {id(self.ws)}\nToken: {self.token}\n"
+        )
         self.baos_interface = BAOS777Interface(self.token)
         logging.info(self.baos_interface.sending_groupaddresses)
         # Set dispatcher to automatic reconnection, 5 second reconnect delay if connection closed unexpectedly
@@ -91,19 +94,27 @@ class BaseWebsocket(ABC):
     def on_message(self, ws, message):
         ...
 
+    @abstractmethod
     def on_open(self, ws):
-        logging.info(f"\nOpened connection:\nWebsocket id {id(self.ws)}\nToken {self.token}")
+        ...
 
     def on_error(self, ws, error):
         logging.error(error)
 
     def on_close(self, ws, close_status_code, close_msg):
-        logging.info(f"\nClosing conection:\nWebsocket id {id(self.ws)}\nToken {self.token}")
+        logging.info(
+            f"\nClosing conection:\nWebsocket id {id(self.ws)}\nToken {self.token}"
+        )
         self.ws.close()
         self.ws.keep_running = False
 
 
 class MonitorWebsocket(BaseWebsocket):
+    def on_open(self, ws):
+        logging.info(
+            f"\nOpened KNX monitor connection:\nWebsocket id {id(self.ws)}\nToken {self.token}"
+        )
+
     def on_message(self, ws, message):
         logging.info(f"BAOS event:\n{message}\n")
         self.baos_interface.baos_message = json.loads(message)
@@ -115,9 +126,16 @@ class MonitorWebsocket(BaseWebsocket):
         led_update_url = f"http://{KNX_GATEWAY}/knx/update_led_subscriptors/"
         self.incoming_message = BAOSIndicationsMessage(self.baos_interface.baos_message)
 
-        for datapoint_id, datapoint_value in self.incoming_message.values_by_datapoint_id.items():
-            datapoint_sending_groupaddress = self.baos_interface.get_sending_groupaddress(datapoint_id)
-            led_update_groupaddress_url = f"{led_update_url}{datapoint_sending_groupaddress}/"
+        for (
+            datapoint_id,
+            datapoint_value,
+        ) in self.incoming_message.values_by_datapoint_id.items():
+            datapoint_sending_groupaddress = (
+                self.baos_interface.get_sending_groupaddress(datapoint_id)
+            )
+            led_update_groupaddress_url = (
+                f"{led_update_url}{datapoint_sending_groupaddress}/"
+            )
 
             # TODO: make a class for mapping all possible values
             if datapoint_value == True:
@@ -133,9 +151,24 @@ class MonitorWebsocket(BaseWebsocket):
 
 
 class KNXWriteWebsocket(BaseWebsocket):
+    def on_open(self, ws):
+        logging.info(
+            "\nOpened KNX read connection:"
+            f"\nWebsocket id {id(self.ws)}\nToken {self.token}\n"
+            f"Available groupaddresses to write:\n{self.baos_interface.sending_groupaddresses}"
+        )
+
     def on_message(self, ws, message):
         ...
 
+
 class KNXReadWebsocket(BaseWebsocket):
+    def on_open(self, ws):
+        logging.info(
+            "\nOpened KNX read connection:"
+            f"\nWebsocket id {id(self.ws)}\nToken {self.token}\n"
+            f"Available groupaddresses to read:\n{self.baos_interface.sending_groupaddresses}"
+        )
+
     def on_message(self, ws, message):
         ...

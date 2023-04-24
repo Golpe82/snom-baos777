@@ -26,23 +26,25 @@ class BAOS777Interface:
     def _get_datapoints(self):
         try:
             logging.info("Trying to get BAOS777 datapoints")
-            response = requests.get(f"{SERVER_URL}{DATAPOINTS_PATH}", headers=self.auth_header)
-            
+            response = requests.get(
+                f"{SERVER_URL}{DATAPOINTS_PATH}", headers=self.auth_header
+            )
+
             if response.status_code != HTTPStatus.OK:
                 response.raise_for_status()
         except Exception:
             logging.error(("unable to get datapoints"))
-        
+
         response_text = json.loads(response.text)
-        
+
         return response_text.get("datapoints")
 
     def _get_datapoints_ids(self):
         return [datapoint_id.get("id") for datapoint_id in self.datapoints]
-    
+
     def _get_datapoints_urls(self):
         return [datapoint.get("url") for datapoint in self.datapoints]
-    
+
     def _set_datapoints_information(self):
         self._set_datapoints_type_by_id()
         self._set_datapoints_groupaddresses()
@@ -64,7 +66,7 @@ class BAOS777Interface:
                 datapoint_format = response_text.get("Format")
                 self.datapoints_information[datapoint_id] = {
                     "datapoint format": datapoint_format,
-                    "datapoint type": self._get_datapoint_type(response_text)
+                    "datapoint type": self._get_datapoint_type(response_text),
                 }
 
     def _get_datapoint_type(self, datapoint_response):
@@ -74,7 +76,9 @@ class BAOS777Interface:
 
     def _set_datapoints_groupaddresses(self):
         try:
-            response = requests.get(f"{SERVER_URL}{GROUPADDRESSES_PATH}", headers=self.auth_header)
+            response = requests.get(
+                f"{SERVER_URL}{GROUPADDRESSES_PATH}", headers=self.auth_header
+            )
             if response.status_code != HTTPStatus.OK:
                 response.raise_for_status()
         # handle 403 (no auth header given in request)
@@ -103,6 +107,16 @@ class BAOS777Interface:
 
     def get_sending_groupaddress(self, datapoint_id):
         return self.sending_groupaddresses.get(datapoint_id)
+
+    def get_datapoint_id_by_groupaddress(self, groupaddress):
+        return next(
+            (
+                datapoint_id
+                for datapoint_id, sending_groupaddress in self.sending_groupaddresses.items()
+                if groupaddress == sending_groupaddress
+            ),
+            None
+        )
 
     def get_value(self):
         ...
