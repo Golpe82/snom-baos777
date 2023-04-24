@@ -20,18 +20,18 @@ if logging.getLogger().level == logging.DEBUG:
 
 
 class BaseWebsocket(ABC):
-    def __init__(self):
+    def __init__(self, username, password):
+        self.user = username
+        self.pswd = password
         self.token = None
         self.baos_interface = None
         self.incoming_message = None
+        self._login()
+        self._connect()
 
-    @abstractmethod
-    def on_message(self, ws, message):
-        ...
-
-    def login(self, user, password):
+    def _login(self):
         login_url = "http://10.110.16.63/rest/login"
-        credentials = {"password": password, "username": user}
+        credentials = {"password": self.pswd, "username": self.user}
 
         try:
             response = requests.post(login_url, json=credentials)
@@ -50,21 +50,20 @@ class BaseWebsocket(ABC):
             logging.error("BAOS 777 not reachable, ConnectionError.")
 
         else:
-            self.set_token(response)
+            self._set_token(response.text)
             logging.info(
                 f"\n{response.status_code}:\nLogged into BAOS 777:\nCredentials: {credentials}\nToken {self.token}\n"
             )
-            self.connect()
 
-    def set_token(self, login_response):
+    def _set_token(self, token):
         # must be really longer than 10?
-        if len(login_response.text) <= 10:
-            raise Exception(f"Token length < 10: {login_response.text}")
+        if len(token) <= 10:
+            raise Exception(f"Token length < 10: {token}")
 
-        logging.info(f"New BAOS token: {login_response.text}")
-        self.token = login_response.text
+        self.token = token
+        logging.info(f"New BAOS token: {self.token}")
 
-    def connect(self):
+    def _connect(self):
         websocket_host = "ws://10.110.16.63/websocket"
         websocket_url = f"{websocket_host}?token={self.token}"
 
@@ -85,6 +84,10 @@ class BaseWebsocket(ABC):
         logging.info(self.baos_interface.sending_groupaddresses)
         # Set dispatcher to automatic reconnection, 5 second reconnect delay if connection closed unexpectedly
         self.ws.run_forever(ping_interval=60, ping_timeout=2, ping_payload="keep alive")
+
+    @abstractmethod
+    def on_message(self, ws, message):
+        ...
 
     def on_open(self, ws):
         logging.info(f"\nOpened connection:\nWebsocket id {id(self.ws)}\nToken {self.token}")
