@@ -12,8 +12,6 @@ import knx_monitor
 # add current folder to the system path
 sys.path.append(".")
 
-from baos777 import baos_websocket as baos_ws
-
 DEVICE = "/dev/ttyAMA0"
 BAUDRATE = 19200
 CHARACTER_SIZE = serial.EIGHTBITS
@@ -22,16 +20,6 @@ STARTBYTE = b"\x68"
 STOPBYTE = b"\x16"
 
 logging.basicConfig(level=logging.DEBUG)
-
-
-def main_baos_777():
-    username = "admin"
-    password = "admin"
-
-    while True:
-        websocket = baos_ws.MonitorWebsocket()
-        websocket.login(username, password)
-        logging.error("Unable to login. Trying again...")
 
 
 def main_baos_838():
@@ -69,12 +57,4 @@ def main_baos_838():
 
 
 if __name__ == "__main__":
-    # TODO: add the device to use as option. E.g. 'python3 main.py --baos777' or 'python3 main.py --baos838'
-    device = "BAOS 777"
-
-    if device == "BAOS 777":
-        main_baos_777()
-    elif device == "BAOS 838":
-        main_baos_838()
-    else:
-        logging.error(f"unknown device {device}")
+    main_baos_838()
