@@ -19,6 +19,8 @@ if logging.getLogger().level == logging.DEBUG:
     websocket.enableTrace(True)
 
 
+KNX_GATEWAY = "10.110.16.59:8000"
+
 class BaseWebsocket(ABC):
     def __init__(self, username, password):
         self.user = username
@@ -110,8 +112,7 @@ class MonitorWebsocket(BaseWebsocket):
 
     def _build_led_update_urls(self):
         urls_to_send = []
-        knx_gateway = "10.110.16.59:8000"
-        led_update_url = f"http://{knx_gateway}/knx/update_led_subscriptors/"
+        led_update_url = f"http://{KNX_GATEWAY}/knx/update_led_subscriptors/"
         self.incoming_message = BAOSIndicationsMessage(self.baos_interface.baos_message)
 
         for datapoint_id, datapoint_value in self.incoming_message.values_by_datapoint_id.items():
