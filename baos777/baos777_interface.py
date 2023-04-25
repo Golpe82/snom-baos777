@@ -3,6 +3,9 @@ import logging
 import json
 from http import HTTPStatus
 
+from baos777.constants import BAOS777Commands as cmd
+from baos777.constants import DPT1_VALUES
+
 SERVER_URL = "http://10.110.16.63/"
 WEBSOCKET_PATH = "websocket/"
 REST_API_PATH = "rest/"
@@ -108,7 +111,7 @@ class BAOS777Interface:
     def get_sending_groupaddress(self, datapoint_id):
         return self.sending_groupaddresses.get(datapoint_id)
 
-    def get_datapoint_id_by_groupaddress(self, groupaddress):
+    def _get_datapoint_id_by_groupaddress(self, groupaddress):
         return next(
             (
                 datapoint_id
@@ -118,5 +121,20 @@ class BAOS777Interface:
             None
         )
 
-    def get_value(self):
-        ...
+    def read_value(self, groupaddress):
+        datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
+        url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
+        response_raw = requests.get(url, headers=self.auth_header)
+        response = json.loads(response_raw.text)
+        
+        logging.error(response.get("value"))
+        return response.get("value")
+
+    def send_value(self, groupaddress, value):
+        datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
+        url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
+        payload = {
+            "command": cmd.SET_VALUE_AND_SEND_ON_BUS,
+            "value": DPT1_VALUES.get(value)
+        }
+        requests.put(url, json.dumps(payload), headers=self.auth_header)
