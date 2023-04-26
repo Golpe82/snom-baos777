@@ -11,6 +11,10 @@ USERNAME = "admin"
 PASSWORD = "admin"
 
 if __name__ == "__main__":
+    writer = None
+    
     while True:
-        baos_ws.MonitorWebsocket(USERNAME, PASSWORD)
-        logging.error("Unable to login while creating KNX monitor. Trying again...")
+        if not writer:
+            logging.error("No token. Creating KNX writer...")
+            writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
+        #writer.baos_interface.send_value("3/1/10", "on")

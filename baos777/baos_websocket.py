@@ -24,6 +24,7 @@ KNX_GATEWAY = "10.110.16.59:8000"
 
 class BaseWebsocket(ABC):
     def __init__(self, username, password):
+        self.ws = None
         self.user = username
         self.pswd = password
         self.token = None
@@ -87,8 +88,9 @@ class BaseWebsocket(ABC):
         )
         self.baos_interface = BAOS777Interface(self.token)
         logging.info(self.baos_interface.sending_groupaddresses)
-        # Set dispatcher to automatic reconnection, 5 second reconnect delay if connection closed unexpectedly
-        self.ws.run_forever(ping_interval=60, ping_timeout=2, ping_payload="keep alive")
+
+        # self.ws.run_forever(ping_interval=60, ping_timeout=2, ping_payload="keep alive")
+
 
     @abstractmethod
     def on_message(self, ws, message):
@@ -153,7 +155,7 @@ class MonitorWebsocket(BaseWebsocket):
 class KNXWriteWebsocket(BaseWebsocket):
     def on_open(self, ws):
         logging.info(
-            "\nOpened KNX read connection:"
+            "\nOpened KNX write connection:"
             f"\nWebsocket id {id(self.ws)}\nToken {self.token}\n"
             f"Available groupaddresses to write:\n{self.baos_interface.sending_groupaddresses}"
         )
@@ -162,13 +164,13 @@ class KNXWriteWebsocket(BaseWebsocket):
         ...
 
 
-class KNXReadWebsocket(BaseWebsocket):
-    def on_open(self, ws):
-        logging.info(
-            "\nOpened KNX read connection:"
-            f"\nWebsocket id {id(self.ws)}\nToken {self.token}\n"
-            f"Available groupaddresses to read:\n{self.baos_interface.sending_groupaddresses}"
-        )
+# class KNXReadWebsocket(BaseWebsocket):
+#     def on_open(self, ws):
+#         logging.info(
+#             "\nOpened KNX read connection:"
+#             f"\nWebsocket id {id(self.ws)}\nToken {self.token}\n"
+#             f"Available groupaddresses to read:\n{self.baos_interface.sending_groupaddresses}"
+#         )
 
-    def on_message(self, ws, message):
-        ...
+#     def on_message(self, ws, message):
+#         ...

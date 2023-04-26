@@ -12,5 +12,6 @@ PASSWORD = "admin"
 
 if __name__ == "__main__":
     while True:
-        baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
-        logging.error("Unable to login while creating KNX writer. Trying again...")
+        monitor = baos_ws.MonitorWebsocket(USERNAME, PASSWORD)
+        monitor.ws.run_forever(ping_interval=60, ping_timeout=2, ping_payload="keep alive")
+        logging.error("Unable to login while creating KNX monitor. Trying again...")
