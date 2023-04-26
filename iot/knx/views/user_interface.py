@@ -17,6 +17,13 @@ from knx.forms import AlsFormSet
 APP = "KNX"
 logging.basicConfig(level=logging.DEBUG)
 
+import sys
+sys.path.append("usr/local/gateway")
+
+import baos777.baos_websocket as baos_ws
+USERNAME = "admin"
+PASSWORD = "admin"
+
 
 def index(request):
     addresses_groups = {
@@ -40,36 +47,38 @@ def index(request):
 
 
 def knx_write(request, main, midd, sub, value):
+    writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
     groupaddress = f"{main}/{midd}/{sub}"
+    writer.baos_interface.send_value(groupaddress, value)
 
-    address_info = Groupaddress.objects.filter(address=groupaddress)
-    address_code = address_info.values_list("code", flat=True).first()
+    # address_info = Groupaddress.objects.filter(address=groupaddress)
+    # address_code = address_info.values_list("code", flat=True).first()
 
-    # address has a code
-    if address_code:
+    # # address has a code
+    # if address_code:
 
-        return HttpResponse(
-            f"""
-            <SnomIPPhoneInput track=no>
-                <InputItem>
-                    <DisplayName>Enter code for {groupaddress}</DisplayName>
-                    <InputToken>__Y__</InputToken>
-                    <InputFlags>p</InputFlags>
-                </InputItem>
-                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/{value}/__Y__</Url>
-            </SnomIPPhoneInput>
-        """,
-            content_type="text/xml",
-        )
+    #     return HttpResponse(
+    #         f"""
+    #         <SnomIPPhoneInput track=no>
+    #             <InputItem>
+    #                 <DisplayName>Enter code for {groupaddress}</DisplayName>
+    #                 <InputToken>__Y__</InputToken>
+    #                 <InputFlags>p</InputFlags>
+    #             </InputItem>
+    #             <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/{value}/__Y__</Url>
+    #         </SnomIPPhoneInput>
+    #     """,
+    #         content_type="text/xml",
+    #     )
 
-    if value == "on":
-        value = "an"
-        requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+    # if value == "on":
+    #     value = "an"
+    #     requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
 
-        return HttpResponse()
+    #     return HttpResponse()
 
-    value = "aus"
-    requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
+    # value = "aus"
+    # requests.get(f"{settings.KNX_ROOT}{groupaddress}-{value}")
 
     return HttpResponse()
 
