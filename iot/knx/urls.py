@@ -31,6 +31,7 @@ urlpatterns = [
     path('status', views.post_knx_status, name='post_knx_status'),
     path('groupaddress_monitor', views.post_knx_monitor, name='post_knx_monitor'),
     path('status/<int:main>/<int:midd>/<int:sub>/', views.get_groupaddress_status, name='get_groupaddress_status'),
+    path('read/<int:main>/<int:midd>/<int:sub>/', views.knx_read, name="knx_read"),
 ]
 
 # serve during development

@@ -2,10 +2,17 @@ import logging
 from datetime import datetime
 
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 from knx.models import KnxStatus, AlsStatus, KnxMonitor
+import sys
 
+sys.path.append("usr/local/gateway")
+
+import baos777.baos_websocket as baos_ws
+
+USERNAME = "admin"
+PASSWORD = "admin"
 
 POST_RESPONSE = {"POST": "OK"}
 logging.basicConfig(level=logging.DEBUG)
@@ -24,6 +31,21 @@ def get_groupaddress_status(request, main, midd, sub):
 
     return JsonResponse(data)
 
+def knx_read(request, main, midd, sub):
+    groupaddress = f"{main}/{midd}/{sub}"
+    reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
+    value = reader.baos_interface.read_value(groupaddress)
+
+    return HttpResponse(
+        f"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <SnomIPPhoneText>
+            <Text>Groupaddress {groupaddress} has status {value}</Text>
+            <fetch mil=1500>snom://mb_exit</fetch>
+            </SnomIPPhoneText>
+        """,
+            content_type="text/xml",
+        )
 @csrf_exempt
 def post_sensor_value(request):
     device_mac = request.POST.get("mac_address")
