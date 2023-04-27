@@ -41,7 +41,7 @@ def knx_read(request, main, midd, sub):
             <?xml version="1.0" encoding="UTF-8"?>
             <SnomIPPhoneText>
             <Text>Groupaddress {groupaddress} has status {value}</Text>
-            <fetch mil=1500>snom://mb_exit</fetch>
+            <fetch mil=3000>snom://mb_exit</fetch>
             </SnomIPPhoneText>
         """,
             content_type="text/xml",
