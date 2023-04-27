@@ -15,6 +15,8 @@ if __name__ == "__main__":
     
     while True:
         if not writer:
-            logging.error("No token. Creating KNX writer...")
+            logging.warning("No token. Creating KNX writer...")
             writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
-        #writer.baos_interface.send_value("3/1/10", "on")
+            interface = writer.baos_interface
+            logging.info(f"Datapoints information:\n{interface.datapoints_information}")
+            logging.error(f"Available groupaddresses to write:\n{interface.sending_groupaddresses}")
