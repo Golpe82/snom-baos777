@@ -83,14 +83,8 @@ class BaseWebsocket(ABC):
         except Exception:
             logging.exception("BAOS Webservice down, try reconnect")
 
-        logging.info(
-            f"Running {type(self.ws)} forever:\nId {id(self.ws)}\nToken: {self.token}\n"
-        )
         self.baos_interface = BAOS777Interface(self.token)
         logging.info(self.baos_interface.sending_groupaddresses)
-
-        # self.ws.run_forever(ping_interval=60, ping_timeout=2, ping_payload="keep alive")
-
 
     @abstractmethod
     def on_message(self, ws, message):
@@ -154,23 +148,15 @@ class MonitorWebsocket(BaseWebsocket):
 
 class KNXWriteWebsocket(BaseWebsocket):
     def on_open(self, ws):
-        logging.info(
-            "\nOpened KNX write connection:"
-            f"\nWebsocket id {id(self.ws)}\nToken {self.token}\n"
-            f"Available groupaddresses to write:\n{self.baos_interface.sending_groupaddresses}"
-        )
+        ...
 
     def on_message(self, ws, message):
         ...
 
 
-# class KNXReadWebsocket(BaseWebsocket):
-#     def on_open(self, ws):
-#         logging.info(
-#             "\nOpened KNX read connection:"
-#             f"\nWebsocket id {id(self.ws)}\nToken {self.token}\n"
-#             f"Available groupaddresses to read:\n{self.baos_interface.sending_groupaddresses}"
-#         )
+class KNXReadWebsocket(BaseWebsocket):
+    def on_open(self, ws):
+        ...
 
-#     def on_message(self, ws, message):
-#         ...
+    def on_message(self, ws, message):
+        ...
