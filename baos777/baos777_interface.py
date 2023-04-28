@@ -132,7 +132,6 @@ class BAOS777Interface:
             None
         )
 
-
     def read_value(self, groupaddress):
         datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
         url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
@@ -167,6 +166,8 @@ class BAOS777Interface:
 
     def send_value(self, groupaddress, value):
         datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
+        datapoint_format = self.datapoints_information.get(datapoint_id)
+        logging.error(datapoint_format)
         url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
         payload = {
             "command": cmd.SET_VALUE_AND_SEND_ON_BUS,
