@@ -168,7 +168,6 @@ class BAOS777Interface:
         datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
         datapoint_information = self.datapoints_information.get(datapoint_id)
         datapoint_format = datapoint_information.get("datapoint format")
-        logging.error(datapoint_format)
         url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
         payload = {
             "command": cmd.SET_VALUE_AND_SEND_ON_BUS,
@@ -177,4 +176,7 @@ class BAOS777Interface:
         requests.put(url, json.dumps(payload), headers=self.auth_header)
 
     def _get_datapoint_raw_value(self, datapoint_format, formatted_value):
-        return DatapointValues.DPT1.get(formatted_value)
+        datapoint_values = getattr(DatapointValues, datapoint_format)
+        logging.error(datapoint_values)
+
+        return datapoint_values.get(formatted_value)
