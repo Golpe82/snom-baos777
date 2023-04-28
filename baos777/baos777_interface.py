@@ -4,7 +4,7 @@ import json
 from http import HTTPStatus
 
 from baos777.constants import BAOS777Commands as cmd
-from baos777.constants import DPT1_VALUES
+from baos777.constants import DatapointValues
 
 SERVER_URL = "http://10.110.16.63/"
 WEBSOCKET_PATH = "websocket/"
@@ -166,11 +166,15 @@ class BAOS777Interface:
 
     def send_value(self, groupaddress, value):
         datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
-        datapoint_format = self.datapoints_information.get(datapoint_id)
+        datapoint_information = self.datapoints_information.get(datapoint_id)
+        datapoint_format = datapoint_information.get("datapoint format")
         logging.error(datapoint_format)
         url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
         payload = {
             "command": cmd.SET_VALUE_AND_SEND_ON_BUS,
-            "value": DPT1_VALUES.get(value)
+            "value": self._get_datapoint_raw_value(datapoint_format, value)
         }
         requests.put(url, json.dumps(payload), headers=self.auth_header)
+
+    def _get_datapoint_raw_value(self, datapoint_format, formatted_value):
+        return DatapointValues.DPT1.get(formatted_value)

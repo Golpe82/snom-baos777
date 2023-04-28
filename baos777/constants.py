@@ -8,7 +8,5 @@ class BAOS777Commands:
     READ_VALUE_VIA_BUS = 4
     CLEAR_DATAPOINT_TRANSMISSION_STATE = 5
 
-DPT1_VALUES ={
-    "on": True,
-    "off": False
-}
+class DatapointValues:
+    DPT1 = {"on": True,"off": False}
