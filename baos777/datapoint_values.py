@@ -40,8 +40,9 @@ class DatapointValue:
         self.formatted_value = None
 
     def _set_dpt5(self):
-        logging.info(f"Datapoint {self.datapoint_format} not implemented")
-        self.formatted_value = None
+        scaling =round(float(self.value)) # 0...100%
+        percent_u8 = int(scaling)*255/100 # 0...255%
+        self.formatted_value = int(round(percent_u8))
 
     def _set_dpt6(self):
         logging.info(f"Datapoint {self.datapoint_format} not implemented")
