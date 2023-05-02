@@ -54,7 +54,14 @@ def index(request):
     return render(request, "knx/addresses_groups.html", context)
 
 
-def knx_write(request, main, midd, sub, value):
+DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
+
+
+def knx_write(request, main, midd, sub, datapoint_type_name, value):
+    if datapoint_type_name not in DATAPOINT_TYPE_NAMES:
+        logging.error(f"Datapoint type name {datapoint_type_name} not supported")
+        return HttpResponse()
+
     groupaddress = f"{main}/{midd}/{sub}"
     address_info = Groupaddress.objects.filter(address=groupaddress)
     address_code = address_info.values_list("code", flat=True).first()
