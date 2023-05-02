@@ -11,6 +11,7 @@ import websocket
 from baos777.http_handler import HTTPHandler
 from baos777.baos777_interface import BAOS777Interface
 from baos777.baos_indication_message import BAOSIndicationsMessage
+from baos777.constants import DPT1_VALUES
 from baos777 import utils
 
 logging.basicConfig(level=logging.DEBUG)
@@ -132,28 +133,23 @@ class MonitorWebsocket(BaseWebsocket):
                     f"No needed action for datapoints with format {datapoint_format}"
                 )
 
-        utils.send_urls(urls_to_send)
+        if urls_to_send:
+            utils.send_urls(urls_to_send)
+        else:
+            logging.info("No urls to send after BAOS 777 incoming message")
 
     def _get_led_update_url(self, datapoint_id, datapoint_value):
         led_update_url = f"http://{KNX_GATEWAY}/knx/update_led_subscriptors/"
         datapoint_sending_groupaddress = self.baos_interface.get_sending_groupaddress(
             datapoint_id
         )
-        led_update_groupaddress_url = (
-            f"{led_update_url}{datapoint_sending_groupaddress}/"
+        value = next(
+            (_key for _key, _value in DPT1_VALUES.items()
+            if _value == datapoint_value),
+            None
         )
 
-        # TODO: make a class for mapping all possible values
-        if datapoint_value == True:
-            value = "on"
-            led_update_url = f"{led_update_groupaddress_url}{value}"
-        elif datapoint_value == False:
-            value = "off"
-            led_update_url = f"{led_update_groupaddress_url}{value}"
-        else:
-            logging.error(f"Invalid DPT1 value {datapoint_value}")
-
-        return led_update_url
+        return f"{led_update_url}{datapoint_sending_groupaddress}/{value}"
 
 
 class KNXWriteWebsocket(BaseWebsocket):

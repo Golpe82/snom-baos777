@@ -2,6 +2,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
+from baos777.constants import DPT1_VALUES
+
 
 @dataclass
 class DatapointValue:
@@ -21,8 +23,7 @@ class DatapointValue:
                 _datapoint_value_setter()
 
     def _set_dpt1(self):
-        dpt1_values = {"on": True, "off": False}
-        self.formatted_value = dpt1_values.get(self.value)
+        self.formatted_value = DPT1_VALUES.get(self.value)
 
     def _set_dpt2(self):
         logging.info(f"Datapoint {self.datapoint_format} not implemented")
