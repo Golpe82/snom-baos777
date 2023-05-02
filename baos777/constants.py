@@ -1,7 +1,5 @@
 """Module for BAOS 777 constants"""
 
-DPT1_VALUES = {"on": True, "off": False}
-
 class BAOS777Commands:
     NO_COMMAND = 0
     SET_VALUE = 1
