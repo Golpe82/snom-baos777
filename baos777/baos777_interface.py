@@ -4,7 +4,7 @@ import json
 from http import HTTPStatus
 
 from baos777.constants import BAOS777Commands as cmd
-from baos777.constants import DPT1_VALUES
+from baos777.datapoint_values import DatapointValue
 
 SERVER_URL = "http://10.110.16.63/"
 WEBSOCKET_PATH = "websocket/"
@@ -117,7 +117,7 @@ class BAOS777Interface:
                 for datapoint_id, sending_groupaddress in self.sending_groupaddresses.items()
                 if groupaddress == sending_groupaddress
             ),
-            None
+            None,
         )
 
     def _get_datapoint_information_by_groupaddress(self, groupaddress):
@@ -129,9 +129,8 @@ class BAOS777Interface:
                 for datapoint_id, information in self.datapoints_information.items()
                 if datapoint_id == groupaddress_datapoint_id
             ),
-            None
+            None,
         )
-
 
     def read_value(self, groupaddress):
         datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
@@ -139,15 +138,17 @@ class BAOS777Interface:
         response_raw = requests.get(url, headers=self.auth_header)
         response = json.loads(response_raw.text)
         raw_value = response.get("value")
-        
+
         logging.info(f"Got raw value {raw_value}")
-        datapoint_information = self._get_datapoint_information_by_groupaddress(groupaddress)
+        datapoint_information = self._get_datapoint_information_by_groupaddress(
+            groupaddress
+        )
         logging.info(f"Groupaddress datapoint information:\n{datapoint_information}")
         datapoint_format = datapoint_information.get("datapoint format")
         value = self._format_value(raw_value, datapoint_format)
 
         return value
-    
+
     def _format_value(self, raw_value, datapoint_format):
         formatted_value = ""
 
@@ -167,9 +168,16 @@ class BAOS777Interface:
 
     def send_value(self, groupaddress, value):
         datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
+        datapoint_information = self.datapoints_information.get(datapoint_id)
+        datapoint_format = datapoint_information.get("datapoint format")
         url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
         payload = {
             "command": cmd.SET_VALUE_AND_SEND_ON_BUS,
-            "value": DPT1_VALUES.get(value)
+            "value": self._get_datapoint_raw_value(datapoint_format, value),
         }
         requests.put(url, json.dumps(payload), headers=self.auth_header)
+
+    def _get_datapoint_raw_value(self, datapoint_format, value):
+        datapoint_value = DatapointValue(datapoint_format, value)
+
+        return datapoint_value.formatted_value
