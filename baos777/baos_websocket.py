@@ -128,14 +128,16 @@ class MonitorWebsocket(BaseWebsocket):
                 logging.info(f"Appended url for dapoint with format {datapoint_format}")
 
             else:
-                logging.info(f"No needed action for datapoints with format {datapoint_format}")
+                logging.info(
+                    f"No needed action for datapoints with format {datapoint_format}"
+                )
 
         utils.send_urls(urls_to_send)
 
     def _get_led_update_url(self, datapoint_id, datapoint_value):
         led_update_url = f"http://{KNX_GATEWAY}/knx/update_led_subscriptors/"
-        datapoint_sending_groupaddress = (
-            self.baos_interface.get_sending_groupaddress(datapoint_id)
+        datapoint_sending_groupaddress = self.baos_interface.get_sending_groupaddress(
+            datapoint_id
         )
         led_update_groupaddress_url = (
             f"{led_update_url}{datapoint_sending_groupaddress}/"
@@ -152,6 +154,7 @@ class MonitorWebsocket(BaseWebsocket):
             logging.error(f"Invalid DPT1 value {datapoint_value}")
 
         return led_update_url
+
 
 class KNXWriteWebsocket(BaseWebsocket):
     def on_open(self, ws):

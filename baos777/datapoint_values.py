@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
+
 @dataclass
 class DatapointValue:
     datapoint_format: str
@@ -20,7 +21,7 @@ class DatapointValue:
                 _datapoint_value_setter()
 
     def _set_dpt1(self):
-        dpt1_values = {"on": True,"off": False}
+        dpt1_values = {"on": True, "off": False}
         self.formatted_value = dpt1_values.get(self.value)
 
     def _set_dpt2(self):

@@ -1,5 +1,6 @@
 """Module for BAOS 777 constants"""
 
+
 class BAOS777Commands:
     NO_COMMAND = 0
     SET_VALUE = 1
