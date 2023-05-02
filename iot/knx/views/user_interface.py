@@ -57,9 +57,9 @@ def index(request):
 DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
 
 
-def knx_write(request, main, midd, sub, datapoint_type_name, value):
-    if datapoint_type_name not in DATAPOINT_TYPE_NAMES:
-        logging.error(f"Datapoint type name {datapoint_type_name} not supported")
+def knx_write(request, main, midd, sub, dpt_name, value):
+    if dpt_name not in DATAPOINT_TYPE_NAMES:
+        logging.error(f"Datapoint type name {dpt_name} not supported")
         return HttpResponse()
 
     groupaddress = f"{main}/{midd}/{sub}"
