@@ -2,8 +2,9 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-from baos777.constants import DPT1_VALUES
 
+DPT1_VALUES = {"on": True, "off": False}
+DPT3_VALUES = {"increase": True, "decrease": False, "step code": 5}
 
 @dataclass
 class DatapointValue:
@@ -30,8 +31,9 @@ class DatapointValue:
         self.formatted_value = None
 
     def _set_dpt3(self):
-        logging.info(f"Datapoint {self.datapoint_format} not implemented")
-        self.formatted_value = None
+        control = DPT3_VALUES.get(self.value)
+        step_code = DPT3_VALUES.get("step code")
+        self.formatted_value = {'Control': control, 'StepCode': step_code}
 
     def _set_dpt4(self):
         logging.info(f"Datapoint {self.datapoint_format} not implemented")
