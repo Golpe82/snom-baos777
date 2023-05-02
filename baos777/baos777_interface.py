@@ -4,7 +4,7 @@ import json
 from http import HTTPStatus
 
 from baos777.constants import BAOS777Commands as cmd
-from baos777.datapoints import DatapointValue
+from baos777.datapoint_values import DatapointValue
 
 SERVER_URL = "http://10.110.16.63/"
 WEBSOCKET_PATH = "websocket/"
