@@ -92,6 +92,8 @@ def check_code(request, main, midd, sub, value, code):
     groupaddress = f"{main}/{midd}/{sub}"
     address_info = Groupaddress.objects.filter(address=groupaddress)
     expected_code = address_info.values_list("code", flat=True).first()
+    logging.error({code})
+    logging.error({expected_code})
 
     if code != expected_code:
         return HttpResponse(
