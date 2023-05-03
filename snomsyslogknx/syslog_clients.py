@@ -1,7 +1,7 @@
 # TODO: this should be managed in django ui (save this in the portal db)
 
 SYSLOG_CLIENTS = {
-    "10.110.16.59": {
+    "10.110.16.50": {
         "label": "Simóns desk",
         "min brightness": 30,
         "max brightness": 45,
