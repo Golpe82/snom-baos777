@@ -65,20 +65,20 @@ def knx_write(request, main, midd, sub, dpt_name, value):
     groupaddress = f"{main}/{midd}/{sub}"
 
     if value == "phone_input":
-        if value in range(101):
-            return HttpResponse(
-                f"""
-                <SnomIPPhoneInput track=no>
-                    <InputItem>
-                        <DisplayName>Enter value in % for groupaddress {groupaddress}</DisplayName>
-                        <InputToken>__Y__</InputToken>
-                        <InputFlags>n</InputFlags>
-                    </InputItem>
-                    <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/scaling/__Y__</Url>
-                </SnomIPPhoneInput>
-            """,
-                content_type="text/xml",
-            )
+        return HttpResponse(
+            f"""
+            <SnomIPPhoneInput track=no>
+                <InputItem>
+                    <DisplayName>Enter value in % for groupaddress {groupaddress}</DisplayName>
+                    <InputToken>__Y__</InputToken>
+                    <InputFlags>n</InputFlags>
+                </InputItem>
+                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/scaling/__Y__</Url>
+            </SnomIPPhoneInput>
+        """,
+            content_type="text/xml",
+        )
+    if dpt_name == "scaling" and value not in range(101):
         return HttpResponse(
             f"""
                 <SnomIPPhoneText>
