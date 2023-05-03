@@ -57,12 +57,14 @@ def index(request):
 DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
 
 
-def knx_write(request, main, midd, sub, dpt_name, value=None):
+def knx_write(request, main, midd, sub, dpt_name, value):
     if dpt_name not in DATAPOINT_TYPE_NAMES:
         logging.error(f"Datapoint type name {dpt_name} not supported")
         return HttpResponse()
-    
-    if not value:
+
+    groupaddress = f"{main}/{midd}/{sub}"
+
+    if value == "phone_input":
         return HttpResponse(
             f"""
             <SnomIPPhoneInput track=no>
@@ -71,13 +73,12 @@ def knx_write(request, main, midd, sub, dpt_name, value=None):
                     <InputToken>__Y__</InputToken>
                     <InputFlags>p</InputFlags>
                 </InputItem>
-                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/{dpt_name}/{value}</Url>
+                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/scaling/__Y__</Url>
             </SnomIPPhoneInput>
         """,
             content_type="text/xml",
         )
 
-    groupaddress = f"{main}/{midd}/{sub}"
     address_info = Groupaddress.objects.filter(address=groupaddress)
     address_code = address_info.values_list("code", flat=True).first()
 
@@ -123,6 +124,23 @@ def check_code(request, main, midd, sub, value, code):
     writer.baos_interface.send_value(groupaddress, value)
 
     return HttpResponse()
+
+# def knx_write_input(request, main, midd, sub, value):
+#     groupaddress = f"{main}/{midd}/{sub}"
+
+#     return HttpResponse(
+#         f"""
+#         <SnomIPPhoneInput track=no>
+#             <InputItem>
+#                 <DisplayName>Enter value in % for groupaddress {groupaddress}</DisplayName>
+#                 <InputToken>__Y__</InputToken>
+#                 <InputFlags>p</InputFlags>
+#             </InputItem>
+#             <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/scaling/__Y__</Url>
+#         </SnomIPPhoneInput>
+#     """,
+#         content_type="text/xml",
+#     )
 
 def update_led_subscriptors(request, main, midd, sub, status):
     groupaddress = f"{main}/{midd}/{sub}"
