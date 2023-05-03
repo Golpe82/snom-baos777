@@ -33,7 +33,7 @@ urlpatterns = [
     path('status/<int:main>/<int:midd>/<int:sub>/', views.get_groupaddress_status, name='get_groupaddress_status'),
     path('read/<int:main>/<int:midd>/<int:sub>/', views.knx_read, name="knx_read"),
     path('write/<int:main>/<int:midd>/<int:sub>/<str:dpt_name>/<str:value>', views.knx_write, name="knx_write"),
-    path('check_write/<int:main>/<int:midd>/<int:sub>/<str:value>/<int:code>', views.check_code, name="check_code"),
+    path('check_write/<int:main>/<int:midd>/<int:sub>/<str:value>/<str:code>', views.check_code, name="check_code"),
 ]
 
 # serve during development
