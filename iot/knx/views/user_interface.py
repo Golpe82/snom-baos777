@@ -75,7 +75,7 @@ def knx_write(request, main, midd, sub, dpt_name, value):
                     <InputToken>__Y__</InputToken>
                     <InputFlags>p</InputFlags>
                 </InputItem>
-                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/{value}/__Y__</Url>
+                <Url>http://{settings.GATEWAY_IP}:8000/knx/check_write/{main}/{midd}/{sub}/{value}/__Y__</Url>
             </SnomIPPhoneInput>
         """,
             content_type="text/xml",
