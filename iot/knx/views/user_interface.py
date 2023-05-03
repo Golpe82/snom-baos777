@@ -65,19 +65,29 @@ def knx_write(request, main, midd, sub, dpt_name, value):
     groupaddress = f"{main}/{midd}/{sub}"
 
     if value == "phone_input":
+        if value in range(101):
+            return HttpResponse(
+                f"""
+                <SnomIPPhoneInput track=no>
+                    <InputItem>
+                        <DisplayName>Enter value in % for groupaddress {groupaddress}</DisplayName>
+                        <InputToken>__Y__</InputToken>
+                        <InputFlags>n</InputFlags>
+                    </InputItem>
+                    <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/scaling/__Y__</Url>
+                </SnomIPPhoneInput>
+            """,
+                content_type="text/xml",
+            )
         return HttpResponse(
             f"""
-            <SnomIPPhoneInput track=no>
-                <InputItem>
-                    <DisplayName>Enter value in % for groupaddress {groupaddress}</DisplayName>
-                    <InputToken>__Y__</InputToken>
-                    <InputFlags>p</InputFlags>
-                </InputItem>
-                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/scaling/__Y__</Url>
-            </SnomIPPhoneInput>
-        """,
-            content_type="text/xml",
-        )
+                <SnomIPPhoneText>
+                    <Text>Input not in range 0...100</Text>
+                    <fetch mil=1500>snom://mb_exit</fetch>
+                </SnomIPPhoneText>
+            """,
+                content_type="text/xml",
+            )
 
     address_info = Groupaddress.objects.filter(address=groupaddress)
     address_code = address_info.values_list("code", flat=True).first()
