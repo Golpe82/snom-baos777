@@ -2,7 +2,7 @@ import logging
 import sys
 
 # add current folder to the system path
-sys.path.append(".")
+sys.path.append("/usr/local/gateway")
 from baos777 import baos_websocket as baos_ws
 
 logging.basicConfig(level=logging.DEBUG)
@@ -18,6 +18,5 @@ if __name__ == "__main__":
             logging.warning("No token. Creating KNX writer...")
             writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
             interface = writer.baos_interface
-            interface.send_value("2/1/21", "59.87")
             logging.info(f"Datapoints information:\n{interface.datapoints_information}")
             logging.error(f"Available groupaddresses to write:\n{interface.sending_groupaddresses}")

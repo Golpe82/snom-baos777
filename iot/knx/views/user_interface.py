@@ -80,14 +80,14 @@ def knx_write(request, main, midd, sub, dpt_name, value):
         )
     if dpt_name == "scaling" and int(value) not in range(101):
         return HttpResponse(
-            f"""
+            """
                 <SnomIPPhoneText>
                     <Text>Input not in range 0...100</Text>
                     <fetch mil=1500>snom://mb_exit</fetch>
                 </SnomIPPhoneText>
             """,
-                content_type="text/xml",
-            )
+            content_type="text/xml",
+        )
 
     address_info = Groupaddress.objects.filter(address=groupaddress)
     address_code = address_info.values_list("code", flat=True).first()
@@ -135,22 +135,6 @@ def check_code(request, main, midd, sub, value, code):
 
     return HttpResponse()
 
-# def knx_write_input(request, main, midd, sub, value):
-#     groupaddress = f"{main}/{midd}/{sub}"
-
-#     return HttpResponse(
-#         f"""
-#         <SnomIPPhoneInput track=no>
-#             <InputItem>
-#                 <DisplayName>Enter value in % for groupaddress {groupaddress}</DisplayName>
-#                 <InputToken>__Y__</InputToken>
-#                 <InputFlags>p</InputFlags>
-#             </InputItem>
-#             <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/scaling/__Y__</Url>
-#         </SnomIPPhoneInput>
-#     """,
-#         content_type="text/xml",
-#     )
 
 def update_led_subscriptors(request, main, midd, sub, status):
     groupaddress = f"{main}/{midd}/{sub}"

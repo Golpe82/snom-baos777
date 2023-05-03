@@ -6,6 +6,7 @@ from typing import Any
 DPT1_VALUES = {"on": True, "off": False}
 DPT3_VALUES = {"increase": True, "decrease": False, "step code": 5}
 
+
 @dataclass
 class DatapointValue:
     datapoint_format: str
@@ -33,15 +34,15 @@ class DatapointValue:
     def _set_dpt3(self):
         control = DPT3_VALUES.get(self.value)
         step_code = DPT3_VALUES.get("step code")
-        self.formatted_value = {'Control': control, 'StepCode': step_code}
+        self.formatted_value = {"Control": control, "StepCode": step_code}
 
     def _set_dpt4(self):
         logging.info(f"Datapoint {self.datapoint_format} not implemented")
         self.formatted_value = None
 
     def _set_dpt5(self):
-        scaling =round(float(self.value)) # 0...100%
-        percent_u8 = int(scaling)*255/100 # 0...255%
+        scaling = round(float(self.value))  # 0...100%
+        percent_u8 = int(scaling) * 255 / 100  # 0...255%
         self.formatted_value = int(round(percent_u8))
 
     def _set_dpt6(self):
