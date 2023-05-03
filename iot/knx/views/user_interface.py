@@ -57,10 +57,25 @@ def index(request):
 DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
 
 
-def knx_write(request, main, midd, sub, dpt_name, value):
+def knx_write(request, main, midd, sub, dpt_name, value=None):
     if dpt_name not in DATAPOINT_TYPE_NAMES:
         logging.error(f"Datapoint type name {dpt_name} not supported")
         return HttpResponse()
+    
+    if not value:
+        return HttpResponse(
+            f"""
+            <SnomIPPhoneInput track=no>
+                <InputItem>
+                    <DisplayName>Enter value in % for groupaddress {groupaddress}</DisplayName>
+                    <InputToken>__Y__</InputToken>
+                    <InputFlags>p</InputFlags>
+                </InputItem>
+                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/{dpt_name}/{value}</Url>
+            </SnomIPPhoneInput>
+        """,
+            content_type="text/xml",
+        )
 
     groupaddress = f"{main}/{midd}/{sub}"
     address_info = Groupaddress.objects.filter(address=groupaddress)
