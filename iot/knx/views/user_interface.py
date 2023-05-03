@@ -78,7 +78,7 @@ def knx_write(request, main, midd, sub, dpt_name, value):
         """,
             content_type="text/xml",
         )
-    if dpt_name == "scaling" and value not in range(101):
+    if dpt_name == "scaling" and str(value) not in range(101):
         return HttpResponse(
             f"""
                 <SnomIPPhoneText>
