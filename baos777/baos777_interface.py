@@ -28,7 +28,6 @@ class BAOS777Interface:
 
     def _get_datapoints(self):
         try:
-            logging.info("Trying to get BAOS777 datapoints")
             response = requests.get(
                 f"{SERVER_URL}{DATAPOINTS_PATH}", headers=self.auth_header
             )

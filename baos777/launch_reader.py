@@ -5,7 +5,7 @@ import sys
 sys.path.append("/usr/local/gateway")
 from baos777 import baos_websocket as baos_ws
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 USERNAME = "admin"
 PASSWORD = "admin"

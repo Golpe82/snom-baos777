@@ -1,36 +1,26 @@
 import logging
 import socketserver
 import sys
-from time import sleep
 
 import getmac
 
-from syslog_actions import KNXActions, DBActions
 from syslog_clients import SYSLOG_CLIENTS
 
 # add current folder to the system path
 sys.path.append(".")
+
 from baos777 import baos_websocket as baos_ws
 
-logging.basicConfig(level=logging.DEBUG)
-
-USERNAME = "admin"
-PASSWORD = "admin"
+USERNAME, PASSWORD = "admin", "admin"
 # TODO: REFACTOR
 
 class SyslogUDPHandler(socketserver.BaseRequestHandler):
     def setup(self):
+        logging.basicConfig(level=logging.INFO)
         self.client_ip = self.client_address[0]
-        logging.debug(self.client_ip)
         self.client_mac = str(getmac.get_mac_address(ip=self.client_ip)).replace(":", "")
-        logging.debug(self.client_mac)
         self.client_info = SYSLOG_CLIENTS.get(self.client_ip)
-        # self.knx_action = KNXActions(self.client_info)
-        # self.knx_writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
-        # self.knx_reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
-        #self.database_actions = DBActions()
-        self.als_value =  None
-        self.temp_value = None
+        # self.als_value =  None
 
     @property
     def message(self):
@@ -73,13 +63,11 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
             #     else:
             #         logging.warning("Not switched on")
 
-            # elif message_item == "temperature:":
-            logging.info(message_item)
             if message_item == "temperature:":
                 send_celsius_groupaddress = self.client_info.get("send celsius groupaddress")
                 temp_value_message = self.message_data[-1:]
-                temp_value = temp_value_message[0]
-                self.temp_value = temp_value[:5]
-                logging.info(f"{self.temp_value[:5]}°C")
-                sleep(10)
-                #self.knx_action.knx_send_celsius(send_celsius_groupaddress, self.temp_value.split(".")[0])
+                temp_value = round(float(temp_value_message[0]), 2)
+                knx_writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
+                logging.info(f"Sending {temp_value}°C to KNX from ip {self.client_ip}")
+                knx_writer.baos_interface.send_value(send_celsius_groupaddress, temp_value)
+                

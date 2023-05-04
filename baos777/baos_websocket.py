@@ -14,7 +14,7 @@ from baos777.baos_indication_message import BAOSIndicationsMessage
 from baos777.datapoint_values import DPT1_VALUES
 from baos777 import utils
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 if logging.getLogger().level == logging.DEBUG:
     websocket.enableTrace(True)
@@ -57,7 +57,7 @@ class BaseWebsocket(ABC):
         else:
             self._set_token(response.text)
             logging.info(
-                f"\n{response.status_code}:\nLogged into BAOS 777:\nCredentials: {credentials}\nToken {self.token}\n"
+                f"Logged into BAOS 777. Token {self.token}"
             )
 
     def _set_token(self, token):
@@ -66,14 +66,12 @@ class BaseWebsocket(ABC):
             raise Exception(f"Token length < 10: {token}")
 
         self.token = token
-        logging.info(f"New BAOS token: {self.token}")
 
     def _connect(self):
         websocket_host = "ws://10.110.16.63/websocket"
         websocket_url = f"{websocket_host}?token={self.token}"
 
         try:
-            logging.info(f"trying to connect to {websocket_url}")
             self.ws = websocket.WebSocketApp(
                 websocket_url,
                 on_open=self.on_open,
@@ -85,7 +83,6 @@ class BaseWebsocket(ABC):
             logging.exception("BAOS Webservice down, try reconnect")
 
         self.baos_interface = BAOS777Interface(self.token)
-        logging.info(self.baos_interface.sending_groupaddresses)
 
     @abstractmethod
     def on_message(self, ws, message):

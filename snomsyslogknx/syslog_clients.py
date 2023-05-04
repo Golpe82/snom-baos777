@@ -9,15 +9,15 @@ SYSLOG_CLIENTS = {
         "relative dim groupaddress": "2/1/20",
         "send celsius groupaddress": "5/1/10",
     },
-    "10.110.16.110": {
-        "label": "Visitor's desk",
+    "10.110.16.79": {
+        "label": "Simóns window",
         "min brightness": 30,
         "max brightness": 45,
         "switch groupaddress": "2/1/10",
         "relative dim groupaddress": "2/1/20",
         "send celsius groupaddress": "5/1/10",
     },
-    "127.0.0.1": {
+    "10.110.16.65": {
         "label": "Localhost",
         "min brightness": 100,
         "max brightness": 110,
