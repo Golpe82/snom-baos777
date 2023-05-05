@@ -2,15 +2,11 @@ import requests
 import logging
 import json
 from http import HTTPStatus
-import sys
 
-# add current folder to the system path
-sys.path.append("/usr/local/gateway")
-
-from baos777.baos_websocket import BAOS777_IP
 from baos777.constants import BAOS777Commands as cmd
 from baos777.datapoint_values import DatapointValue
 
+BAOS777_IP = "192.168.178.41"
 SERVER_URL = f"http://{BAOS777_IP}/"
 WEBSOCKET_PATH = "websocket/"
 REST_API_PATH = "rest/"

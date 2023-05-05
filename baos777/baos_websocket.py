@@ -7,10 +7,6 @@ from http import HTTPStatus
 
 import requests
 import websocket
-import sys
-
-# add current folder to the system path
-sys.path.append("/usr/local/gateway")
 
 from baos777.http_handler import HTTPHandler
 from baos777.baos777_interface import BAOS777Interface
