@@ -3,7 +3,8 @@ import logging
 import json
 from http import HTTPStatus
 
-from baos_websocket import BAOS777_IP
+
+from baos777.baos_websocket import BAOS777_IP
 from baos777.constants import BAOS777Commands as cmd
 from baos777.datapoint_values import DatapointValue
 
