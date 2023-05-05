@@ -20,7 +20,10 @@ if logging.getLogger().level == logging.DEBUG:
     websocket.enableTrace(True)
 
 
-KNX_GATEWAY = "10.110.16.59:8000"
+# KNX_GATEWAY = "10.110.16.59:8000"
+# BAOS777_IP = "10.110.16.63"
+KNX_GATEWAY = "192.168.178.47:8000"
+BAOS777_IP = "192.168.178.41"
 
 
 class BaseWebsocket(ABC):
@@ -35,7 +38,7 @@ class BaseWebsocket(ABC):
         self._connect()
 
     def _login(self):
-        login_url = "http://10.110.16.63/rest/login"
+        login_url = f"http://{BAOS777_IP}/rest/login"
         credentials = {"password": self.pswd, "username": self.user}
 
         try:
