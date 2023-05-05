@@ -59,9 +59,7 @@ class BaseWebsocket(ABC):
 
         else:
             self._set_token(response.text)
-            logging.info(
-                f"Logged into BAOS 777. Token {self.token}"
-            )
+            logging.debug(f"Logged into BAOS 777. Token {self.token}")
 
     def _set_token(self, token):
         # must be really longer than 10?
@@ -144,9 +142,8 @@ class MonitorWebsocket(BaseWebsocket):
             datapoint_id
         )
         value = next(
-            (_key for _key, _value in DPT1_VALUES.items()
-            if _value == datapoint_value),
-            None
+            (_key for _key, _value in DPT1_VALUES.items() if _value == datapoint_value),
+            None,
         )
 
         return f"{led_update_url}{datapoint_sending_groupaddress}/{value}"

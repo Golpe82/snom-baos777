@@ -14,11 +14,14 @@ from baos777 import baos_websocket as baos_ws
 USERNAME, PASSWORD = "admin", "admin"
 # TODO: REFACTOR
 
+
 class SyslogUDPHandler(socketserver.BaseRequestHandler):
     def setup(self):
         logging.basicConfig(level=logging.INFO)
         self.client_ip = self.client_address[0]
-        self.client_mac = str(getmac.get_mac_address(ip=self.client_ip)).replace(":", "")
+        self.client_mac = str(getmac.get_mac_address(ip=self.client_ip)).replace(
+            ":", ""
+        )
         self.client_info = SYSLOG_CLIENTS.get(self.client_ip)
         # self.als_value =  None
 
@@ -58,16 +61,33 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
             #         sleep(10)
             #         logging.info(f"{self.knx_reader.baos_interface.read_value('5/1/25')}%")
             #         # relative_dim_groupaddress = self.client_info.get("relative dim groupaddress")
-                    
+
             #         # self.knx_action.knx_dimm_relative(relative_dim_groupaddress, self.lux_value)
             #     else:
             #         logging.warning("Not switched on")
 
             if message_item == "temperature:":
-                send_celsius_groupaddress = self.client_info.get("send celsius groupaddress")
+                knx_reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
+                send_celsius_groupaddress = self.client_info.get(
+                    "send celsius groupaddress"
+                )
+                last_value = knx_reader.baos_interface.read_value(
+                    send_celsius_groupaddress
+                )
+                last_temp_value = round(float(last_value), 2)
                 temp_value_message = self.message_data[-1:]
                 temp_value = round(float(temp_value_message[0]), 2)
-                knx_writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
-                logging.info(f"Sending {temp_value}°C to KNX from ip {self.client_ip}")
-                knx_writer.baos_interface.send_value(send_celsius_groupaddress, temp_value)
-                
+                delta = round(float(abs(last_temp_value - temp_value)), 2)
+                max_delta = self.client_info.get("max temp delta")
+
+                if delta >= max_delta:
+                    knx_writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
+                    logging.info(
+                        f"ip {self.client_ip} delta higher as {max_delta}°C, sending {temp_value}°C to KNX bus"
+                    )
+                    knx_writer.baos_interface.send_value(
+                        send_celsius_groupaddress, temp_value
+                    )
+
+                else:
+                    logging.debug(f"ip {self.client_ip} has delta {delta}°C")
