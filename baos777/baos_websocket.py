@@ -71,7 +71,7 @@ class BaseWebsocket(ABC):
         self.token = token
 
     def _connect(self):
-        websocket_host = "ws://10.110.16.63/websocket"
+        websocket_host = f"ws://{BAOS777_IP}/websocket"
         websocket_url = f"{websocket_host}?token={self.token}"
 
         try:

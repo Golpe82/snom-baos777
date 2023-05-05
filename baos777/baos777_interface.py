@@ -3,10 +3,11 @@ import logging
 import json
 from http import HTTPStatus
 
+from baos_websocket import BAOS777_IP
 from baos777.constants import BAOS777Commands as cmd
 from baos777.datapoint_values import DatapointValue
 
-SERVER_URL = "http://10.110.16.63/"
+SERVER_URL = f"http://{BAOS777_IP}/"
 WEBSOCKET_PATH = "websocket/"
 REST_API_PATH = "rest/"
 DATAPOINTS_PATH = f"{REST_API_PATH}datapoints/"
