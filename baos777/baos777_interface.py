@@ -2,7 +2,10 @@ import requests
 import logging
 import json
 from http import HTTPStatus
+import sys
 
+# add current folder to the system path
+sys.path.append("/usr/local/gateway")
 
 from baos777.baos_websocket import BAOS777_IP
 from baos777.constants import BAOS777Commands as cmd
