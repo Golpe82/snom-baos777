@@ -7,7 +7,7 @@ import getmac
 from syslog_clients import SYSLOG_CLIENTS
 
 # add current folder to the system path
-sys.path.append(".")
+sys.path.append("/usr/local/gateway")
 
 from baos777 import baos_websocket as baos_ws
 
