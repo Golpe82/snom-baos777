@@ -40,7 +40,7 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         for message_item in self.message_data:
-            if self.client_info("is D735") and "ALS_VALUE" in message_item:
+            if self.client_info.get("is D735") and "ALS_VALUE" in message_item:
                 ambient_light = message_item.split(":")
                 als_value =  int(ambient_light[1])
                 self._handle_lux_value(als_value)
