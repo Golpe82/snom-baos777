@@ -28,31 +28,33 @@
 # }
 
 SYSLOG_CLIENTS = {
-    "192.168.178.20": {
+    "192.168.178.20": { # TODO. check if is D735
         "label": "Simóns desk",
-        "min brightness": 30,
-        "max brightness": 45,
-        # "switch groupaddress": "2/1/10",
-        # "relative dim groupaddress": "2/1/20",
+        "min brightness": 100,
+        "max brightness": 150,
+        "switch groupaddress": "1/2/20",
+        "relative dim groupaddress": "1/2/21",
+        "send lux groupaddress": "4/2/10",
+        "max lux delta": 10.,
         "send celsius groupaddress": "4/1/10",
-        "max temp delta": 1.0,
+        "max celsius delta": 1.0,
     },
-    "192.168.178.26": {
+    "192.168.178.26": { # TODO. check if is D735
         "label": "Simóns desk",
         #     "min brightness": 30,
         #     "max brightness": 45,
         #     "switch groupaddress": "2/1/10",
         #     "relative dim groupaddress": "2/1/20",
         "send celsius groupaddress": "4/1/20",
-        "max temp delta": 1.0,
+        "max celsius delta": 1.0,
     },
-    "192.168.178.37": {
+    "192.168.178.37": { # TODO. check if is D735
         "label": "Simóns desk",
         #     "min brightness": 100,
         #     "max brightness": 110,
         #     "switch groupaddress": "2/1/10",
         #     "relative dim groupaddress": "2/1/20",
         "send celsius groupaddress": "4/1/30",
-        "max temp delta": 1.0,
+        "max celsius delta": 1.0,
     },
 }

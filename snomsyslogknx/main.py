@@ -1,4 +1,5 @@
 import socketserver
+import logging
 
 from syslog_udp_handler import SyslogUDPHandler
 

@@ -133,19 +133,29 @@ class BAOS777Interface:
         )
 
     def read_value(self, groupaddress):
-        datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
-        url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
-        response_raw = requests.get(url, headers=self.auth_header)
-        response = json.loads(response_raw.text)
-        raw_value = response.get("value")
-        datapoint_information = self._get_datapoint_information_by_groupaddress(
-            groupaddress
-        )
-        logging.debug(f"Groupaddress datapoint information:\n{datapoint_information}")
-        datapoint_format = datapoint_information.get("datapoint format")
-        value = self._format_value(raw_value, datapoint_format)
+        if groupaddress in self.sending_groupaddresses.values():
+            raw_value = self.read_raw_value(groupaddress)
+            datapoint_information = self._get_datapoint_information_by_groupaddress(
+                groupaddress
+            )
+            logging.debug(f"Groupaddress datapoint information:\n{datapoint_information}")
+            datapoint_format = datapoint_information.get("datapoint format")
 
-        return value
+            return self._format_value(raw_value, datapoint_format)
+        else:
+            logging.error(f"{groupaddress} is not a sending groupaddress in BAOS 777 device: parametrize it in ETS.")
+
+    def read_raw_value(self, groupaddress):
+        if groupaddress in self.sending_groupaddresses.values():
+            datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
+            url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
+            response_raw = requests.get(url, headers=self.auth_header)
+            response = json.loads(response_raw.text)
+
+            return response.get("value")
+        else:
+            logging.error(f"{groupaddress} is not a sending groupaddress in BAOS 777 device: parametrize it in ETS.")
+        
 
     def _format_value(self, raw_value, datapoint_format):
         formatted_value = ""
@@ -160,22 +170,25 @@ class BAOS777Interface:
         elif datapoint_format == "DPT5":
             formatted_value = f"{round(raw_value*100/255)}%"
         elif datapoint_format == "DPT9":
-            formatted_value = f"{raw_value}"
+            formatted_value = f"{raw_value} °C"
         else:
             formatted_value = f"unknown datapoint format {datapoint_format}"
 
         return formatted_value
 
     def send_value(self, groupaddress, value):
-        datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
-        datapoint_information = self.datapoints_information.get(datapoint_id)
-        datapoint_format = datapoint_information.get("datapoint format")
-        url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
-        payload = {
-            "command": cmd.SET_VALUE_AND_SEND_ON_BUS,
-            "value": self._get_datapoint_raw_value(datapoint_format, value),
-        }
-        requests.put(url, json.dumps(payload), headers=self.auth_header)
+        if groupaddress in self.sending_groupaddresses.values():
+            datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
+            datapoint_information = self.datapoints_information.get(datapoint_id)
+            datapoint_format = datapoint_information.get("datapoint format")
+            url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
+            payload = {
+                "command": cmd.SET_VALUE_AND_SEND_ON_BUS,
+                "value": self._get_datapoint_raw_value(datapoint_format, value),
+            }
+            requests.put(url, json.dumps(payload), headers=self.auth_header)
+        else:
+            logging.error(f"{groupaddress} is not a sending groupaddress in BAOS 777 device: parametrize it in ETS.")
 
     def _get_datapoint_raw_value(self, datapoint_format, value):
         datapoint_value = DatapointValue(datapoint_format, value)
