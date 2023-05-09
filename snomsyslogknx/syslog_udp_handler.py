@@ -69,13 +69,12 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                         response.raise_for_status()
                     except requests.exceptions.HTTPError:
                         logging.error(response.status_code)
-                        logging.error(f"has {self.client_ip} temperature relations?\n Check it here: {TEMPERATURE_RELATIONS_URL}")
                     else:
                         temp_value_message = self.message_data[-1:]
                         temperature_relation = json.loads(response.text)
                         self._handle_celsius_value(temperature_relation, temp_value_message)
                 else:
-                    logging.info(f"No temperature relation for {self.client_ip}\n create one?: {TEMPERATURE_RELATIONS_URL}")
+                    logging.info(f"No temperature relation for {self.client_ip}\nCreate one?: {TEMPERATURE_RELATIONS_URL}")
 
     def _handle_lux_value(self, als_relation, als_value):
         knx_reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
