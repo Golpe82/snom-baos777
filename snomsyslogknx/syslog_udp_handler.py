@@ -46,8 +46,8 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                 logging.info(als_relation_ips)
                 phone_model = als_relation_ips.get(self.client_ip)
 
-                if phone_model == "D735":
-                    if self.client_ip in als_relation_ips.keys():
+                if self.client_ip in als_relation_ips.keys():
+                    if phone_model == "D735":
                         try:
                             response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/{self.client_ip}/")
                             response.raise_for_status()
@@ -60,9 +60,9 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                             self._handle_lux_value(als_relation, als_value)
                             self._handle_relative_dimming(als_relation, als_value)
                     else:
-                        logging.error(f"No ambient light relation for {self.client_ip}\nCreate one?: {AMBIENT_LIGHT_RELATIONS_URL}")
+                        logging.error(f"ALS functionality only for D735 available. Got model: {phone_model}")
                 else:
-                    logging.error(f"ALS functionality only for D735 available. Got model: {phone_model}")
+                    logging.error(f"No ambient light relation for {self.client_ip}\nCreate one?: {AMBIENT_LIGHT_RELATIONS_URL}")
 
             if message_item == "temperature:":
                 response = requests.get(f"http://localhost:8000/knx/relations/temperature/ips/")
