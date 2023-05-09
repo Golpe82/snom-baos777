@@ -207,6 +207,7 @@ class AmbientLightRelation(models.Model):
     min_lux = models.PositiveSmallIntegerField(default=100)
     max_lux = models.PositiveSmallIntegerField(default=500)
     knx_dimm_address = models.CharField(max_length=8, null=True)
+    knx_dimm_status_address = models.CharField(max_length=8, null=True)
     phone_location = models.CharField(max_length=30, default=None)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 

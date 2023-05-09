@@ -51,24 +51,19 @@ def temperature_sensor_relations(request, device_ip):
     return JsonResponse(data)
 
 def ambient_light_sensor_relations(request, device_ip):
-    try:
-        relations = AmbientLightRelation.objects.get(ip_address=device_ip)
-    except AmbientLightRelation.DoesNotExist:
-        data = {
-            "message": f"No ambient light sensor relations{device_ip}",
-            "Create one?": f"http://localhost:8000/admin/knx/ambientlightrelation/"}
-    else:
-        data = {
-            "device ip": relations.ip_address,
-            "phone type": relations.phone_model,
-            "phone location": relations.phone_location,
-            "send lux groupaddress": relations.knx_send_lux_address,
-            "lux delta": relations.lux_delta,
-            "switch groupaddress": relations.knx_switch_address,
-            "min lux value": relations.min_lux,
-            "max lux value": relations.max_lux,
-            "dimm groupaddress": relations.knx_dimm_address
-        }
+    relations = AmbientLightRelation.objects.get(ip_address=device_ip)
+    data = {
+        "device ip": relations.ip_address,
+        "phone type": relations.phone_model,
+        "phone location": relations.phone_location,
+        "send lux groupaddress": relations.knx_send_lux_address,
+        "lux delta": relations.lux_delta,
+        "switch groupaddress": relations.knx_switch_address,
+        "min lux value": relations.min_lux,
+        "max lux value": relations.max_lux,
+        "dimm groupaddress": relations.knx_dimm_address,
+        "dimm status groupaddress": relations.knx_dimm_status_address
+    }
 
     return JsonResponse(data)
 
