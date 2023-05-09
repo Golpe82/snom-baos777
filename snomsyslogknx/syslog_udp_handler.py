@@ -6,8 +6,6 @@ import sys
 
 import getmac
 
-from syslog_clients import SYSLOG_CLIENTS
-
 # add current folder to the system path
 sys.path.append("/usr/local/gateway")
 
