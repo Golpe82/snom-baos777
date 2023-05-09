@@ -36,7 +36,7 @@ def knx_read(request, main, midd, sub):
 
 def temperature_sensor_relations_ips(request):
     ips = TemperatureRelation.objects.all().values_list('ip_address', flat=True)
-    data = {"temperature relations ips": list(ips)}
+    data = list(ips)
 
     return JsonResponse(data)
 
