@@ -43,7 +43,6 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
             if "ALS_VALUE" in message_item:
                 response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/ips/")
                 als_relation_ips = json.loads(response.text)
-                logging.info(als_relation_ips)
                 phone_model = als_relation_ips.get(self.client_ip)
 
                 if als_relation_ips and phone_model == "D735":
@@ -62,12 +61,11 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                     else:
                         logging.error(f"No ambient light relation for {self.client_ip}\nCreate one?: {AMBIENT_LIGHT_RELATIONS_URL}")
                 else:
-                    logging.error(f"Got relations: {als_relation_ips}\nALS functionality only for D735 available\nGot ip {self.client_ip}\nGot model: {phone_model}")
+                    logging.error(f"Got relations: {als_relation_ips}\nALS functionality only for D735 available\nGot ip {self.client_ip}\nGot model: {phone_model}\n")
 
             if message_item == "temperature:":
                 response = requests.get(f"http://localhost:8000/knx/relations/temperature/ips/")
                 temp_relations_ips = json.loads(response.text)
-                logging.info(temp_relations_ips)
 
                 if self.client_ip in temp_relations_ips.keys():
                     try:
