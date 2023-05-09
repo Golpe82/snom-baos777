@@ -40,7 +40,9 @@ urlpatterns = [
         views.check_code,
         name="check_code",
     ),
+    path("relations/temperature/ips/", views.temperature_sensor_relations_ips, name="temp_relations_ips"),
     path("relations/temperature/<str:device_ip>/", views.temperature_sensor_relations, name="temp_relations"),
+    path("relations/ambient_light/ips/", views.ambient_light_sensor_relations_ips, name="als_relations_ips"),
     path("relations/ambient_light/<str:device_ip>/", views.ambient_light_sensor_relations, name="als_relations"),
 ]
 

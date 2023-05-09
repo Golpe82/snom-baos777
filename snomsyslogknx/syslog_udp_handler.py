@@ -41,30 +41,36 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         for message_item in self.message_data:
             if "ALS_VALUE" in message_item:
-                try:
-                    response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/{self.client_ip}/")
-                    response.raise_for_status()
-                except requests.exceptions.HTTPError:
-                    logging.error(response.status_code)
-                    logging.error(f"has {self.client_ip} ambient light relations?\n Check it here: {AMBIENT_LIGHT_RELATIONS_URL}")
-                else:
-                    ambient_light = message_item.split(":")
-                    als_value =  int(ambient_light[1])
-                    als_relation = json.loads(response.text)
-                    self._handle_lux_value(als_relation, als_value)
-                    self._handle_relative_dimming(als_relation, als_value)
+                als_relation_ips = requests.get(f"http://localhost:8000/knx/relations/ambient_light/ips/")
+
+                if self.client_ip in als_relation_ips.values():
+                    try:
+                        response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/{self.client_ip}/")
+                        response.raise_for_status()
+                    except requests.exceptions.HTTPError:
+                        logging.error(response.status_code)
+                        logging.error(f"has {self.client_ip} ambient light relations?\n Check it here: {AMBIENT_LIGHT_RELATIONS_URL}")
+                    else:
+                        ambient_light = message_item.split(":")
+                        als_value =  int(ambient_light[1])
+                        als_relation = json.loads(response.text)
+                        self._handle_lux_value(als_relation, als_value)
+                        self._handle_relative_dimming(als_relation, als_value)
 
             if message_item == "temperature:":
-                try:
-                    response = requests.get(f"http://localhost:8000/knx/relations/temperature/{self.client_ip}/")
-                    response.raise_for_status()
-                except requests.exceptions.HTTPError:
-                    logging.error(response.status_code)
-                    logging.error(f"has {self.client_ip} temperature relations?\n Check it here: {TEMPERATURE_RELATIONS_URL}")
-                else:
-                    temp_value_message = self.message_data[-1:]
-                    temperature_relation = json.loads(response.text)
-                    self._handle_celsius_value(temperature_relation, temp_value_message)
+                temperature_relation_ips = requests.get(f"http://localhost:8000/knx/relations/temperature/ips/")
+
+                if self.client_ip in temp_relations_ips.values():
+                    try:
+                        response = requests.get(f"http://localhost:8000/knx/relations/temperature/{self.client_ip}/")
+                        response.raise_for_status()
+                    except requests.exceptions.HTTPError:
+                        logging.error(response.status_code)
+                        logging.error(f"has {self.client_ip} temperature relations?\n Check it here: {TEMPERATURE_RELATIONS_URL}")
+                    else:
+                        temp_value_message = self.message_data[-1:]
+                        temperature_relation = json.loads(response.text)
+                        self._handle_celsius_value(temperature_relation, temp_value_message)
 
     def _handle_lux_value(self, als_relation, als_value):
         knx_reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)

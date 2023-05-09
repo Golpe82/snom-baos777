@@ -7,7 +7,7 @@ from django.http import JsonResponse, HttpResponse
 from knx.models import KnxStatus, AlsStatus, KnxMonitor, TemperatureRelation, AmbientLightRelation
 import sys
 
-sys.path.append("usr/local/gateway")
+sys.path.append("/usr/local/gateway")
 
 import baos777.baos_websocket as baos_ws
 
@@ -34,19 +34,27 @@ def knx_read(request, main, midd, sub):
             content_type="text/xml",
         )
 
+def temperature_sensor_relations_ips(request):
+    ips = TemperatureRelation.objects.all().values_list('ip_address', flat=True)
+    data = {"temperature relations ips": list(ips)}
+
+    return JsonResponse(data)
+
 def temperature_sensor_relations(request, device_ip):
-    try:
-        relations = TemperatureRelation.objects.get(ip_address=device_ip)
-    except TemperatureRelation.DoesNotExist:
-        data = {f"Temperature sensor relation for ip {device_ip} does not exists.": "Use administration for creating one"}
-    else:
-        data = {
-            "device ip": relations.ip_address,
-            "phone type": relations.phone_model,
-            "phone location": relations.phone_location,
-            "send celsius groupaddress": relations.knx_send_celsius_address,
-            "celsius delta": relations.celsius_delta,
-        }
+    relations = TemperatureRelation.objects.get(ip_address=device_ip)
+    data = {
+        "device ip": relations.ip_address,
+        "phone type": relations.phone_model,
+        "phone location": relations.phone_location,
+        "send celsius groupaddress": relations.knx_send_celsius_address,
+        "celsius delta": relations.celsius_delta,
+    }
+
+    return JsonResponse(data)
+
+def ambient_light_sensor_relations_ips(request):
+    ips = AmbientLightRelation.objects.all().values_list('ip_address', flat=True)
+    data = {"als relations ips": list(ips)}
 
     return JsonResponse(data)
 
