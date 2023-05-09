@@ -29,12 +29,6 @@ urlpatterns = [
     # REST API URLs
     path("values", views.post_sensor_value, name="post_values"),
     path("status", views.post_knx_status, name="post_knx_status"),
-    path("groupaddress_monitor", views.post_knx_monitor, name="post_knx_monitor"),
-    path(
-        "status/<int:main>/<int:midd>/<int:sub>/",
-        views.get_groupaddress_status,
-        name="get_groupaddress_status",
-    ),
     path("read/<int:main>/<int:midd>/<int:sub>/", views.knx_read, name="knx_read"),
     path(
         "write/<int:main>/<int:midd>/<int:sub>/<str:dpt_name>/<str:value>",
@@ -46,6 +40,10 @@ urlpatterns = [
         views.check_code,
         name="check_code",
     ),
+    path("relations/temperature/ips/", views.temperature_sensor_relations_ips, name="temp_relations_ips"),
+    path("relations/temperature/<str:device_ip>/", views.temperature_sensor_relations, name="temp_relations"),
+    path("relations/ambient_light/ips/", views.ambient_light_sensor_relations_ips, name="als_relations_ips"),
+    path("relations/ambient_light/<str:device_ip>/", views.ambient_light_sensor_relations, name="als_relations"),
 ]
 
 # serve during development

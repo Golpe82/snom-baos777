@@ -4,10 +4,10 @@ from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 
-from knx.models import KnxStatus, AlsStatus, KnxMonitor
+from knx.models import KnxStatus, AlsStatus, KnxMonitor, TemperatureRelation, AmbientLightRelation
 import sys
 
-sys.path.append("usr/local/gateway")
+sys.path.append("/usr/local/gateway")
 
 import baos777.baos_websocket as baos_ws
 
@@ -17,19 +17,6 @@ PASSWORD = "admin"
 POST_RESPONSE = {"POST": "OK"}
 logging.basicConfig(level=logging.DEBUG)
 
-
-def get_groupaddress_status(request, main, midd, sub):
-    request_address = f"{main}/{midd}/{sub}"
-    status_object = KnxStatus.objects.filter(groupaddress=request_address).latest("status")
-
-    logging.info(f"Status of { status_object.groupaddress }: { status_object.status }")
-
-    data = {
-        "Groupaddress": status_object.groupaddress,
-        "Status": status_object.status
-    }
-
-    return JsonResponse(data)
 
 def knx_read(request, main, midd, sub):
     groupaddress = f"{main}/{midd}/{sub}"
@@ -46,6 +33,55 @@ def knx_read(request, main, midd, sub):
         """,
             content_type="text/xml",
         )
+
+def temperature_sensor_relations_ips(request):
+    ips_phone_model = TemperatureRelation.objects.all().values_list("ip_address", "phone_model")
+    data = {
+        ip_phone_model[0]: ip_phone_model[1]
+        for ip_phone_model in ips_phone_model
+    }
+
+    return JsonResponse(data)
+
+def temperature_sensor_relations(request, device_ip):
+    relations = TemperatureRelation.objects.get(ip_address=device_ip)
+    data = {
+        "device ip": relations.ip_address,
+        "phone type": relations.phone_model,
+        "phone location": relations.phone_location,
+        "send celsius groupaddress": relations.knx_send_celsius_address,
+        "celsius delta": relations.celsius_delta,
+    }
+
+    return JsonResponse(data)
+
+def ambient_light_sensor_relations_ips(request):
+    ips_phone_model = AmbientLightRelation.objects.all().values_list("ip_address", "phone_model")
+    data = {
+        ip_phone_model[0]: ip_phone_model[1]
+        for ip_phone_model in ips_phone_model
+    }
+
+    return JsonResponse(data)
+
+def ambient_light_sensor_relations(request, device_ip):
+    relations = AmbientLightRelation.objects.get(ip_address=device_ip)
+    data = {
+        "device ip": relations.ip_address,
+        "phone type": relations.phone_model,
+        "phone location": relations.phone_location,
+        "send lux groupaddress": relations.knx_send_lux_address,
+        "lux delta": relations.lux_delta,
+        "switch groupaddress": relations.knx_switch_address,
+        "min lux value": relations.min_lux,
+        "max lux value": relations.max_lux,
+        "dimm groupaddress": relations.knx_dimm_address,
+        "dimm status groupaddress": relations.knx_dimm_status_address
+    }
+
+    return JsonResponse(data)
+
+
 @csrf_exempt
 def post_sensor_value(request):
     device_mac = request.POST.get("mac_address")
@@ -74,23 +110,5 @@ def post_knx_status(request):
         }
     )
     logging.info(f"{obj.groupaddress_name}: {obj.status}")
-
-    return JsonResponse(POST_RESPONSE)
-
-# not in use, too much traffic
-@csrf_exempt
-def post_knx_monitor(request):
-    if KnxMonitor.objects.count() > 2000:
-        first = KnxMonitor.objects.first().id
-        KnxMonitor.objects.filter(id=first).delete()
-    logging.info(request.POST.get("raw_frame"))
-
-    KnxMonitor.objects.create(
-        groupaddress_name=request.POST.get("groupaddress_name"),
-        groupaddress=request.POST.get("groupaddress"),
-        datapoint_type=request.POST.get("datapoint_type"),
-        status=request.POST.get("status"),
-        raw_frame=request.POST.get("raw_frame")
-    )
 
     return JsonResponse(POST_RESPONSE)

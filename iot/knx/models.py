@@ -189,3 +189,46 @@ class FunctionKeyLEDSubscriptions(models.Model):
 
     def __str__(self) -> str:
         return f"Groupaddress: {self.knx_subscription} | {self.phone_model}: {self.ip_address} | LED on: {self.led_number_for_on} | LED off: {self.led_number_for_off}"
+
+class AmbientLightRelation(models.Model):
+    mac_address_validator = RegexValidator(
+        regex="^[0-9a-fA-F]{12}$", message="Invalid MAC address"
+    )
+    mac_address = models.CharField(
+        verbose_name="MAC address",
+        max_length=12,
+        validators=[mac_address_validator],
+    )
+    ip_address = models.GenericIPAddressField()
+    phone_model = models.CharField(max_length=4, null=True, choices=[("D735", "D735")])
+    knx_send_lux_address = models.CharField(max_length=8, null=True)
+    lux_delta = models.FloatField(default=10)
+    knx_switch_address = models.CharField(max_length=8, null=True)
+    min_lux = models.PositiveSmallIntegerField(default=100)
+    max_lux = models.PositiveSmallIntegerField(default=500)
+    knx_dimm_address = models.CharField(max_length=8, null=True)
+    knx_dimm_status_address = models.CharField(max_length=8, null=True)
+    phone_location = models.CharField(max_length=30, default=None)
+    timestamp = models.DateTimeField(null=True, auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Lux groupaddress: {self.knx_send_lux_address} | Setpoint: {self.min_lux}...{self.max_lux} Lux"
+
+class TemperatureRelation(models.Model):
+    mac_address_validator = RegexValidator(
+        regex="^[0-9a-fA-F]{12}$", message="Invalid MAC address"
+    )
+    mac_address = models.CharField(
+        verbose_name="MAC address",
+        max_length=12,
+        validators=[mac_address_validator],
+    )
+    ip_address = models.GenericIPAddressField()
+    phone_model = models.CharField(max_length=4, null=True, choices=PHONE_MODEL_CHOICES)
+    knx_send_celsius_address = models.CharField(max_length=8, null=True)
+    celsius_delta = models.FloatField(default=1)
+    phone_location = models.CharField(max_length=30, default=None)
+    timestamp = models.DateTimeField(null=True, auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Celsius groupaddress: {self.knx_send_celsius_address}"
