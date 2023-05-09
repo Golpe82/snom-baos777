@@ -44,21 +44,25 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                 response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/ips/")
                 als_relation_ips = json.loads(response.text)
                 logging.info(als_relation_ips)
-                is_D735 = als_relation_ips.get(self.client_ip)
+                phone_model = als_relation_ips.get(self.client_ip)
 
-                if is_D735 and self.client_ip in als_relation_ips.keys():
-                    try:
-                        response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/{self.client_ip}/")
-                        response.raise_for_status()
-                    except requests.exceptions.HTTPError:
-                        logging.error(response.status_code)
-                        logging.error(f"has {self.client_ip} ambient light relations?\n Check it here: {AMBIENT_LIGHT_RELATIONS_URL}")
+                if phone_model == "D735":
+                    if self.client_ip in als_relation_ips.keys():
+                        try:
+                            response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/{self.client_ip}/")
+                            response.raise_for_status()
+                        except requests.exceptions.HTTPError:
+                            logging.error(response.status_code)
+                        else:
+                            ambient_light = message_item.split(":")
+                            als_value =  int(ambient_light[1])
+                            als_relation = json.loads(response.text)
+                            self._handle_lux_value(als_relation, als_value)
+                            self._handle_relative_dimming(als_relation, als_value)
                     else:
-                        ambient_light = message_item.split(":")
-                        als_value =  int(ambient_light[1])
-                        als_relation = json.loads(response.text)
-                        self._handle_lux_value(als_relation, als_value)
-                        self._handle_relative_dimming(als_relation, als_value)
+                        logging.error(f"No ambient light relation for {self.client_ip}\nCreate one?: {AMBIENT_LIGHT_RELATIONS_URL}")
+                else:
+                    logging.error(f"ALS functionality only for D735 available. Got model: {phone_model}")
 
             if message_item == "temperature:":
                 response = requests.get(f"http://localhost:8000/knx/relations/temperature/ips/")
