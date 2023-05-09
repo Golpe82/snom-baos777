@@ -43,8 +43,10 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
             if "ALS_VALUE" in message_item:
                 response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/ips/")
                 als_relation_ips = json.loads(response.text)
+                logging.info(als_relation_ips)
+                is_D735 = als_relation_ips.get(self.client_ip)
 
-                if self.client_ip in als_relation_ips:
+                if is_D735 and self.client_ip in als_relation_ips.keys():
                     try:
                         response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/{self.client_ip}/")
                         response.raise_for_status()

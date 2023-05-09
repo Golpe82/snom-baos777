@@ -56,9 +56,13 @@ def temperature_sensor_relations(request, device_ip):
     return JsonResponse(data)
 
 def ambient_light_sensor_relations_ips(request):
-    ips = AmbientLightRelation.objects.all().values_list('ip_address', flat=True)
+    ips_phone_model = AmbientLightRelation.objects.all().values_list("ip_address", "phone_model")
+    data = {
+        ip_phone_model[0]: ip_phone_model[1]
+        for ip_phone_model in ips_phone_model
+    }
 
-    return JsonResponse(list(ips), safe=False)
+    return JsonResponse(data)
 
 def ambient_light_sensor_relations(request, device_ip):
     relations = AmbientLightRelation.objects.get(ip_address=device_ip)
