@@ -211,6 +211,9 @@ class AmbientLightRelation(models.Model):
     phone_location = models.CharField(max_length=30, default=None)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
+    def __str__(self) -> str:
+        return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Lux groupaddress: {self.knx_send_lux_address} | Lux setpoint: {self.min_lux}...{self.max_lux}"
+
 class TemperatureRelation(models.Model):
     mac_address_validator = RegexValidator(
         regex="^[0-9a-fA-F]{12}$", message="Invalid MAC address"
@@ -226,3 +229,6 @@ class TemperatureRelation(models.Model):
     celsius_delta = models.FloatField(default=1)
     phone_location = models.CharField(max_length=30, default=None)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Celsius groupaddress: {self.knx_send_celsius_address}"
