@@ -41,7 +41,8 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         for message_item in self.message_data:
             if "ALS_VALUE" in message_item:
-                als_relation_ips = requests.get(f"http://localhost:8000/knx/relations/ambient_light/ips/")
+                response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/ips/")
+                als_relation_ips = json.loads(response.text)
 
                 if self.client_ip in als_relation_ips.values():
                     try:
@@ -58,7 +59,8 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                         self._handle_relative_dimming(als_relation, als_value)
 
             if message_item == "temperature:":
-                temperature_relation_ips = requests.get(f"http://localhost:8000/knx/relations/temperature/ips/")
+                response = requests.get(f"http://localhost:8000/knx/relations/temperature/ips/")
+                temp_relations_ips = json.loads(response.text)
 
                 if self.client_ip in temp_relations_ips.values():
                     try:
