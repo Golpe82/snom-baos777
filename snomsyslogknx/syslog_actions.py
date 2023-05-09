@@ -110,18 +110,3 @@ class KNXActions(object):
                 f"Could not send {celsius_value}°C to {groupaddress}."
                 "KNX gateway not reachable or invalid groupaddress/value:\n"
             )
-
-    def get_groupaddress_status(self, groupaddress):
-        try:
-            status = requests.get(f"{STATUS_URL}{groupaddress}/")
-
-        except requests.exceptions.ConnectionError:
-            logging.warning(
-                f"Default localhost not reachable, trying {DEV_GATEWAY_URL}..."
-            )
-            status = requests.get(f"{DEV_STATUS_URL}{groupaddress}/")
-
-        except Exception:
-            logging.exception(f"No status for groupaddress {groupaddress}")
-
-        return status.json().get("Status")
