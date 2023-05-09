@@ -36,9 +36,8 @@ def knx_read(request, main, midd, sub):
 
 def temperature_sensor_relations_ips(request):
     ips = TemperatureRelation.objects.all().values_list('ip_address', flat=True)
-    data = list(ips)
 
-    return JsonResponse(data)
+    return JsonResponse(list(ips), safe=False)
 
 def temperature_sensor_relations(request, device_ip):
     relations = TemperatureRelation.objects.get(ip_address=device_ip)
@@ -54,9 +53,8 @@ def temperature_sensor_relations(request, device_ip):
 
 def ambient_light_sensor_relations_ips(request):
     ips = AmbientLightRelation.objects.all().values_list('ip_address', flat=True)
-    data = {"als relations ips": list(ips)}
 
-    return JsonResponse(data)
+    return JsonResponse(list(ips), safe=False)
 
 def ambient_light_sensor_relations(request, device_ip):
     relations = AmbientLightRelation.objects.get(ip_address=device_ip)
