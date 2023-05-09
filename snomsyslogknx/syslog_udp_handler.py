@@ -44,7 +44,7 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                 response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/ips/")
                 als_relation_ips = json.loads(response.text)
 
-                if self.client_ip in als_relation_ips.values():
+                if self.client_ip in als_relation_ips:
                     try:
                         response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/{self.client_ip}/")
                         response.raise_for_status()
@@ -63,7 +63,7 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                 temp_relations_ips = json.loads(response.text)
                 logging.info(temp_relations_ips.values())
 
-                if self.client_ip in temp_relations_ips.values():
+                if self.client_ip in temp_relations_ips:
                     try:
                         response = requests.get(f"http://localhost:8000/knx/relations/temperature/{self.client_ip}/")
                         response.raise_for_status()
