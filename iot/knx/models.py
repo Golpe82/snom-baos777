@@ -212,7 +212,7 @@ class AmbientLightRelation(models.Model):
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
     def __str__(self) -> str:
-        return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Lux groupaddress: {self.knx_send_lux_address} | Lux setpoint: {self.min_lux}...{self.max_lux} Lux"
+        return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Lux groupaddress: {self.knx_send_lux_address} | Setpoint: {self.min_lux}...{self.max_lux} Lux"
 
 class TemperatureRelation(models.Model):
     mac_address_validator = RegexValidator(
