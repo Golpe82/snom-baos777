@@ -63,7 +63,7 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                 temp_relations_ips = json.loads(response.text)
                 logging.info(temp_relations_ips)
 
-                if self.client_ip in temp_relations_ips:
+                if self.client_ip in temp_relations_ips.keys():
                     try:
                         response = requests.get(f"http://localhost:8000/knx/relations/temperature/{self.client_ip}/")
                         response.raise_for_status()
