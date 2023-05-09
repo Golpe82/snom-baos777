@@ -13,7 +13,7 @@ from baos777 import baos_websocket as baos_ws
 
 USERNAME, PASSWORD = "admin", "admin"
 AMBIENT_LIGHT_RELATIONS_URL = "http://localhost:8000/admin/knx/ambientlightrelation/"
-TEMPERATURE_RELATIONS_URL = "http://localhost:8000/admin/knx/ambientlightrelation/"
+TEMPERATURE_RELATIONS_URL = "http://localhost:8000/admin/knx/temperaturerelation/"
 # TODO: REFACTOR
 
 class SyslogUDPHandler(socketserver.BaseRequestHandler):
