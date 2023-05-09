@@ -62,7 +62,7 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                     else:
                         logging.error(f"No ambient light relation for {self.client_ip}\nCreate one?: {AMBIENT_LIGHT_RELATIONS_URL}")
                 else:
-                    logging.error(f"Got relations: {als_relation_ips}\nALS functionality only for D735 available. Got model: {phone_model}")
+                    logging.error(f"Got relations: {als_relation_ips}\nALS functionality only for D735 available\nGot ip {self.client_ip}\nGot model: {phone_model}")
 
             if message_item == "temperature:":
                 response = requests.get(f"http://localhost:8000/knx/relations/temperature/ips/")
