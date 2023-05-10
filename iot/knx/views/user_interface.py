@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 import sys
 
-sys.path.append("/usr/local/gateway")
+sys.path.append("..")
 
 import baos777.baos_websocket as baos_ws
 
@@ -102,7 +102,7 @@ def knx_write(request, main, midd, sub, dpt_name, value):
                         <InputToken>__Y__</InputToken>
                         <InputFlags>p</InputFlags>
                     </InputItem>
-                    <Url>http://{settings.KNX_ROOT}check_write/{main}/{midd}/{sub}/{value}/__Y__</Url>
+                    <Url>{settings.KNX_ROOT}check_write/{main}/{midd}/{sub}/{value}/__Y__</Url>
                 </SnomIPPhoneInput>
             """,
                 content_type="text/xml",
