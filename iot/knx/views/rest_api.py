@@ -19,12 +19,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def knx_read(request, main, midd, sub):
-    client_is_snom_phone = "snom" in request.META['HTTP_USER_AGENT']
     groupaddress = f"{main}/{midd}/{sub}"
     reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
     value = reader.baos_interface.read_value(groupaddress)
 
-    if client_is_snom_phone:
+    if "snom" in request.META['HTTP_USER_AGENT']:
         return HttpResponse(
             f"""
                 <?xml version="1.0" encoding="UTF-8"?>
