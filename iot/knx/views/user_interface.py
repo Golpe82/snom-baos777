@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 import sys
 
-sys.path.append("/usr/local/gateway")
+sys.path.append("..")
 
 import baos777.baos_websocket as baos_ws
 
@@ -41,6 +41,7 @@ def index(request):
         }
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     }
+    logging.error(addresses_groups)
 
     context = {
         "project": settings.PROJECT_NAME,
@@ -93,19 +94,24 @@ def knx_write(request, main, midd, sub, dpt_name, value):
     address_code = address_info.values_list("code", flat=True).first()
 
     if address_code:
-        return HttpResponse(
-            f"""
-            <SnomIPPhoneInput track=no>
-                <InputItem>
-                    <DisplayName>Enter code for {groupaddress}</DisplayName>
-                    <InputToken>__Y__</InputToken>
-                    <InputFlags>p</InputFlags>
-                </InputItem>
-                <Url>http://{settings.GATEWAY_IP}:8000/knx/check_write/{main}/{midd}/{sub}/{value}/__Y__</Url>
-            </SnomIPPhoneInput>
-        """,
-            content_type="text/xml",
-        )
+        client_is_snom_phone = "snom" in request.META['HTTP_USER_AGENT']
+        
+        if client_is_snom_phone:
+            return HttpResponse(
+                f"""
+                <SnomIPPhoneInput track=no>
+                    <InputItem>
+                        <DisplayName>Enter code for {groupaddress}</DisplayName>
+                        <InputToken>__Y__</InputToken>
+                        <InputFlags>p</InputFlags>
+                    </InputItem>
+                    <Url>http://{settings.GATEWAY_IP}:8000/knx/check_write/{main}/{midd}/{sub}/{value}/__Y__</Url>
+                </SnomIPPhoneInput>
+            """,
+                content_type="text/xml",
+            )
+        
+        return HttpResponse(f"{groupaddress} needs a code. Input only over a snom device possible, not over browser.")
 
     else:
         writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
@@ -115,6 +121,7 @@ def knx_write(request, main, midd, sub, dpt_name, value):
 
 
 def check_code(request, main, midd, sub, value, code):
+    logging.error(code)
     groupaddress = f"{main}/{midd}/{sub}"
     address_info = Groupaddress.objects.filter(address=groupaddress)
     expected_code = address_info.values_list("code", flat=True).first()
@@ -192,7 +199,9 @@ def update_led_subscriptors(request, main, midd, sub, status):
 
 
 def addresses(request, maingroup, subgroup):
-    groupaddresses = Groupaddress.objects.filter(maingroup=maingroup, subgroup=subgroup)
+    reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
+    baos_response = reader.baos_interface.sending_groupaddresses.values()
+    groupaddresses = Groupaddress.objects.filter(address__in=baos_response, maingroup=maingroup, subgroup=subgroup)
     context = {
         "app": APP,
         "page": f"{maingroup} {subgroup}",
@@ -245,13 +254,17 @@ def render_sensor_values(request):
 
 
 def render_groupaddresses(request):
-    groupaddresses = Groupaddress.objects.all()
+    reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
+    baos_response = reader.baos_interface.sending_groupaddresses.values()
+    baos_sending_groupaddresses = Groupaddress.objects.filter(address__in=baos_response)
+    other_groupaddresses = Groupaddress.objects.exclude(address__in=baos_response)
 
     context = {
         "project": settings.PROJECT_NAME,
         "app": APP,
         "page": "Groupaddresses data",
-        "groupaddresses": groupaddresses,
+        "baos_groupaddresses": baos_sending_groupaddresses,
+        "other_groupaddresses": other_groupaddresses
     }
 
     return render(request, "knx/groupaddresses_data.html", context)

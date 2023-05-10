@@ -10,6 +10,7 @@
         {% for maingroup, subgroups in addresses_groups.items %}
             <div class="maingroup">{{maingroup}}
             {% for subgroup in subgroups %}
+
                 <div class="subgroup">
                     <a href="{% url 'knx:addresses' maingroup subgroup %}">{{subgroup}}</a>
                 </div>

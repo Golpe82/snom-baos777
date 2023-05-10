@@ -3,10 +3,22 @@
 {% load static %}
 
 {% block title %}|{{ app }}|Groupaddresses{% endblock title %}
-{% block header %}{{app }} - Groupaddresses{% endblock header %}
+{% block header %}
+<style type="text/css">
+caption{
+    font-weight: bold;
+    text-align: left;
+    background-color: lightgrey;
+}
+</style>
+  {% with baos_gas=baos_groupaddresses|length other_gas=other_groupaddresses|length %}
+    {{app }} - Groupaddresses ({{ baos_gas|add:other_gas }})
+  {% endwith %}
+{% endblock header %}
 
 {% block content %}
       <table>
+      <caption>BAOS 777 sending groupaddresses ({{ baos_groupaddresses|length }})</caption>
         <tr>
           <th>Alias</th>
           <th>Maingroup</th>
@@ -15,15 +27,37 @@
           <th>Address</th>
           <th>Datapoint type</th>
         </tr>
-        {% for groupaddress in groupaddresses %}
-          <tr>
-            <td>{{ groupaddress.alias }}</td>
-            <td>{{ groupaddress.maingroup }}</td>
-            <td>{{ groupaddress.subgroup }}</td>
-            <td>{{ groupaddress.name }}</td>
-            <td>{{ groupaddress.address }}</td>
-            <td>{{ groupaddress.datapoint_type }}</td>
-          </tr>
+        {% for groupaddress in baos_groupaddresses %}
+        <tr>
+          <td>{{ groupaddress.alias }}</td>
+          <td>{{ groupaddress.maingroup }}</td>
+          <td>{{ groupaddress.subgroup }}</td>
+          <td>{{ groupaddress.name }}</td>
+          <td>{{ groupaddress.address }}</td>
+          <td>{{ groupaddress.datapoint_type }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <br/>
+      <table>
+      <caption>Other groupaddresses ({{ other_groupaddresses|length }})</caption>
+        <tr>
+          <th>Alias</th>
+          <th>Maingroup</th>
+          <th>Subgroup</th>
+          <th>Address name</th>
+          <th>Address</th>
+          <th>Datapoint type</th>
+        </tr>
+        {% for groupaddress in other_groupaddresses %}
+        <tr>
+          <td>{{ groupaddress.alias }}</td>
+          <td>{{ groupaddress.maingroup }}</td>
+          <td>{{ groupaddress.subgroup }}</td>
+          <td>{{ groupaddress.name }}</td>
+          <td>{{ groupaddress.address }}</td>
+          <td>{{ groupaddress.datapoint_type }}</td>
+        </tr>
         {% endfor %}
       </table>
 {% endblock %}
