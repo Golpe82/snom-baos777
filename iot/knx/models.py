@@ -188,7 +188,7 @@ class FunctionKeyLEDSubscriptions(models.Model):
         return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_led_subscriptions/{self.mac_address}/{file_name}"
 
     def __str__(self) -> str:
-        return f"Groupaddress: {self.knx_subscription} | {self.phone_model}: {self.ip_address} | LED on: {self.led_number_for_on} | LED off: {self.led_number_for_off}"
+        return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Switch groupaddress: {self.knx_subscription}"
 
 class AmbientLightRelation(models.Model):
     mac_address_validator = RegexValidator(
