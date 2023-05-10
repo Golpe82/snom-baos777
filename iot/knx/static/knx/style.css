@@ -27,7 +27,6 @@ footer{
     grid-area: 5 / 1 / 6 / 2;
     justify-self: center;
 }
-
 .maingroup{
     margin: 1em;
     background: lightgray;

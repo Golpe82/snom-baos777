@@ -4,11 +4,18 @@
 
 
 {% block content %}
-    <a href="{% url 'knx:knx_home' %}">Back</a>
-    {% for groupaddress in groupaddresses %}
-        <div class="address" style="border: 1px solid black; padding: 1em; margin: 1em;">
-            <div class="address_name" style="display: inline-block"><b>{{groupaddress.alias}}</b></div>
-            <div class="action" style="display: inline-block">{{groupaddress.html_action | safe}}</div>
+    <div><a href="{% url 'knx:knx_home' %}">Back</a></div><br/>
+    {% if groupaddresses %}
+        {% for groupaddress in groupaddresses %}
+            <div class="address" style="border: 1px solid black; padding: 1em; margin: 1em;">
+                <div class="address_name" style="display: inline-block"><b>{{groupaddress.alias}}</b></div>
+                <div class="action" style="display: inline-block">{{groupaddress.html_action | safe}}</div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div>
+            No sending groupaddresses in BAOS 777 device for this middlegroup.<br/>
+            Parametrize device in ETS if needed.
         </div>
-    {% endfor %}
+    {% endif %}
 {% endblock content %}

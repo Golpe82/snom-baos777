@@ -23,16 +23,19 @@ def knx_read(request, main, midd, sub):
     reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
     value = reader.baos_interface.read_value(groupaddress)
 
-    return HttpResponse(
-        f"""
-            <?xml version="1.0" encoding="UTF-8"?>
-            <SnomIPPhoneText>
-            <Text>Groupaddress {groupaddress} has status {value}</Text>
-            <fetch mil=3000>snom://mb_exit</fetch>
-            </SnomIPPhoneText>
-        """,
-            content_type="text/xml",
-        )
+    if "snom" in request.META['HTTP_USER_AGENT']:
+        return HttpResponse(
+            f"""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <SnomIPPhoneText>
+                <Text>Groupaddress {groupaddress} has status {value}</Text>
+                <fetch mil=3000>snom://mb_exit</fetch>
+                </SnomIPPhoneText>
+            """,
+                content_type="text/xml",
+            )
+    else:
+        return HttpResponse(value)
 
 def temperature_sensor_relations_ips(request):
     ips_phone_model = TemperatureRelation.objects.all().values_list("ip_address", "phone_model")

@@ -54,14 +54,13 @@ def update_groupaddresses():
 def _get_dom_action(datapoint_type, groupaddress, groupaddress_name):
     is_dpt1 = 'DPT-1' in datapoint_type or 'DPST-1-' in datapoint_type
     is_dpt3 = 'DPT-3' in datapoint_type or 'DPST-3-' in datapoint_type
-    is_status = "DPST-1-11" in datapoint_type
 
-    if is_status:
+    if datapoint_type == "DPST-1-11":
         return "<div>Fetch status not implemented</div>"
 
     elif is_dpt1:
-        on = f"<button id='{groupaddress}_on' formaction='{settings.KNX_ROOT}{groupaddress}-an' type='submit' name='{groupaddress_name}' value='on'>On</button>\n"
-        off = f"<button id='{groupaddress}_off' formaction='{settings.KNX_ROOT}{groupaddress}-aus' type='submit' name='{groupaddress_name}' value='off'>Off</button>\n"
+        on = f"<button id='{groupaddress}_on' formaction='{settings.KNX_ROOT}write/{groupaddress}/switch/on' type='submit' name='{groupaddress_name}' value='on'>On</button>\n"
+        off = f"<button id='{groupaddress}_off' formaction='{settings.KNX_ROOT}write/{groupaddress}/switch/off' type='submit' name='{groupaddress_name}' value='off'>Off</button>\n"
 
         return ("<form method='get'>"
                 f"{on}"
@@ -69,8 +68,8 @@ def _get_dom_action(datapoint_type, groupaddress, groupaddress_name):
             "</form>")
 
     elif is_dpt3:
-        plus = f"<button id='{groupaddress}_plus' formaction='{settings.KNX_ROOT}{groupaddress}-plus' type='submit' name='{groupaddress_name}' value='plus'>+</button>\n"
-        minus = f"<button id='{groupaddress}_minus' formaction='{settings.KNX_ROOT}{groupaddress}-minus' type='submit' name='{groupaddress_name}' value='minus'>-</button>\n"
+        plus = f"<button id='{groupaddress}_plus' formaction='{settings.KNX_ROOT}write/{groupaddress}/dimming/increase' type='submit' name='{groupaddress_name}' value='plus'>+</button>\n"
+        minus = f"<button id='{groupaddress}_minus' formaction='{settings.KNX_ROOT}write/{groupaddress}/dimming/decrease' type='submit' name='{groupaddress_name}' value='minus'>-</button>\n"
 
         return ("<form method='get'>"
                 f"{plus}"
