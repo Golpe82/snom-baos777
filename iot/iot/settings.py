@@ -138,7 +138,7 @@ PROJECT_NAME = 'IoT'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'knx/media/')
 MEDIA_URL = 'knx/media/'
 
-KNX_ROOT = f"http://{ GATEWAY_IP }:1234/"
+KNX_ROOT = f"http://{GATEWAY_IP}:8000/knx/"
 
 CSV_SOURCE_PATH = f"{ MEDIA_ROOT }ga.csv"
 XML_TARGET_PATH = f"{ MEDIA_ROOT }knx.xml"

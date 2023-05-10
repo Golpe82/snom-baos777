@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 import sys
 
-sys.path.append("..")
+sys.path.append("/usr/local/gateway")
 
 import baos777.baos_websocket as baos_ws
 
@@ -41,7 +41,6 @@ def index(request):
         }
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     }
-    logging.error(addresses_groups)
 
     context = {
         "project": settings.PROJECT_NAME,
@@ -94,9 +93,7 @@ def knx_write(request, main, midd, sub, dpt_name, value):
     address_code = address_info.values_list("code", flat=True).first()
 
     if address_code:
-        client_is_snom_phone = "snom" in request.META['HTTP_USER_AGENT']
-        
-        if client_is_snom_phone:
+        if "snom" in request.META['HTTP_USER_AGENT']:
             return HttpResponse(
                 f"""
                 <SnomIPPhoneInput track=no>
@@ -105,7 +102,7 @@ def knx_write(request, main, midd, sub, dpt_name, value):
                         <InputToken>__Y__</InputToken>
                         <InputFlags>p</InputFlags>
                     </InputItem>
-                    <Url>http://{settings.GATEWAY_IP}:8000/knx/check_write/{main}/{midd}/{sub}/{value}/__Y__</Url>
+                    <Url>http://{settings.KNX_ROOT}check_write/{main}/{midd}/{sub}/{value}/__Y__</Url>
                 </SnomIPPhoneInput>
             """,
                 content_type="text/xml",
@@ -121,7 +118,6 @@ def knx_write(request, main, midd, sub, dpt_name, value):
 
 
 def check_code(request, main, midd, sub, value, code):
-    logging.error(code)
     groupaddress = f"{main}/{midd}/{sub}"
     address_info = Groupaddress.objects.filter(address=groupaddress)
     expected_code = address_info.values_list("code", flat=True).first()

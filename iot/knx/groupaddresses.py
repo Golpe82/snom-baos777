@@ -1,5 +1,4 @@
 import csv
-import logging
 
 from django.conf import settings
 
@@ -60,8 +59,8 @@ def _get_dom_action(datapoint_type, groupaddress, groupaddress_name):
         return "<div>Fetch status not implemented</div>"
 
     elif is_dpt1:
-        on = f"<button id='{groupaddress}_on' formaction='http://localhost:8000/knx/write/{groupaddress}/switch/on' type='submit' name='{groupaddress_name}' value='on'>On</button>\n"
-        off = f"<button id='{groupaddress}_off' formaction='http://localhost:8000//knx/write/{groupaddress}/switch/off' type='submit' name='{groupaddress_name}' value='off'>Off</button>\n"
+        on = f"<button id='{groupaddress}_on' formaction='{settings.KNX_ROOT}write/{groupaddress}/switch/on' type='submit' name='{groupaddress_name}' value='on'>On</button>\n"
+        off = f"<button id='{groupaddress}_off' formaction='{settings.KNX_ROOT}write/{groupaddress}/switch/off' type='submit' name='{groupaddress_name}' value='off'>Off</button>\n"
 
         return ("<form method='get'>"
                 f"{on}"
@@ -69,8 +68,8 @@ def _get_dom_action(datapoint_type, groupaddress, groupaddress_name):
             "</form>")
 
     elif is_dpt3:
-        plus = f"<button id='{groupaddress}_plus' formaction='http://localhost:8000/knx/write/{groupaddress}/dimming/increase' type='submit' name='{groupaddress_name}' value='plus'>+</button>\n"
-        minus = f"<button id='{groupaddress}_minus' formaction='http://localhost:8000/knx/write/{groupaddress}/dimming/decrease' type='submit' name='{groupaddress_name}' value='minus'>-</button>\n"
+        plus = f"<button id='{groupaddress}_plus' formaction='{settings.KNX_ROOT}write/{groupaddress}/dimming/increase' type='submit' name='{groupaddress_name}' value='plus'>+</button>\n"
+        minus = f"<button id='{groupaddress}_minus' formaction='{settings.KNX_ROOT}write/{groupaddress}/dimming/decrease' type='submit' name='{groupaddress_name}' value='minus'>-</button>\n"
 
         return ("<form method='get'>"
                 f"{plus}"
