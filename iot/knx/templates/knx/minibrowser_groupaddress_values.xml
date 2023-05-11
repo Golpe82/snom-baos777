@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<SnomIPPhoneMenu document_id='control'>
+<Title>KNX Snom</Title>
+    <MenuItem>
+        <Name>on</Name>
+            <URL>{{knx_gateway}}write/{{ maingroup }}/{{ subgroup }}/{{ groupaddress }}/switch/on</URL>
+    </MenuItem>
+    <MenuItem>
+        <Name>off</Name>
+            <URL>{{knx_gateway}}write/{{ maingroup }}/{{ subgroup }}/{{ groupaddress }}/switch/off</URL>
+    </MenuItem>
+    <fetch mil='100000'>snom://mb_exit</fetch>
+</SnomIPPhoneMenu>

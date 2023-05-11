@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<SnomIPPhoneMenu document_id='control'>
+<Title>KNX Snom</Title>
+{% if addresses_groups %}
+    {% for maingroup in addresses_groups %}
+        <MenuItem>
+        <Name>{{maingroup}}</Name>
+            <URL>{{knx_gateway}}minibrowser/{{maingroup}}/</URL>
+        </MenuItem>
+    {% endfor %}
+{% else %}
+    <MenuItem>
+        <Name>no knx maingroupaddresses</Name>
+    </MenuItem>
+    <fetch mil='1500'>snom://mb_exit</fetch>
+{% endif %}
+    <fetch mil='100000'>snom://mb_exit</fetch>
+</SnomIPPhoneMenu>
