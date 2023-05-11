@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 import sys
 
-sys.path.append("..")
+sys.path.append("/usr/local/gateway")
 
 import baos777.baos_websocket as baos_ws
 
