@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 import sys
 
-sys.path.append("/usr/local/gateway")
+sys.path.append("..")
 
 import baos777.baos_websocket as baos_ws
 
@@ -35,26 +35,18 @@ PASSWORD = "admin"
 
 def index(request):
     if "snom" in request.META['HTTP_USER_AGENT']:
-        context = _get_xml_context()
-        return render(request, "knx/mb.xml", context, content_type="text/xml")
+        context = _get_xml_maingroups_context()
+        return render(request, "knx/maingroups.xml", context, content_type="text/xml")
 
     context = _get_html_context()
     return render(request, "knx/addresses_groups.html", context)
 
 
-def _get_xml_context():
-    reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
-    baos_response = reader.baos_interface.sending_groupaddresses.values()
-    addresses_groups = {
-        maingroup[0]: {
-            item.subgroup: {
-                item.name: item.address
-                for item in Groupaddress.objects.filter(address__in=baos_response, maingroup=maingroup[0], subgroup=item.subgroup)
-            }
-            for item in Groupaddress.objects.filter(maingroup=maingroup[0])
-        }
+def _get_xml_maingroups_context():
+    addresses_groups = [
+        maingroup[0]
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
-    }
+    ]
     
     return {
         "addresses_groups": addresses_groups,
@@ -79,6 +71,27 @@ def _get_html_context(request):
         "knx_gateway": settings.KNX_ROOT,
         "gateway_ip": settings.GATEWAY_IP,
     }
+
+def minibrowser_maingroup_subaddresses(request, maingroup):
+    subgroups = [
+        subbroup
+        for subbroup in Groupaddress.objects.filter(maingroup=maingroup).values_list("subgroup", flat=True).distinct()
+    ]
+
+    return render(request, "knx/subgroups.xml", {"knx_gateway": settings.KNX_ROOT, "maingroup": maingroup, "subgroups": subgroups}, content_type="text/xml")
+
+def minibrowser_subgroup_addresses(request, maingroup, subgroup):
+    reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
+    baos_response = reader.baos_interface.sending_groupaddresses.values()
+    groupaddresses = {
+        groupaddress.get("name"): groupaddress.get("address")
+        for groupaddress in Groupaddress.objects.filter(address__in=baos_response, maingroup=maingroup, subgroup=subgroup).values("name", "address")
+    }
+
+    return render(request, "knx/subaddresses.xml", {"knx_gateway": settings.KNX_ROOT, "maingroup": maingroup, "subgroup": subgroup, "groupaddresses": groupaddresses}, content_type="text/xml")
+
+def minibrowser_groupaddress_values(request, maingroup, subgroup, groupaddress):
+    return render(request, "knx/minibrowser_groupaddress_values.xml", {"knx_gateway": settings.KNX_ROOT, "maingroup": maingroup, "subgroup": subgroup, "groupaddress": groupaddress}, content_type="text/xml")
 
 DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
 
