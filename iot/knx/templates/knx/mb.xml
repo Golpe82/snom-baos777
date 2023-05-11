@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<SnomIPPhoneMenu document_id='control'>
+<Title>KNX Snom</Title>
+{% if addresses_groups %}
+    {% for maingroup, subgroups in addresses_groups.items %}
+        <Menu Name='{{ maingroup }}'>
+        <Name>{{ maingroup }}</Name>
+        {% if subgroups %}
+            {% for subgroup, groupaddresses in subgroups.items %}
+                <Menu Name='{{ subgroup }}'>
+                <Name>{{ subgroup }}</Name>
+                {% if groupaddresses %}
+                    {% for name, groupaddress in groupaddresses.items %}
+                        <Menu Name='{{ name }}'>
+                        <Name>{{ name }}</Name>
+                        <!-- todo: check datapoint type in db and adapt the name and url values -->
+                            <MenuItem>
+                                <Name>on</Name>
+                                    <URL>{{knx_gateway}}write/{{ groupaddress }}/switch/on</URL>
+                            </MenuItem>
+                            <MenuItem>
+                                <Name>off</Name>
+                                    <URL>{{knx_gateway}}write/{{ groupaddress }}/switch/off</URL>
+                            </MenuItem>
+                        </Menu>
+                    {% endfor %}
+                {% else %}
+                    <MenuItem>
+                        <Name>no knx groupaddresses for this subgroup</Name>
+                    </MenuItem>
+                    <fetch mil='1500'>snom://mb_exit</fetch>
+                {% endif %}
+                </Menu>
+            {% endfor %}
+        {% else %}
+            <MenuItem>
+                <Name>no knx subgroups</Name>
+            </MenuItem>
+            <fetch mil='1500'>snom://mb_exit</fetch>
+        {% endif %}
+        </Menu>
+    {% endfor %}
+{% else %}
+    <MenuItem>
+        <Name>no knx groupaddresses</Name>
+    </MenuItem>
+    <fetch mil='1500'>snom://mb_exit</fetch>
+{% endif %}
+    <fetch mil='100000'>snom://mb_exit</fetch>
+    </SnomIPPhoneMenu>

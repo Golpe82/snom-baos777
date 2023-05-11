@@ -50,7 +50,7 @@ class HandleUploads:
             self.file_system.save(self.file.name, self.file)
 
             if file_type == '.csv':
-                self._update_xml(file)
+                # self._update_xml(file)
                 update_groupaddresses()
 
                 return 'Groupaddresses were uploaded and Snom default XML was created.'
@@ -59,11 +59,11 @@ class HandleUploads:
 
         return f'Choose first a { file_type } file'
 
-    def _update_xml(self, file):
-        self.remove_file_if_exists('minibrowser.xml')
-        xml_object = SnomXMLFactory(file)
-        xml_object.create_multi_xml()
-        xml_object.create_single_xml()
+    # def _update_xml(self, file):
+    #     self.remove_file_if_exists('minibrowser.xml')
+    #     xml_object = SnomXMLFactory(file)
+    #     xml_object.create_multi_xml()
+    #     xml_object.create_single_xml()
 
     def remove_file_if_exists(self, file=None):
         if file:

@@ -34,6 +34,35 @@ PASSWORD = "admin"
 
 
 def index(request):
+    if "snom" in request.META['HTTP_USER_AGENT']:
+        context = _get_xml_context()
+        return render(request, "knx/mb.xml", context, content_type="text/xml")
+
+    context = _get_html_context()
+    return render(request, "knx/addresses_groups.html", context)
+
+
+def _get_xml_context():
+    reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
+    baos_response = reader.baos_interface.sending_groupaddresses.values()
+    addresses_groups = {
+        maingroup[0]: {
+            item.subgroup: {
+                item.name: item.address
+                for item in Groupaddress.objects.filter(address__in=baos_response, maingroup=maingroup[0], subgroup=item.subgroup)
+            }
+            for item in Groupaddress.objects.filter(maingroup=maingroup[0])
+        }
+        for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
+    }
+    
+    return {
+        "addresses_groups": addresses_groups,
+        "knx_gateway": settings.KNX_ROOT,
+    }
+
+
+def _get_html_context(request):
     addresses_groups = {
         maingroup[0]: {
             item.subgroup
@@ -42,7 +71,7 @@ def index(request):
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     }
 
-    context = {
+    return {
         "project": settings.PROJECT_NAME,
         "app": APP,
         "page": "Groupaddresses",
@@ -50,9 +79,6 @@ def index(request):
         "knx_gateway": settings.KNX_ROOT,
         "gateway_ip": settings.GATEWAY_IP,
     }
-
-    return render(request, "knx/addresses_groups.html", context)
-
 
 DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
 
@@ -203,6 +229,19 @@ def addresses(request, maingroup, subgroup):
         "page": f"{maingroup} {subgroup}",
         "groupaddresses": groupaddresses,
     }
+    logging.error(request.META['HTTP_USER_AGENT'])
+
+    # if "snom" in request.META['HTTP_USER_AGENT']:
+    #     return HttpResponse(
+    #         """
+    #         <SnomIPPhoneText>
+    #             <Text>knx group</Text>
+    #             <fetch mil=1500>snom://mb_exit</fetch>
+    #         </SnomIPPhoneText>
+    #         """,
+    #         content_type="text/xml",
+    #     )
+        #return render(request, "knx/mb.xml", context, content_type="text/xml")
 
     return render(request, "knx/groupaddresses.html", context)
 
