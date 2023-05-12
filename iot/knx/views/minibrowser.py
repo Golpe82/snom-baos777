@@ -7,7 +7,7 @@ from django.shortcuts import render
 
 from knx.models import Groupaddress
 
-sys.path.append("..")
+sys.path.append("/usr/local/gateway")
 
 import baos777.baos_websocket as baos_ws
 
