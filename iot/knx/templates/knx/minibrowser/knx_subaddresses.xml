@@ -6,11 +6,10 @@
     {% for name, subaddress in subaddresses.items %}
         {% for groupaddress, status in subaddress.items %}
             <MenuItem>
-                <Image default="{{knx_gateway}}media/minibrowser/images/dnd.png">{{knx_gateway}}media/minibrowser/images/{{status}}.png</Image>
-                <!-- <Image default="file:///bmp/colored/snom_photo_unknown.png">http://docs.snom.io/xml_minibrowser/examples/img/Icon_radiation.png</Image> -->
-                <!-- <Name>{{name}}</Name> -->
-                <Name>{{knx_gateway}}media/minibrowser/images/{{status}}.png</Name>
-                <URL>{{knx_gateway}}minibrowser/{{subaddress}}/</URL>
+                <Image default="file:///bmp/colored/snom_photo_unknown.png">{{knx_gateway}}media/minibrowser/images/{{status}}.png</Image>
+                <extratext>{{status}}</extratext>
+                <Name>{{name}}</Name>
+                <URL>{{knx_gateway}}minibrowser/{{groupaddress}}/</URL>
             </MenuItem>
         {% endfor %}
     {% endfor %}

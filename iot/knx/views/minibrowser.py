@@ -46,8 +46,6 @@ def minibrowser_subaddresses(request, mainaddress, middaddress):
         groupaddress.get("name"): {groupaddress.get("address"): reader.baos_interface.read_value(groupaddress.get("address"))}
         for groupaddress in Groupaddress.objects.filter(address__in=baos_response, maingroup=mainaddress, subgroup=middaddress).values("name", "address")
     }
-    for a, b in subaddresses.items():
-        logging.error(b)
 
     context = {
         "knx_gateway": settings.KNX_ROOT,
