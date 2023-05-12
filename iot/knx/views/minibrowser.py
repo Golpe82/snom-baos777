@@ -1,5 +1,6 @@
 
 import sys
+import logging
 
 from django.conf import settings
 from django.shortcuts import render
@@ -42,9 +43,12 @@ def minibrowser_subaddresses(request, mainaddress, middaddress):
     reader = baos_ws.KNXReadWebsocket(BAOS_USERNAME, BAOS_PASSWORD)
     baos_response = reader.baos_interface.sending_groupaddresses.values()
     subaddresses = {
-        groupaddress.get("name"): groupaddress.get("address")
+        groupaddress.get("name"): {groupaddress.get("address"): reader.baos_interface.read_value(groupaddress.get("address"))}
         for groupaddress in Groupaddress.objects.filter(address__in=baos_response, maingroup=mainaddress, subgroup=middaddress).values("name", "address")
     }
+    for a, b in subaddresses.items():
+        logging.error(b)
+
     context = {
         "knx_gateway": settings.KNX_ROOT,
         "mainaddress": mainaddress,
