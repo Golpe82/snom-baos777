@@ -1,5 +1,5 @@
 """knx app URLs configuration"""
-from django.urls import path, re_path
+from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -18,10 +18,10 @@ urlpatterns = [
     path(
         "addresses/<str:maingroup>/<str:subgroup>/", views.addresses, name="addresses"
     ),
-    path("minibrowser/<str:maingroup>/", views.minibrowser_maingroup_subaddresses, name="mb_maingroup_subgroups"),
-    path("minibrowser/<str:maingroup>/<str:subgroup>/", views.minibrowser_subgroup_addresses, name="mb_subgroup_addresses"),
-    path("minibrowser/<str:maingroup>/<str:subgroup>/<str:groupaddress>/", views.minibrowser_groupaddress_values, name="mb_groupaddress_values"),
     path("minibrowser/", views.minibrowser, name="minibrowser"),
+    path("minibrowser/<str:mainaddress>/", views.minibrowser_middaddresses, name="mb_middaddresses"),
+    path("minibrowser/<str:mainaddress>/<str:middaddress>/", views.minibrowser_subaddresses, name="mb_subaddresses"),
+    path("minibrowser/<str:mainaddress>/<str:middaddress>/<str:subaddress>/", views.minibrowser_values, name="mb_values"),
     path("upload/", views.upload_file, name="upload_file"),
     path("values/", views.render_sensor_values, name="render_values"),
     path("groupaddresses/", views.render_groupaddresses, name="groupaddresses"),

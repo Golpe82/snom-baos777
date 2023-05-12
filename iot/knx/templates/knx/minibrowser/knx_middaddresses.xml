@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 
 <SnomIPPhoneMenu document_id='control'>
-<Title>KNX Snom</Title>
-{% if groupaddresses %}
-    {% for name, groupaddress in groupaddresses.items %}
+<Title>{{mainaddress}}</Title>
+{% if middaddresses %}
+    {% for middaddress in middaddresses %}
         <MenuItem>
-        <Name>{{name}}</Name>
-            <URL>{{knx_gateway}}minibrowser/{{groupaddress}}/</URL>
+        <Name>{{middaddress}}</Name>
+            <URL>{{knx_gateway}}minibrowser/{{mainaddress}}/{{middaddress}}/</URL>
         </MenuItem>
     {% endfor %}
 {% else %}
     <MenuItem>
-        <Name>no knx groupaddresses</Name>
+        <Name>no knx middaddresses</Name>
     </MenuItem>
     <fetch mil='1500'>snom://mb_exit</fetch>
 {% endif %}

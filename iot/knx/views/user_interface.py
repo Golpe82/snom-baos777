@@ -7,7 +7,7 @@ from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 from time import sleep
 
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from knx import upload
@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 import sys
 
-sys.path.append("/usr/local/gateway")
+sys.path.append("..")
 
 import baos777.baos_websocket as baos_ws
 
@@ -35,26 +35,8 @@ PASSWORD = "admin"
 
 def index(request):
     if "snom" in request.META['HTTP_USER_AGENT']:
-        context = _get_xml_maingroups_context()
-        return render(request, "knx/maingroups.xml", context, content_type="text/xml")
+        return redirect(f"{settings.KNX_ROOT}minibrowser/")
 
-    context = _get_html_context()
-    return render(request, "knx/addresses_groups.html", context)
-
-
-def _get_xml_maingroups_context():
-    addresses_groups = [
-        maingroup[0]
-        for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
-    ]
-    
-    return {
-        "addresses_groups": addresses_groups,
-        "knx_gateway": settings.KNX_ROOT,
-    }
-
-
-def _get_html_context(request):
     addresses_groups = {
         maingroup[0]: {
             item.subgroup
@@ -63,7 +45,7 @@ def _get_html_context(request):
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     }
 
-    return {
+    context =  {
         "project": settings.PROJECT_NAME,
         "app": APP,
         "page": "Groupaddresses",
@@ -71,27 +53,7 @@ def _get_html_context(request):
         "knx_gateway": settings.KNX_ROOT,
         "gateway_ip": settings.GATEWAY_IP,
     }
-
-def minibrowser_maingroup_subaddresses(request, maingroup):
-    subgroups = [
-        subbroup
-        for subbroup in Groupaddress.objects.filter(maingroup=maingroup).values_list("subgroup", flat=True).distinct()
-    ]
-
-    return render(request, "knx/subgroups.xml", {"knx_gateway": settings.KNX_ROOT, "maingroup": maingroup, "subgroups": subgroups}, content_type="text/xml")
-
-def minibrowser_subgroup_addresses(request, maingroup, subgroup):
-    reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
-    baos_response = reader.baos_interface.sending_groupaddresses.values()
-    groupaddresses = {
-        groupaddress.get("name"): groupaddress.get("address")
-        for groupaddress in Groupaddress.objects.filter(address__in=baos_response, maingroup=maingroup, subgroup=subgroup).values("name", "address")
-    }
-
-    return render(request, "knx/subaddresses.xml", {"knx_gateway": settings.KNX_ROOT, "maingroup": maingroup, "subgroup": subgroup, "groupaddresses": groupaddresses}, content_type="text/xml")
-
-def minibrowser_groupaddress_values(request, maingroup, subgroup, groupaddress):
-    return render(request, "knx/minibrowser_groupaddress_values.xml", {"knx_gateway": settings.KNX_ROOT, "maingroup": maingroup, "subgroup": subgroup, "groupaddress": groupaddress}, content_type="text/xml")
+    return render(request, "knx/addresses_groups.html", context)
 
 DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
 
@@ -242,38 +204,25 @@ def addresses(request, maingroup, subgroup):
         "page": f"{maingroup} {subgroup}",
         "groupaddresses": groupaddresses,
     }
-    logging.error(request.META['HTTP_USER_AGENT'])
-
-    # if "snom" in request.META['HTTP_USER_AGENT']:
-    #     return HttpResponse(
-    #         """
-    #         <SnomIPPhoneText>
-    #             <Text>knx group</Text>
-    #             <fetch mil=1500>snom://mb_exit</fetch>
-    #         </SnomIPPhoneText>
-    #         """,
-    #         content_type="text/xml",
-    #     )
-        #return render(request, "knx/mb.xml", context, content_type="text/xml")
 
     return render(request, "knx/groupaddresses.html", context)
 
 
-def minibrowser(request):
-    if os.path.exists(settings.XML_TARGET_PATH):
-        return render(
-            request, "knx/minibrowser.xml", content_type="application/xhtml+xml"
-        )
+# def minibrowser(request):
+#     if os.path.exists(settings.XML_TARGET_PATH):
+#         return render(
+#             request, "knx/minibrowser.xml", content_type="application/xhtml+xml"
+#         )
 
-    context = {
-        "project": settings.PROJECT_NAME,
-        "app": APP,
-        "page": "Minibrowser",
-        "addresses": None,
-        "knx_gateway": settings.KNX_ROOT,
-    }
+#     context = {
+#         "project": settings.PROJECT_NAME,
+#         "app": APP,
+#         "page": "Minibrowser",
+#         "addresses": None,
+#         "knx_gateway": settings.KNX_ROOT,
+#     }
 
-    return render(request, "knx/groupaddresses.html", context)
+#     return render(request, "knx/groupaddresses.html", context)
 
 
 def upload_file(request):

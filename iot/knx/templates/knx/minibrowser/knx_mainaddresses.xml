@@ -2,16 +2,16 @@
 
 <SnomIPPhoneMenu document_id='control'>
 <Title>KNX Snom</Title>
-{% if addresses_groups %}
-    {% for maingroup in addresses_groups %}
+{% if mainaddresses %}
+    {% for mainaddress in mainaddresses %}
         <MenuItem>
-        <Name>{{maingroup}}</Name>
-            <URL>{{knx_gateway}}minibrowser/{{maingroup}}/</URL>
+        <Name>{{mainaddress}}</Name>
+            <URL>{{knx_gateway}}minibrowser/{{mainaddress}}/</URL>
         </MenuItem>
     {% endfor %}
 {% else %}
     <MenuItem>
-        <Name>no knx maingroupaddresses</Name>
+        <Name>no knx mainaddresses</Name>
     </MenuItem>
     <fetch mil='1500'>snom://mb_exit</fetch>
 {% endif %}

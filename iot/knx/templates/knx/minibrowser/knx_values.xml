@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 
 <SnomIPPhoneMenu document_id='control'>
-<Title>KNX Snom</Title>
+<Title>{{groupaddress_name}}</Title>
     <MenuItem>
         <Name>on</Name>
-            <URL>{{knx_gateway}}write/{{ maingroup }}/{{ subgroup }}/{{ groupaddress }}/switch/on</URL>
+            <URL>{{knx_gateway}}write/{{ groupaddress }}/switch/on</URL>
     </MenuItem>
     <MenuItem>
         <Name>off</Name>
-            <URL>{{knx_gateway}}write/{{ maingroup }}/{{ subgroup }}/{{ groupaddress }}/switch/off</URL>
+            <URL>{{knx_gateway}}write/{{ groupaddress }}/switch/off</URL>
     </MenuItem>
     <fetch mil='100000'>snom://mb_exit</fetch>
 </SnomIPPhoneMenu>

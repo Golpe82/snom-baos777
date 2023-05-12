@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 
 <SnomIPPhoneMenu document_id='control'>
-<Title>KNX Snom</Title>
-{% if subgroups %}
-    {% for subgroup in subgroups %}
+<Title>{{mainaddress}}/{{middaddress}}</Title>
+{% if subaddresses %}
+    {% for name, subaddress in subaddresses.items %}
         <MenuItem>
-        <Name>{{subgroup}}</Name>
-            <URL>{{knx_gateway}}minibrowser/{{maingroup}}/{{subgroup}}/</URL>
+        <Name>{{name}}</Name>
+            <URL>{{knx_gateway}}minibrowser/{{subaddress}}/</URL>
         </MenuItem>
     {% endfor %}
 {% else %}
     <MenuItem>
-        <Name>no knx subgroupaddresses</Name>
+        <Name>no knx middaddresses</Name>
     </MenuItem>
     <fetch mil='1500'>snom://mb_exit</fetch>
 {% endif %}
