@@ -140,9 +140,8 @@ class BAOS777Interface:
                 groupaddress
             )
             logging.debug(f"Groupaddress datapoint information:\n{datapoint_information}")
-            datapoint_format = datapoint_information.get("datapoint format")
 
-            return self._format_value(raw_value, datapoint_format)
+            return self._format_value(raw_value, datapoint_information)
         else:
             logging.error(f"{groupaddress} is not a sending groupaddress in BAOS 777 device: parametrize it in ETS.")
 
@@ -155,11 +154,12 @@ class BAOS777Interface:
 
             return response.get("value")
         else:
-            logging.error(f"{groupaddress} is not a sending groupaddress in BAOS 777 device: parametrize it in ETS.")
-        
+            logging.error(f"{groupaddress} is not a sending groupaddress in BAOS 777 device: parametrize it in ETS.")   
 
-    def _format_value(self, raw_value, datapoint_format):
+    def _format_value(self, raw_value, datapoint_information):
         formatted_value = ""
+        datapoint_format = datapoint_information.get("datapoint format")
+        datapoint_type = datapoint_information.get("datapoint type")
 
         if datapoint_format == "DPT1":
             if raw_value == True:
@@ -171,6 +171,8 @@ class BAOS777Interface:
         elif datapoint_format == "DPT5":
             formatted_value = f"{round(raw_value*100/255)}%"
         elif datapoint_format == "DPT9":
+            if datapoint_type == "9.004":
+                formatted_value = f"{raw_value} Lux"
             formatted_value = f"{raw_value} °C"
         else:
             formatted_value = f"unknown datapoint format {datapoint_format}"
