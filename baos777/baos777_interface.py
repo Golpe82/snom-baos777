@@ -38,10 +38,10 @@ class BAOS777Interface:
                 response.raise_for_status()
         except Exception:
             logging.error(("unable to get datapoints"))
+        else:
+            response_text = json.loads(response.text)
 
-        response_text = json.loads(response.text)
-
-        return response_text.get("datapoints")
+            return response_text.get("datapoints")
 
     def _get_datapoints_ids(self):
         return [datapoint_id.get("id") for datapoint_id in self.datapoints]

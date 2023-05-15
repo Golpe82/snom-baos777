@@ -55,7 +55,7 @@ class BaseWebsocket(ABC):
             http_handler.handle(exception=e)
 
         except requests.exceptions.ConnectionError:
-            logging.error("BAOS 777 not reachable, ConnectionError.")
+            logging.error(f"BAOS 777 not reachable under url {login_url} and credentials {credentials}, ConnectionError.")
 
         else:
             self._set_token(response.text)
