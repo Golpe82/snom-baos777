@@ -20,10 +20,10 @@ if logging.getLogger().level == logging.DEBUG:
     websocket.enableTrace(True)
 
 
-# KNX_GATEWAY = "10.110.16.59:8000"
-# BAOS777_IP = "10.110.16.63"
-KNX_GATEWAY = "192.168.178.47:8000"
-BAOS777_IP = "192.168.178.41"
+KNX_GATEWAY = "10.110.16.59:8000"
+BAOS777_IP = "10.110.16.63"
+# KNX_GATEWAY = "192.168.178.47:8000"
+# BAOS777_IP = "192.168.178.41"
 
 
 class BaseWebsocket(ABC):
