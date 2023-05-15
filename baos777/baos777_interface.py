@@ -139,7 +139,7 @@ class BAOS777Interface:
             datapoint_information = self._get_datapoint_information_by_groupaddress(
                 groupaddress
             )
-            logging.debug(f"Groupaddress datapoint information:\n{datapoint_information}")
+            logging.info(f"Groupaddress datapoint information:\n{datapoint_information}")
 
             return self._format_value(raw_value, datapoint_information)
         else:
