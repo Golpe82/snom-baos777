@@ -16,5 +16,11 @@
     </MenuItem>
     <fetch mil='1500'>{{callback_url}}</fetch>
 {% endif %}
+    <SoftKeyItem>
+        <Name>F1</Name>
+        <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
+        <Label>Back</Label>
+        <URL>{{callback_url}}</URL>
+    </SoftKeyItem>
     <fetch mil='100000'>snom://mb_exit</fetch>
 </SnomIPPhoneMenu>
