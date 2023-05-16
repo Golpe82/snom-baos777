@@ -127,10 +127,11 @@ class FunctionKeyLEDSubscriptions(models.Model):
         content = f"""
             <?xml version="1.0" encoding="UTF-8"?>
             <SnomIPPhoneText>
+                <Title>LED subscription</Title>
                 <Text>Groupaddress {self.knx_subscription} changed to on</Text>
                 <LED number="{self.led_number_for_on}" color="green">On</LED>
                 <LED number="{self.led_number_for_off}">Off</LED>
-                <fetch mil=1500>snom://mb_exit</fetch>
+                <fetch mil=1>snom://mb_exit</fetch>
             </SnomIPPhoneText>
         """
 
@@ -166,10 +167,11 @@ class FunctionKeyLEDSubscriptions(models.Model):
         content =  f"""
         <?xml version="1.0" encoding="UTF-8"?>
         <SnomIPPhoneText>
+            <Title>LED subscription</Title>
             <Text>Groupaddress {self.knx_subscription} changed to off</Text>
             <LED number="{self.led_number_for_on}">Off</LED>
             <LED number="{self.led_number_for_off}" color="green">On</LED>
-            <fetch mil=1500>snom://mb_exit</fetch>
+            <fetch mil=1>snom://mb_exit</fetch>
         </SnomIPPhoneText>
         """
 
