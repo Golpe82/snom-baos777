@@ -8,7 +8,7 @@ from django.http import HttpResponse
 
 from knx.models import Groupaddress
 
-sys.path.append("..")
+sys.path.append("/usr/local/gateway")
 
 import baos777.baos_websocket as baos_ws
 
