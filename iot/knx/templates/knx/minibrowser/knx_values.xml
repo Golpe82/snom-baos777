@@ -6,6 +6,12 @@
     {% for value in values %}
         <MenuItem>
             <Name>{{value}}</Name>
+            <SoftKeyItem>
+                <Name>F1</Name>
+                <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
+                <Label>Back</Label>
+                <URL>{{callback_url}}</URL>
+            </SoftKeyItem>
                 <URL>{{ knx_gateway }}{{ action }}/{{ groupaddress }}/{{function}}/{{value}}</URL>
         </MenuItem>
         <fetch mil='5000'>{{callback_url}}</fetch>
@@ -13,14 +19,15 @@
 {% else %}
     <MenuItem>
         <Name>Last value: {{status}}</Name>
+        <SoftKeyItem>
+            <Name>F1</Name>
+            <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
+            <Label>Back</Label>
+            <URL>{{callback_url}}</URL>
+        </SoftKeyItem>
     </MenuItem>
     <fetch mil='1500'>{{callback_url}}</fetch>
 {% endif %}
-    <SoftKeyItem>
-        <Name>F1</Name>
-        <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
-        <Label>Back</Label>
-        <URL>{{callback_url}}</URL>
-    </SoftKeyItem>
+
     <fetch mil='100000'>snom://mb_exit</fetch>
 </SnomIPPhoneMenu>
