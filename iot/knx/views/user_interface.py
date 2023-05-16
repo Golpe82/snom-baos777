@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 import sys
 
-sys.path.append("/usr/local/gateway")
+sys.path.append("..")
 
 import baos777.baos_websocket as baos_ws
 
@@ -206,24 +206,6 @@ def addresses(request, maingroup, subgroup):
     }
 
     return render(request, "knx/groupaddresses.html", context)
-
-
-# def minibrowser(request):
-#     if os.path.exists(settings.XML_TARGET_PATH):
-#         return render(
-#             request, "knx/minibrowser.xml", content_type="application/xhtml+xml"
-#         )
-
-#     context = {
-#         "project": settings.PROJECT_NAME,
-#         "app": APP,
-#         "page": "Minibrowser",
-#         "addresses": None,
-#         "knx_gateway": settings.KNX_ROOT,
-#     }
-
-#     return render(request, "knx/groupaddresses.html", context)
-
 
 def upload_file(request):
     context = {

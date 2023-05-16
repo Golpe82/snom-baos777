@@ -17,7 +17,7 @@
     <MenuItem>
         <Name>no knx subaddresses</Name>
     </MenuItem>
-    <fetch mil='1500'>snom://mb_exit</fetch>
+    <fetch mil='1500'>{{knx_gateway}}minibrowser/{{mainaddress}}/</fetch>
 {% endif %}
     <fetch mil='100000'>snom://mb_exit</fetch>
 </SnomIPPhoneMenu>

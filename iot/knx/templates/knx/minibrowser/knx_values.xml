@@ -1,14 +1,20 @@
 <?xml version="1.0"?>
 
 <SnomIPPhoneMenu document_id='control'>
-<Title>{{groupaddress_name}}</Title>
+<Title>{{groupaddress_name}}. Last value: {{status}}</Title>
+{% if values %}
+    {% for value in values %}
+        <MenuItem>
+            <Name>{{value}}</Name>
+                <URL>{{ knx_gateway }}{{ action }}/{{ groupaddress }}/{{function}}/{{value}}</URL>
+        </MenuItem>
+        <fetch mil='5000'>{{callback_url}}</fetch>
+    {% endfor %}
+{% else %}
     <MenuItem>
-        <Name>on</Name>
-            <URL>{{knx_gateway}}write/{{ groupaddress }}/switch/on</URL>
+        <Name>Last value: {{status}}</Name>
     </MenuItem>
-    <MenuItem>
-        <Name>off</Name>
-            <URL>{{knx_gateway}}write/{{ groupaddress }}/switch/off</URL>
-    </MenuItem>
+    <fetch mil='1500'>{{callback_url}}</fetch>
+{% endif %}
     <fetch mil='100000'>snom://mb_exit</fetch>
 </SnomIPPhoneMenu>

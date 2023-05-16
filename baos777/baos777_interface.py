@@ -139,7 +139,7 @@ class BAOS777Interface:
             datapoint_information = self._get_datapoint_information_by_groupaddress(
                 groupaddress
             )
-            logging.info(f"Groupaddress datapoint information:\n{datapoint_information}")
+            logging.debug(f"Groupaddress datapoint information:\n{datapoint_information}")
 
             return self._format_value(raw_value, datapoint_information)
         else:
@@ -185,7 +185,6 @@ class BAOS777Interface:
             datapoint_information = self.datapoints_information.get(datapoint_id)
             datapoint_format = datapoint_information.get("datapoint format")
             url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
-            logging.info(f"sending {url}")
             payload = {
                 "command": cmd.SET_VALUE_AND_SEND_ON_BUS,
                 "value": self._get_datapoint_raw_value(datapoint_format, value),
