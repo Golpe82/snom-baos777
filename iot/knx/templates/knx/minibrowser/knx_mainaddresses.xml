@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<SnomIPPhoneMenu document_id='control'>
+<Title>KNX Snom</Title>
+{% if mainaddresses %}
+    {% for mainaddress in mainaddresses %}
+        <MenuItem>
+        <Name>{{mainaddress}}</Name>
+            <URL>{{knx_gateway}}minibrowser/{{mainaddress}}/</URL>
+        </MenuItem>
+    {% endfor %}
+{% else %}
+    <MenuItem>
+        <Name>no knx mainaddresses</Name>
+    </MenuItem>
+    <fetch mil='1500'>snom://mb_exit</fetch>
+{% endif %}
+    <SoftKeyItem>
+        <Name>F1</Name>
+        <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
+        <Label>Back</Label>
+        <URL>snom://mb_exit</URL>
+    </SoftKeyItem>
+    <fetch mil='100000'>snom://mb_exit</fetch>
+</SnomIPPhoneMenu>

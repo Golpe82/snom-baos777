@@ -7,7 +7,7 @@ from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 from time import sleep
 
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from knx import upload
@@ -34,6 +34,9 @@ PASSWORD = "admin"
 
 
 def index(request):
+    if "snom" in request.META['HTTP_USER_AGENT']:
+        return redirect(f"{settings.KNX_ROOT}minibrowser/")
+
     addresses_groups = {
         maingroup[0]: {
             item.subgroup
@@ -42,7 +45,7 @@ def index(request):
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     }
 
-    context = {
+    context =  {
         "project": settings.PROJECT_NAME,
         "app": APP,
         "page": "Groupaddresses",
@@ -50,9 +53,7 @@ def index(request):
         "knx_gateway": settings.KNX_ROOT,
         "gateway_ip": settings.GATEWAY_IP,
     }
-
     return render(request, "knx/addresses_groups.html", context)
-
 
 DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
 
@@ -205,24 +206,6 @@ def addresses(request, maingroup, subgroup):
     }
 
     return render(request, "knx/groupaddresses.html", context)
-
-
-def minibrowser(request):
-    if os.path.exists(settings.XML_TARGET_PATH):
-        return render(
-            request, "knx/minibrowser.xml", content_type="application/xhtml+xml"
-        )
-
-    context = {
-        "project": settings.PROJECT_NAME,
-        "app": APP,
-        "page": "Minibrowser",
-        "addresses": None,
-        "knx_gateway": settings.KNX_ROOT,
-    }
-
-    return render(request, "knx/groupaddresses.html", context)
-
 
 def upload_file(request):
     context = {

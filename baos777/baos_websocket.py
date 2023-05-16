@@ -20,10 +20,10 @@ if logging.getLogger().level == logging.DEBUG:
     websocket.enableTrace(True)
 
 
-# KNX_GATEWAY = "10.110.16.59:8000"
-# BAOS777_IP = "10.110.16.63"
-KNX_GATEWAY = "192.168.178.47:8000"
-BAOS777_IP = "192.168.178.41"
+KNX_GATEWAY = "10.110.16.59:8000"
+BAOS777_IP = "10.110.16.63"
+# KNX_GATEWAY = "192.168.178.47:8000"
+# BAOS777_IP = "192.168.178.41"
 
 
 class BaseWebsocket(ABC):
@@ -55,7 +55,7 @@ class BaseWebsocket(ABC):
             http_handler.handle(exception=e)
 
         except requests.exceptions.ConnectionError:
-            logging.error("BAOS 777 not reachable, ConnectionError.")
+            logging.error(f"BAOS 777 not reachable under url {login_url} and credentials {credentials}, ConnectionError.")
 
         else:
             self._set_token(response.text)

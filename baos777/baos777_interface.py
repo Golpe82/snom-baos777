@@ -6,7 +6,8 @@ from http import HTTPStatus
 from baos777.constants import BAOS777Commands as cmd
 from baos777.datapoint_values import DatapointValue
 
-BAOS777_IP = "192.168.178.41"
+# BAOS777_IP = "192.168.178.41"
+BAOS777_IP = "10.110.16.63"
 SERVER_URL = f"http://{BAOS777_IP}/"
 WEBSOCKET_PATH = "websocket/"
 REST_API_PATH = "rest/"
@@ -37,10 +38,10 @@ class BAOS777Interface:
                 response.raise_for_status()
         except Exception:
             logging.error(("unable to get datapoints"))
+        else:
+            response_text = json.loads(response.text)
 
-        response_text = json.loads(response.text)
-
-        return response_text.get("datapoints")
+            return response_text.get("datapoints")
 
     def _get_datapoints_ids(self):
         return [datapoint_id.get("id") for datapoint_id in self.datapoints]
@@ -139,9 +140,8 @@ class BAOS777Interface:
                 groupaddress
             )
             logging.debug(f"Groupaddress datapoint information:\n{datapoint_information}")
-            datapoint_format = datapoint_information.get("datapoint format")
 
-            return self._format_value(raw_value, datapoint_format)
+            return self._format_value(raw_value, datapoint_information)
         else:
             logging.error(f"{groupaddress} is not a sending groupaddress in BAOS 777 device: parametrize it in ETS.")
 
@@ -154,11 +154,12 @@ class BAOS777Interface:
 
             return response.get("value")
         else:
-            logging.error(f"{groupaddress} is not a sending groupaddress in BAOS 777 device: parametrize it in ETS.")
-        
+            logging.error(f"{groupaddress} is not a sending groupaddress in BAOS 777 device: parametrize it in ETS.")   
 
-    def _format_value(self, raw_value, datapoint_format):
+    def _format_value(self, raw_value, datapoint_information):
         formatted_value = ""
+        datapoint_format = datapoint_information.get("datapoint format")
+        datapoint_type = datapoint_information.get("datapoint type")
 
         if datapoint_format == "DPT1":
             if raw_value == True:
@@ -170,6 +171,8 @@ class BAOS777Interface:
         elif datapoint_format == "DPT5":
             formatted_value = f"{round(raw_value*100/255)}%"
         elif datapoint_format == "DPT9":
+            if datapoint_type == "9.004":
+                formatted_value = f"{raw_value} Lux"
             formatted_value = f"{raw_value} °C"
         else:
             formatted_value = f"unknown datapoint format {datapoint_format}"

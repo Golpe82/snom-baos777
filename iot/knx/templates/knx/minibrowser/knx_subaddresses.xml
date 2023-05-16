@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<SnomIPPhoneMenu document_id='control'>
+<Title>{{mainaddress}}/{{middaddress}}</Title>
+{% if subaddresses %}
+    {% for name, subaddress in subaddresses.items %}
+        {% for groupaddress, status in subaddress.items %}
+            <MenuItem>
+                <Image default="file:///bmp/colored/snom_photo_unknown.png">{{knx_gateway}}media/minibrowser/images/{{status}}.png</Image>
+                <extratext>{{status}}</extratext>
+                <Name>{{name}}</Name>
+                <URL>{{knx_gateway}}minibrowser/{{groupaddress}}/</URL>
+            </MenuItem>
+        {% endfor %}
+    {% endfor %}
+{% else %}
+    <MenuItem>
+        <Name>no knx subaddresses</Name>
+    </MenuItem>
+    <fetch mil='1500'>{{knx_gateway}}minibrowser/{{mainaddress}}/</fetch>
+{% endif %}
+    <SoftKeyItem>
+        <Name>F1</Name>
+        <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
+        <Label>Back</Label>
+        <URL>{{knx_gateway}}minibrowser/{{mainaddress}}/</URL>
+    </SoftKeyItem>
+    <fetch mil='100000'>snom://mb_exit</fetch>
+</SnomIPPhoneMenu>

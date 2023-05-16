@@ -106,7 +106,6 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
             if als_value < client_min_brightness:
                 brightness_status_address = als_relation.get("dimm status groupaddress")
                 brightness_status = knx_reader.baos_interface.read_value(brightness_status_address)
-                logging.error(brightness_status)
 
                 if brightness_status != "100%":
                     knx_writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
