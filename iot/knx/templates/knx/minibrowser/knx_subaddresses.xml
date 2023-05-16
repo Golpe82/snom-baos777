@@ -10,26 +10,20 @@
                 <extratext>{{status}}</extratext>
                 <Name>{{name}}</Name>
                 <URL>{{knx_gateway}}minibrowser/{{groupaddress}}/</URL>
-                <SoftKeyItem>
-                    <Name>F1</Name>
-                    <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
-                    <Label>Back</Label>
-                    <URL>{{knx_gateway}}minibrowser/{{mainaddress}}/</URL>
-                </SoftKeyItem>
             </MenuItem>
         {% endfor %}
     {% endfor %}
 {% else %}
     <MenuItem>
         <Name>no knx subaddresses</Name>
-        <SoftKeyItem>
-            <Name>F1</Name>
-            <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
-            <Label>Back</Label>
-            <URL>{{knx_gateway}}minibrowser/{{mainaddress}}/</URL>
-        </SoftKeyItem>
     </MenuItem>
     <fetch mil='1500'>{{knx_gateway}}minibrowser/{{mainaddress}}/</fetch>
 {% endif %}
+    <SoftKeyItem>
+        <Name>F1</Name>
+        <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
+        <Label>Back</Label>
+        <URL>{{knx_gateway}}minibrowser/{{mainaddress}}/</URL>
+    </SoftKeyItem>
     <fetch mil='100000'>snom://mb_exit</fetch>
 </SnomIPPhoneMenu>
