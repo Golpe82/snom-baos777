@@ -1,7 +1,0 @@
-__pycache__
-bin
-build
-dist
-*.pdf
-*.pyc
-*.spec

@@ -4,8 +4,6 @@ import requests
 import socketserver
 import sys
 
-import getmac
-
 # add current folder to the system path
 sys.path.append("/usr/local/gateway")
 
@@ -20,8 +18,6 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
     def setup(self):
         logging.basicConfig(level=logging.INFO)
         self.client_ip = self.client_address[0]
-        source_mac_address = str(getmac.get_mac_address(ip=self.client_ip))
-        self.client_mac = source_mac_address.replace(":", "")
 
     @property
     def message(self):

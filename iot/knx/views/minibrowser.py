@@ -1,6 +1,5 @@
 
 import sys
-import logging
 
 from django.conf import settings
 from django.shortcuts import render
@@ -8,7 +7,7 @@ from django.http import HttpResponse
 
 from knx.models import Groupaddress
 
-sys.path.append("/usr/local/gateway")
+sys.path.append("..")
 
 import baos777.baos_websocket as baos_ws
 
