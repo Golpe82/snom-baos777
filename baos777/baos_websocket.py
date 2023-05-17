@@ -4,15 +4,18 @@ from abc import ABC, abstractmethod
 import logging
 import json
 from http import HTTPStatus
+import os
 
 import requests
 import websocket
+from dotenv import load_dotenv
 
 from baos777.http_handler import HTTPHandler
 from baos777.baos777_interface import BAOS777Interface
 from baos777.baos_indication_message import BAOSIndicationsMessage
 from baos777.datapoint_values import DPT1_VALUES
 from baos777 import utils
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,7 +24,7 @@ if logging.getLogger().level == logging.DEBUG:
 
 
 KNX_GATEWAY = "10.110.16.59:8000"
-BAOS777_IP = "10.110.16.63"
+BAOS777_IP = os.environ.get("BAOS777_IP")
 # KNX_GATEWAY = "192.168.178.47:8000"
 # BAOS777_IP = "192.168.178.41"
 

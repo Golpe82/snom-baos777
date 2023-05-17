@@ -14,26 +14,14 @@ load_dotenv()
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# IP Address of the KNX Gateway
+SECRET_KEY = os.environ.get("SECRET_KEY")
+DEBUG = os.environ.get("DEBUG")
+
 GATEWAY_IP = helpers.get_local_ip()
-
 HOSTNAME = f"{socket.gethostname()}.local"
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '-+%-e(6*1_!dcomw3yod)^8iobzhhu9u4yv83izw3@x2in6c)8'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = ['localhost', HOSTNAME, GATEWAY_IP]
-
-# Application definition
 
 INSTALLED_APPS = [
     'knx.apps.KnxConfig',
@@ -75,20 +63,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'iot.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': str(BASE_DIR / 'db.sqlite3'),
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -105,40 +85,19 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.1/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
+LANGUAGE_CODE = os.environ.get("LANGUAGE_CODE")
+TIME_ZONE = os.environ.get("TIME_ZONE")
+USE_I18N = os.environ.get("USE_I18N")
+USE_L10N = os.environ.get("USE_L10N")
+USE_TZ = os.environ.get("USE_TZ")
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../../static'))
 
 PROJECT_NAME = 'IoT'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'knx/media/')
 MEDIA_URL = 'knx/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 KNX_ROOT = f"http://{GATEWAY_IP}/knx/"
 
-CSV_SOURCE_PATH = f"{ MEDIA_ROOT }ga.csv"
-XML_TARGET_PATH = f"{ MEDIA_ROOT }knx.xml"
-
-#XML_TARGET_PATH='/usr/local/gateway/iot/knx/media'
-XML_TARGET_FILE='knx.xml'
-XML_TARGET_URL=f'{MEDIA_ROOT}{XML_TARGET_FILE}'
-
-# XML_TARGET_DIRECTORY='/var/www/html/knx_xml/'
-XML_TARGET_DIRECTORY='/var/www/html/knx_xml/'
+CSV_SOURCE_PATH = f"{MEDIA_ROOT}ga.csv"

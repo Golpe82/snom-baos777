@@ -21,12 +21,8 @@ urlpatterns = [
     path("minibrowser/<str:mainaddress>/<str:middaddress>/", views.minibrowser_subaddresses, name="mb_subaddresses"),
     path("minibrowser/<str:mainaddress>/<str:middaddress>/<str:subaddress>/", views.minibrowser_values, name="mb_values"),
     path("upload/", views.upload_file, name="upload_file"),
-    path("values/", views.render_sensor_values, name="render_values"),
     path("groupaddresses/", views.render_groupaddresses, name="groupaddresses"),
     path("rules/", views.get_rules, name="get_rules"),
-    path("dect-ule/", views.dect_ule, name="dect_ule"),
-    path("monitor/", views.knx_monitor, name="knx_monitor"),
-    path("status/", views.knx_status, name="knx_status"),
     # REST API URLs
     path("values", views.post_sensor_value, name="post_values"),
     path("status", views.post_knx_status, name="post_knx_status"),

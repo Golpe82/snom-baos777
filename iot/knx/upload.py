@@ -2,38 +2,22 @@ import os
 
 from django.core.files.storage import FileSystemStorage
 
-from knx.xml import SnomXMLFactory
 from knx.groupaddresses import update_groupaddresses
 from django.conf import settings
 
-SOURCE_FILE = settings.CSV_SOURCE_PATH
-CSV_FIELDS = {
-    'Group name': 0, 'Address': 1, 'Central': 2, 'Unfiltered': 3,
-    'Description': 4, 'DatapointType': 5, 'Security': 6,
-}
-
-
 def process_file(request):
-    TARGET_NAME = {'.csv': 'ga', '.xml': 'knx'}
+    if request.method != 'POST':
+        return ''
 
-    if request.method == 'POST':
-        uploaded_type = request.POST.get('file_type')
+    uploaded_type = request.POST.get('file_type')
 
-        if uploaded_type == '.csv':
-            file = request.FILES.get('groupaddresses', False)
-            post_request = HandleUploads(file)
+    if uploaded_type == '.csv':
+        file = request.FILES.get('groupaddresses', False)
+        post_request = HandleUploads(file)
 
-            return post_request.handle_file(TARGET_NAME.get('.csv'), uploaded_type)
+        return post_request.handle_file(uploaded_type)
 
-        if uploaded_type == '.xml':
-            file = request.FILES.get('minibrowser', False)
-            post_request = HandleUploads(file)
-
-            return post_request.handle_file(TARGET_NAME['.xml'], uploaded_type)
-
-        return 'Choose first a file'
-
-    return ''
+    return 'Choose first a .csv file'
 
 
 class HandleUploads:
@@ -41,8 +25,10 @@ class HandleUploads:
         self.file = file
         self.file_system = FileSystemStorage()
 
-    def handle_file(self, file_name, file_type):
-        file = f"{ file_name }{ file_type }"
+    def handle_file(self, file_type):
+        TARGET_NAME = {'.csv': 'ga'}
+        file_name = TARGET_NAME.get('.csv')
+        file = f"{file_name}{file_type}"
 
         if self.file and file_type in self.file.name:
             self.file.name = file
@@ -52,11 +38,11 @@ class HandleUploads:
             if file_type == '.csv':
                 update_groupaddresses()
 
-                return 'Groupaddresses were uploaded and Snom default XML was created.'
+                return 'Groupaddresses were uploaded.'
 
-            return 'Snom XML was updated'
+            return f'Wrong file type {file_type}'
 
-        return f'Choose first a { file_type } file'
+        return f'Choose first a {file_type }file'
 
     def remove_file_if_exists(self, file=None):
         if file:

@@ -103,11 +103,11 @@ class FunctionKeyLEDSubscriptions(models.Model):
 
     @property
     def knx_write_url_for_on(self):
-        return f"http://{settings.GATEWAY_IP}:8000/knx/write/{self.knx_subscription}/on"
+        return f"{settings.KNX_ROOT}write/{self.knx_subscription}/on"
 
     @property
     def knx_write_url_for_off(self):
-        return f"http://{settings.GATEWAY_IP}:8000/knx/write/{self.knx_subscription}/off"
+        return f"{settings.KNX_ROOT}write/{self.knx_subscription}/off"
 
     @property
     def on_change_xml_for_on(self):

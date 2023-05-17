@@ -109,7 +109,7 @@ def minibrowser_values(request, mainaddress, middaddress, subaddress):
                     <InputToken>__Y__</InputToken>
                     <InputFlags>n</InputFlags>
                 </InputItem>
-                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{mainaddress}/{middaddress}/{subaddress}/scaling/__Y__</Url>
+                <Url>{settings.KNX_ROOT}write/{mainaddress}/{middaddress}/{subaddress}/scaling/__Y__</Url>
             </SnomIPPhoneInput>
         """,
             content_type="text/xml",
