@@ -1,7 +1,5 @@
 """knx app URLs configuration"""
 from django.urls import path
-from django.conf import settings
-from django.conf.urls.static import static
 
 from knx import views
 
@@ -48,7 +46,3 @@ urlpatterns = [
     path("relations/ambient_light/ips/", views.ambient_light_sensor_relations_ips, name="als_relations_ips"),
     path("relations/ambient_light/<str:device_ip>/", views.ambient_light_sensor_relations, name="als_relations"),
 ]
-
-# serve during development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

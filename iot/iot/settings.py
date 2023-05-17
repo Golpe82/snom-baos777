@@ -40,9 +40,6 @@ ALLOWED_HOSTS = ['localhost', HOSTNAME, GATEWAY_IP]
 # Application definition
 
 INSTALLED_APPS = [
-    'snom_sensors.apps.SnomSensorsConfig',
-    'beacons.apps.BeaconsConfig',
-    'dect.apps.DectConfig',
     'knx.apps.KnxConfig',
     'django.contrib.admin',
     'django.contrib.auth',
