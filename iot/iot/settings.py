@@ -20,8 +20,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG")
 
 GATEWAY_IP = helpers.get_local_ip()
-HOSTNAME = f"{socket.gethostname()}.local"
-ALLOWED_HOSTS = ['localhost', HOSTNAME, GATEWAY_IP]
+ALLOWED_HOSTS = ['localhost', GATEWAY_IP]
 
 INSTALLED_APPS = [
     'knx.apps.KnxConfig',
