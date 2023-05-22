@@ -25,9 +25,6 @@ if logging.getLogger().level == logging.DEBUG:
 
 KNX_GATEWAY = os.environ.get("KNX_GATEWAY")
 BAOS777_IP = os.environ.get("BAOS777_IP")
-# KNX_GATEWAY = "192.168.178.47:8000"
-# BAOS777_IP = "192.168.178.41"
-
 
 class BaseWebsocket(ABC):
     def __init__(self, username, password):

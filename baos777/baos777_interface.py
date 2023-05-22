@@ -11,7 +11,6 @@ from baos777.datapoint_values import DatapointValue
 
 load_dotenv()
 
-# BAOS777_IP = "192.168.178.41"
 BAOS777_IP = os.environ.get("BAOS777_IP")
 SERVER_URL = f"http://{BAOS777_IP}/"
 WEBSOCKET_PATH = "websocket/"
