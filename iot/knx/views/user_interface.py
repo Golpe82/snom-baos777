@@ -44,15 +44,11 @@ def index(request):
         }
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     }
-
     context =  {
-        "project": settings.PROJECT_NAME,
         "app": APP,
-        "page": "Groupaddresses",
         "addresses_groups": addresses_groups,
-        "knx_gateway": settings.KNX_ROOT,
-        "gateway_ip": settings.GATEWAY_IP,
     }
+
     return render(request, "knx/addresses_groups.html", context)
 
 DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
@@ -74,7 +70,7 @@ def knx_write(request, main, midd, sub, dpt_name, value):
                     <InputToken>__Y__</InputToken>
                     <InputFlags>n</InputFlags>
                 </InputItem>
-                <Url>http://{settings.GATEWAY_IP}:8000/knx/write/{main}/{midd}/{sub}/scaling/__Y__</Url>
+                <Url>{settings.KNX_ROOT}write/{main}/{midd}/{sub}/scaling/__Y__</Url>
             </SnomIPPhoneInput>
         """,
             content_type="text/xml",
@@ -209,28 +205,11 @@ def addresses(request, maingroup, subgroup):
 
 def upload_file(request):
     context = {
-        "project": settings.PROJECT_NAME,
         "app": APP,
-        "page": "Upload",
         "message": upload.process_file(request),
     }
 
     return render(request, "knx/upload.html", context)
-
-
-def render_sensor_values(request):
-    if request.method == "POST":
-        message = "No post requests allowed"
-        logging.warning(message)
-    else:
-        message = "Ambientlight sensor values"
-
-    form = AlsFormSet()
-
-    context = {"form": form, "message": message}
-
-    return render(request, "knx/sensors_values.html", context)
-
 
 def render_groupaddresses(request):
     reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
@@ -255,49 +234,3 @@ def get_rules(request):
     )
 
     return HttpResponse(rules)
-
-
-def dect_ule(request):
-    CMD_ROOT = "/usr/local/opend/openD/dspg/base/ule-hub/"
-    INTERPRETER = "python3"
-    command = request.GET.get("cmd")
-
-    if command:
-        process = subprocess.run(f"{INTERPRETER} { CMD_ROOT }{command}", shell=True)
-        logging.info(f"Command { command } sent")
-        logging.info(f"Returncode: { process.returncode }")
-
-    context = {
-        "command": f"{INTERPRETER} { CMD_ROOT }{command}",
-        "project": settings.PROJECT_NAME,
-        "app": APP,
-        "page": "DECT ULE",
-    }
-
-    return render(request, "knx/dect_ule.html", context)
-
-
-def knx_monitor(request):
-    monitor = KnxMonitor.objects.all()
-
-    context = {
-        "monitor": monitor.values,
-        "project": settings.PROJECT_NAME,
-        "app": APP,
-        "page": "MONITOR",
-    }
-
-    return render(request, "knx/knx_monitor.html", context)
-
-
-def knx_status(request):
-    status = KnxStatus.objects.all()
-
-    context = {
-        "status": status,
-        "project": settings.PROJECT_NAME,
-        "app": APP,
-        "page": "STATUS",
-    }
-
-    return render(request, "knx/knx_status.html", context)
