@@ -1,14 +1,15 @@
 [Unit]
 Description=Service for Snom Iot Applications (Django)
-Requires=network.target
-After=snomiot.service
+After=network-online.target
+Wants=network-online.target
 StartLimitIntervalSec=0
 
 [Service]
 Type=simple
 Restart=on-failure
 RestartSec=1
-ExecStart=/usr/bin/python3 /usr/local/gateway/iot/manage.py runserver 0:8000
+Environment=PYTHONPATH=/usr/local/snom_baos_777/iot:/usr/local/snom_baos_777/knxmonitor:/usr/local/snom_baos_777/snomsyslogknx:/usr/local/snom_baos_777/baos777:
+ExecStart=/usr/bin/python3 /usr/local/snom_baos_777/iot/manage.py runserver 0:8000
 
 [Install]
 WantedBy=multi-user.target
