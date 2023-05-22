@@ -8,8 +8,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from iot import helpers
-
 load_dotenv()
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -18,8 +16,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG")
+GATEWAY_IP = os.environ.get("KNX_GATEWAY")
 
-GATEWAY_IP = helpers.get_local_ip()
 ALLOWED_HOSTS = ['localhost', GATEWAY_IP]
 
 INSTALLED_APPS = [
