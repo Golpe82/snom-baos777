@@ -3,6 +3,11 @@ import json
 import requests
 import socketserver
 import sys
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # add current folder to the system path
 sys.path.append("/usr/local/snom_baos_777")
@@ -10,8 +15,9 @@ sys.path.append("/usr/local/snom_baos_777")
 from baos777 import baos_websocket as baos_ws
 
 USERNAME, PASSWORD = "admin", "admin"
-AMBIENT_LIGHT_RELATIONS_URL = "http://localhost:8000/admin/knx/ambientlightrelation/"
-TEMPERATURE_RELATIONS_URL = "http://localhost:8000/admin/knx/temperaturerelation/"
+KNX_GATEWAY = os.environ.get("KNX_GATEWAY")
+AMBIENT_LIGHT_RELATIONS_URL = f"http://{KNX_GATEWAY}/admin/knx/ambientlightrelation/"
+TEMPERATURE_RELATIONS_URL = f"http://{KNX_GATEWAY}/admin/knx/temperaturerelation/"
 # TODO: REFACTOR
 
 class SyslogUDPHandler(socketserver.BaseRequestHandler):
@@ -37,14 +43,14 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         for message_item in self.message_data:
             if "ALS_VALUE" in message_item:
-                response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/ips/")
+                response = requests.get(f"http://{KNX_GATEWAY}/knx/relations/ambient_light/ips/")
                 als_relation_ips = json.loads(response.text)
                 phone_model = als_relation_ips.get(self.client_ip)
 
                 if als_relation_ips and phone_model == "D735":
                     if self.client_ip in als_relation_ips.keys():
                         try:
-                            response = requests.get(f"http://localhost:8000/knx/relations/ambient_light/{self.client_ip}/")
+                            response = requests.get(f"http://{KNX_GATEWAY}/knx/relations/ambient_light/{self.client_ip}/")
                             response.raise_for_status()
                         except requests.exceptions.HTTPError:
                             logging.error(response.status_code)
@@ -60,12 +66,12 @@ class SyslogUDPHandler(socketserver.BaseRequestHandler):
                     logging.debug(f"Got relations: {als_relation_ips}\nALS functionality only for D735 available\nGot ip {self.client_ip}\nGot model: {phone_model}\n")
 
             if message_item == "temperature:":
-                response = requests.get(f"http://localhost:8000/knx/relations/temperature/ips/")
+                response = requests.get(f"http://{KNX_GATEWAY}/knx/relations/temperature/ips/")
                 temp_relations_ips = json.loads(response.text)
 
                 if self.client_ip in temp_relations_ips.keys():
                     try:
-                        response = requests.get(f"http://localhost:8000/knx/relations/temperature/{self.client_ip}/")
+                        response = requests.get(f"http://{KNX_GATEWAY}/knx/relations/temperature/{self.client_ip}/")
                         response.raise_for_status()
                     except requests.exceptions.HTTPError:
                         logging.error(response.status_code)
