@@ -1,14 +1,9 @@
 
-import sys
-
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
 
 from knx.models import Groupaddress
-
-sys.path.append("/usr/local/snom_baos_777")
-
 import baos777.baos_websocket as baos_ws
 
 BAOS_USERNAME = "admin"

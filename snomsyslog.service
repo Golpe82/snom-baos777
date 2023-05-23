@@ -8,8 +8,9 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=on-failure
 RestartSec=1
-Environment=PYTHONPATH=/usr/local/snom_baos_777/iot:/usr/local/snom_baos_777/knxmonitor:/usr/local/snom_baos_777/snomsyslogknx:/usr/local/snom_baos_777/baos777:
-ExecStart=/usr/bin/python3 /usr/local/snom_baos_777/snomsyslogknx/main.py
+Environment=PYTHONPATH=/usr/local/snom_baos_777/:
+WorkingDirectory=/usr/local/snom_baos_777/
+ExecStart=/usr/bin/python3 snomsyslogknx/main.py
 
 [Install]
 WantedBy=multi-user.target

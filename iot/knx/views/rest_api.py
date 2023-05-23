@@ -1,14 +1,8 @@
 import logging
-from datetime import datetime
 
-from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 
 from knx.models import TemperatureRelation, AmbientLightRelation
-import sys
-
-sys.path.append("/usr/local/gateway")
-
 import baos777.baos_websocket as baos_ws
 
 USERNAME = "admin"

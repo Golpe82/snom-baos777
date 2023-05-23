@@ -2,17 +2,12 @@ import logging
 import json
 import requests
 import socketserver
-import sys
 import os
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
-# add current folder to the system path
-sys.path.append("/usr/local/snom_baos_777")
-
 from baos777 import baos_websocket as baos_ws
+load_dotenv()
 
 USERNAME, PASSWORD = "admin", "admin"
 KNX_GATEWAY = os.environ.get("KNX_GATEWAY")

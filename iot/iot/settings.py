@@ -13,8 +13,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
-DEBUG = os.environ.get("DEBUG")
+SECRET_KEY = '-+%-e(6*1_!dcomw3yod)^8iobzhhu9u4yv83izw3@x2in6c)8'
+DEBUG = True
 GATEWAY_IP = os.environ.get("KNX_GATEWAY")
 
 ALLOWED_HOSTS = ['localhost', GATEWAY_IP]
@@ -81,11 +81,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = os.environ.get("LANGUAGE_CODE")
-TIME_ZONE = os.environ.get("TIME_ZONE")
-USE_I18N = os.environ.get("USE_I18N")
-USE_L10N = os.environ.get("USE_L10N")
-USE_TZ = os.environ.get("USE_TZ")
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../../static'))
