@@ -22,10 +22,7 @@ urlpatterns = [
     path("minibrowser/<str:mainaddress>/<str:middaddress>/<str:subaddress>/", views.minibrowser_values, name="mb_values"),
     path("upload/", views.upload_file, name="upload_file"),
     path("groupaddresses/", views.render_groupaddresses, name="groupaddresses"),
-    path("rules/", views.get_rules, name="get_rules"),
     # REST API URLs
-    path("values", views.post_sensor_value, name="post_values"),
-    path("status", views.post_knx_status, name="post_knx_status"),
     path("read/<int:main>/<int:midd>/<int:sub>/", views.knx_read, name="knx_read"),
     path(
         "write/<int:main>/<int:midd>/<int:sub>/<str:dpt_name>/<str:value>",

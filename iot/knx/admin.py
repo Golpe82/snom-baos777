@@ -1,9 +1,7 @@
 from django.contrib import admin
 
-from knx.models import AlsStatus, Device, Groupaddress, FunctionKeyLEDSubscriptions, AmbientLightRelation, TemperatureRelation
+from knx.models import Groupaddress, FunctionKeyLEDSubscriptions, AmbientLightRelation, TemperatureRelation
 
-admin.site.register(AlsStatus)
-admin.site.register(Device)
 admin.site.register(AmbientLightRelation)
 admin.site.register(TemperatureRelation)
 

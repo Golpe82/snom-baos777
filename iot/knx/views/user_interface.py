@@ -1,6 +1,4 @@
 """Views for app knx"""
-import os
-import subprocess
 import logging
 import requests
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
@@ -11,14 +9,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from knx import upload
-from knx.models import (
-    BrightnessRules,
-    KnxMonitor,
-    KnxStatus,
-    Groupaddress,
-    FunctionKeyLEDSubscriptions,
-)
-from knx.forms import AlsFormSet
+from knx.models import Groupaddress, FunctionKeyLEDSubscriptions
 
 APP = "KNX"
 logging.basicConfig(level=logging.DEBUG)
@@ -31,6 +22,8 @@ import baos777.baos_websocket as baos_ws
 
 USERNAME = "admin"
 PASSWORD = "admin"
+
+from django.contrib.auth.models import User
 
 
 def index(request):
@@ -226,11 +219,3 @@ def render_groupaddresses(request):
     }
 
     return render(request, "knx/groupaddresses_data.html", context)
-
-
-def get_rules(request):
-    rules = BrightnessRules.objects.filter(mac_address="000413A34795").values(
-        "min_value", "max_value"
-    )
-
-    return HttpResponse(rules)

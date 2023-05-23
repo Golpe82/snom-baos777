@@ -4,7 +4,7 @@ from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 
-from knx.models import KnxStatus, AlsStatus, KnxMonitor, TemperatureRelation, AmbientLightRelation
+from knx.models import TemperatureRelation, AmbientLightRelation
 import sys
 
 sys.path.append("/usr/local/gateway")
@@ -83,35 +83,3 @@ def ambient_light_sensor_relations(request, device_ip):
     }
 
     return JsonResponse(data)
-
-
-@csrf_exempt
-def post_sensor_value(request):
-    device_mac = request.POST.get("mac_address")
-    obj, created = AlsStatus.objects.update_or_create(
-        mac_address = device_mac,
-        defaults = {
-            "ip_address": request.POST.get("ip_address"),
-            "raw_value": request.POST.get("raw_value"),
-            "value": request.POST.get("value"),
-            "time_stamp": datetime.now()
-        }
-    )
-    logging.info(f"als value for mac {device_mac} created = {created}, updated to {obj.value} Lux")
-
-    return JsonResponse(POST_RESPONSE)
-
-@csrf_exempt
-def post_knx_status(request):
-    logging.info(f"groupaddress {request.POST.get('groupaddress')} status to save {request.POST.get('status')}")
-    obj, _created = KnxStatus.objects.update_or_create(
-        groupaddress_name=request.POST.get("groupaddress_name"),
-        groupaddress=request.POST.get("groupaddress"),
-        defaults={
-            "status": request.POST.get("status"),
-            "timestamp": datetime.now()
-        }
-    )
-    logging.info(f"{obj.groupaddress_name}: {obj.status}")
-
-    return JsonResponse(POST_RESPONSE)
