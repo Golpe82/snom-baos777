@@ -10,20 +10,13 @@ from django.http import HttpResponse
 
 from knx import upload
 from knx.models import Groupaddress, FunctionKeyLEDSubscriptions
+import baos777.baos_websocket as baos_ws
 
 APP = "KNX"
 logging.basicConfig(level=logging.DEBUG)
 
-import sys
-
-sys.path.append("/usr/local/snom_baos_777")
-
-import baos777.baos_websocket as baos_ws
-
 USERNAME = "admin"
 PASSWORD = "admin"
-
-from django.contrib.auth.models import User
 
 
 def index(request):
