@@ -39,7 +39,13 @@ def daemons_are_running():
 
         assert output == "SubState=running", f"\n{daemon} is not running ({output})"
 
+def install_requirements():
+    command = "yes | pip3 install -r requirements.txt"
+    print(f"Executing '{command}'")
+    subprocess.run([command], shell=True, capture_output=True)
+
 if __name__ == "__main__":
+    install_requirements()
     create_daemons_symlinks()
     start_daemons()
     daemons_are_running()
