@@ -9,7 +9,7 @@ def symlink_exists(link_path: str) -> str:
     return f"Symlink {link_path} does not exists or is broken"
 
 def create_daemons_symlinks():
-    working_directory = os.getcwd()
+    working_directory = "/usr/local/snom_baos_777"
     destination = "/etc/systemd/system"
 
     for source_file in DAEMONS:
@@ -45,7 +45,7 @@ def install_requirements():
     subprocess.run([command], shell=True, capture_output=True)
 
 if __name__ == "__main__":
-    install_requirements()
+    # install_requirements()
     create_daemons_symlinks()
     start_daemons()
     daemons_are_running()
