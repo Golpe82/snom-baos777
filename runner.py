@@ -25,6 +25,11 @@ def create_daemons_symlinks():
         message = symlink_exists(link_path)
         print(message)
 
+def reload_systemd():
+    command = "systemctl daemon-reload"
+    print(f"Executing '{command}'")
+    subprocess.run([command], shell=True, capture_output=True)
+
 def start_daemons():
     command = f"systemctl start {' '.join(DAEMONS)}"
     print(f"Executing '{command}'")
@@ -42,5 +47,6 @@ def daemons_are_running():
 
 if __name__ == "__main__":
     create_daemons_symlinks()
+    reload_systemd()
     start_daemons()
     daemons_are_running()
