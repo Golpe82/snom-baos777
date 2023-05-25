@@ -1,3 +1,97 @@
+# Snom KNX gateway BAOS 777 based
+
+The snom KNX gateway allows you to control your KNX system in a easy way.  
+You just need a device that sends HTTP-Requests like a webbrowser, an IP phone, a DECT basis station, an IP camera, an IP intercom, etc.  
+You can also build your own application that sends the HTTP-requests.  
+
+That means you can change the functionality of the buttons or sensors of your IP device in order to control your KNX system on your own.
+
+For example, using a [Snom IP phone](https://www.snom.com/en/), you can assign at each time, to each button in each room a new functionality.  
+You can also trigger an action in a KNX device, e.g., when a call comes in.
+
+You only need to set up HTTP-Requests with patterns like this:  
+`http://ip.of.the.gateway/knx/write/group/addr/ess/switch/on` (will switch on the groupaddress),  
+`http://ip.of.the.gateway/knx/write/group/addr/ess/dimming/increase` (will dimm the groupaddress up)   
+`http://ip.of.the.gateway/knx/read/group/addr/ess/value_temp/23,7` (will set the temperature of the groupaddress to 23,7°C)  
+`http://ip.of.the.gateway/knx/read/group/addr/ess/`(will read the value of the groupaddress)  
+
+## Hardware needed
+- [Weinzierl BAOS 777](https://weinzierl.de/en/products/knx-ip-baos-777/?gclid=EAIaIQobChMIq5Kg-oCQ_wIVhdDVCh2ozQqgEAAYASAAEgKotPD_BwE)
+- Linux device with [systemd](https://en.wikipedia.org/wiki/Systemd) (e.g. Raspberry Pi)
+
+## Configuring the BAOS 777
+(WIP)
+1. With the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool, integrate the BAOS 777 in your KNX system. 
+2. Only he parametrized sending groupaddresses will be writable/readable with the Snom KNX gateway
+3. Export the KNX groupaddresses of your KNX project from the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool as .csv file or ask your KNX integrator for it
+
+## Installation of the Snom KNX gateway software
+1. Open a terminal in your systemd linux device
+2. Make sure Python 3.10, pip and git is installed
+3. Go to the folder `/usr/local` and clone this repository:  
+
+    `sudo git clone https://gitlab.com/simon.golpe/snom_baos_777`
+4. Install the python [requirements.txt](https://gitlab.com/simon.golpe/snom_baos_777/-/blob/master/requirements.txt)  
+
+    `sudo pip3 install -r snom_baos_777/requirements.txt`
+5. Create a `.env` file like in this [example](https://gitlab.com/simon.golpe/snom_baos_777/-/blob/master/.env.example) adjusting the ip address of the Weinzierl BAOS 777 device and of your Linux systemd device (KNX_GATEWAY)
+6. Type `sudo crontab -e`, add and save this line at the end of the file:
+
+    `@reboot /usr/bin/python3 /usr/local/snom_baos_777/runner.py > /usr/local/snom_baos_777/cronlog 2>&1` 
+7. Reboot the device
+
+After the reboot, your systemd system has 3 new services:
+- snomiotgui.service
+- knxmonitor.service
+- snomsyslog.service
+
+Check that all 3 are running executing:  
+`sudo systemctl status snomiotgui.service knxmonitor.service snomsyslog.service`
+
+## Usage
+1. From the webbrowser of a device in the same network, call:  
+    `http://ip.of.the.gateway/knx/`
+2. Upload the .csv file with your KNX groupaddresses
+   
+### Using a Snom Deskphone
+Ways for control/monitoring the KNX installation:
+
+_Snom minibrowser_
+1. Configure a function key of your Snom phone as an action-URL and assign it the value `http://ip.of.the.gateway/knx/`
+2. Pressing this function key, you can now read/write the sending groupaddresses of the BAOS 777 device  
+
+_Function keys subscriptions_
+(TBD)
+
+_Ambient light sensor_
+Currently only Snom D735
+(TBD)
+
+_Temperature sensor_
+(TBD)
+   
+### Using the SNOM DECT solutions
+(TBD)
+
+## Developing the Internet of Things gateway in your local machine
+(TBD)
+
+# Services
+
+## Snom IoT GUI
+User interface for setting up the interoperability betwen Snom devices and KNX devices.  
+Serves the Snom XML minibrowser
+
+## KNX monitor
+Monitors the traffic in the KNX installation updating Snom function keys subscriptions.  
+_E.g.: LED color of function key changes if incoming KNX bus event happens_
+
+## Snom syslog KNX
+Handles incoming syslog messages from a Snom device triggering events in the KNX devices.  
+_E.g.: sends temperature or light sensor values to the KNX bus_
+
+---
+
 **HINT**  
 For developing remote on the raspberry pi with vscode in your local machine with root permissions:  
 1. install vscode extension ssh-remote
@@ -11,126 +105,8 @@ Match Address 127.0.0.1
 4. Go to the ssh-remote extension tab in the vscode of your local machine and start a connection to the remote raspberry pi
 5. Go to the extensions tab in vscode. Now you can install your local vscode extensions in your remote machine
 
-# Internet of Things gateway
-
-The purpose of this project is to implement differents IoT systems/services.  
-The first implemented service under development is the comunication with the [KNX system](https://www.knx.org/knx-en/for-professionals/index.php) over HTTP protocol.  
-Further services like the [DECT-Messaging](https://github.com/snom-project/DECTMessagingDemonstrator) / Bluetooth beacons app are also in progress.  
-[\[Architecture(WIP)\]](https://gitlab.com/simon.golpe/gateway/-/blob/master/snomKnxArchitecture.JPG)
-
-## KNX app
-The KNX URL-Gateway allows you to control your KNX system in a easy way.  
-You just need a device that sends HTTP-Requests like a webbrowser, an IP phone, a DECT basis station, an IP camera, an IP intercom, etc.  
-You can also build your own application that sends the requests.  
-
-That means you can change the functionality of the buttons of your IP device in order to control your KNX system without the need of hiring a KNX integrator.
-
-For example, using a [Snom IP phone](https://www.snom.com/en/), you can assign at each time, to each button in each room a new functionality without paying for this change.
-
-You only need to send an HTTP-Request with one of this patterns:  
-`http://ip.of.the.gateway:1234/knx/group/address-an` (will switch on your groupaddress),  
-`http://ip.of.the.gateway:1234/knx/group/address-aus` (will switch off your groupaddress)  
-`http://ip.of.the.gateway:1234/knx/group/address-plus` (will dimm your groupaddress up)  
-`http://ip.of.the.gateway:1234/knx/group/address-minus` (will dimm your groupaddress down)  
-
-The KNX app allows you to upload your KNX groupaddresses and create or modify your
-KNX [Snom XML minibrowser](https://service.snom.com/display/wiki/XML+Minibrowser) for controlling your KNX installation.
-
-At this moment the KNX URL Gateway can only control DPT1 (datapoint type 1. On/off) and DPT3 (dimm relative) in one way (send).  
-That means reading values from the KNX Bus (e.g. to visualize stati) is still not possible. 
-
-### Hardware needed for the KNX URL Gateway
-- Raspberry Pi 3B+
-- [KNX kBerry module](https://www.weinzierl.de/index.php/en/all-knx/knx-module-en/knx-baos-module-838-en)
-
-### Preparing the KNX URL-Gateway
-1. Flash the Raspberry Pi with the Raspberry OS
-1. Assemble the kBerry with the Raspberry Pi and connect it to your LAN network and to your KNX-Bus.
-2. Add this in the `/boot/config.txt` of the raspberry pi:
-   ```bash
-	dtoverlay=pi3-miniuart-bt
-	enable_uart=1
-	force_turbo=1
-    ```
-3. Delete this in the file `/boot/cmdline.txt`:  
-    `console=serial0,115200`
-4. Adjust the group of the device with:  
-    `sudo chgrp dialout /dev/ttyAMA0`
-5. Add the user in the group with:  
-    `sudo usermod -a -G dialout pi`
-<!-- 6. Type `sudo crontab -e`, append this and save the changes:  
-    `@reboot /usr/local/gateway/launcher.sh >/usr/local/gateway/cronlog 2>&1` -->
-7. Install [NGINX](https://www.nginx.com/) and git
-8. Install Python3 and pip:  
-`sudo apt install python3 python3-pip`  
-and Django:  
-`sudo python3 -m pip install django`
-
-### Installation of the application in the KNX URL-Gateway
-
-1. Go to the directory `/usr/local/` of your KNX URL-Gateway, type `sudo git init` in your terminal and clone this project:  
-   `sudo git clone https://gitlab.com/simon.golpe/gateway.git`
-2. Change the owner and group of the gateway to `pi`:  
-    `sudo chgrp -R pi gateway/ && sudo chown -R pi gateway/`
-3. Make this files executable:  
-    `sudo chmod +x gateway/snomiot.conf.sh`  
-    `sudo chmod +x gateway/snomiotlinks.sh`
-4. Create links for the services (daemons) of the gateway:  
-    - `sudo ln -s -f /usr/local/gateway/knxmonitor.service /etc/systemd/system`  
-    - `sudo ln -s -f /usr/local/gateway/knxurlgateway.service /etc/systemd/system`  
-    - `sudo ln -s -f /usr/local/gateway/snomiot.conf.service /etc/systemd/system`  
-    - `sudo ln -s -f /usr/local/gateway/snomiotgui.service  /etc/systemd/system`  
-    - `sudo ln -s -f /usr/local/gateway/snomsyslog.service  /etc/systemd/system`
-5. Make services executable, start and enable them to start at reboot:  
-    - `sudo chmod +x gateway/knxmonitor.service && sudo systemctl start knxmonitor.service && sudo systemctl enable knxmonitor.service`  
-    - `sudo chmod +x gateway/knxurlgateway.service && sudo systemctl start knxurlgateway.service && sudo systemctl enable knxurlgateway.service`  
-    - `sudo chmod +x gateway/snomiot.conf.service && sudo systemctl start snomiot.conf.service && sudo systemctl enable snomiot.conf.service`  
-    - `sudo chmod +x gateway/snomiotgui.service && sudo systemctl start snomiotgui.service && sudo systemctl enable snomiotgui.service`  
-    - `sudo chmod +x gateway/snomsyslog.service && sudo systemctl start snomsyslog.service && sudo systemctl enable snomsyslog.service`
-6. Reboot the system
-
-### Configure and usage
-1. With the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool, integrate the KNX URL-Gateway in your system applying to it a KNX physical address
-1.  Export the KNX groupaddresses of your KNX project from the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool as .csv file or ask your KNX integrator for it
-2. From the webbrowser of a device in the same network as your KNX URL-Gateway call:  
-    `http://192.168.178.47:8000/knx/`, where the IP address must be the address of the KNX URL-Gateway.
-3. Upload the .csv file with your KNX groupaddresses (for development purposes you can use [this example](https://gitlab.com/simon.golpe/gateway/-/blob/master/groupaddresses.example.csv))
-   
-_Using a Snom deskphone_
-1. Configure a function key of your Snom phone as an action-URL and assign it the value `http://192.168.178.47:8000/knx/minibrowser`, where the IP address must be the address of the KNX URL-Gateway.
-2. Pressing this function key, you can now control your KNX system
-   
-_Using a Snom M900 and Snom DECT handsets_
-1. Configure in the M900 your central directory as XML minibrowser and set the value `http://192.168.178.47:8000/knx/minibrowser`  
-2. Update your DECT Basisstation and your handsets  
-3. Pressing the central directory button of your handsets, you can now control your KNX system  
-
-
-If you want to customize the minibrowser menu, navigate in the GUI to 'Minibrowser', download the XML file and upload it again after customizing it.  
-
-Navigating to 'Start' in the GUI, you can also control your KNX system.
-
-## Developing the Internet of Things gateway in your local machine
-1. Install Python3 and pip:  
-`sudo apt install python3 python3-pip`  
-and Django:  
-`sudo python3 -m pip install django`  
-2. Clone this project in any directory in your local machine  
-3. Navigate to the project´s root folder `iot` and start the application from terminal with `python3 manage.py runserver`  
-3. From the webbrowser of a device in the same network as your KNX URL-Gateway call:  
-    `http://192.168.178.47:8000/knx/`, where the IP address must be the address of the KNX URL-Gateway.
-4. Upload the .csv file with your KNX groupaddresses (for development purposes you can use [this example](https://gitlab.com/simon.golpe/gateway/-/blob/master/groupaddresses.example.csv))
-
-# Services
-
-## KNX monitor
-It reads the KNX bus traffic and safe in a .csv file the last status of the KNX Groupaddresses
-
-## Snom syslog KNX
-
-It reads the value of the ambientlight sensor of a Snom D735 in order to dimm the light constantly.
 
 
 Mantainer: Golpe Varela, Simón
 
-2018 - current 
+2018 - 2023 
