@@ -6,7 +6,8 @@ You can also build your own application that sends the HTTP-requests.
 
 That means you can change the functionality of the buttons or sensors of your IP device in order to control your KNX system on your own.
 
-For example, using a [Snom IP phone](https://www.snom.com/en/), you can assign at each time, to each button in each room a new functionality.
+For example, using a [Snom IP phone](https://www.snom.com/en/), you can assign at each time, to each button in each room a new functionality.  
+You can also trigger an action in a KNX device, e.g., when a call comes in.
 
 You only need to set up HTTP-Requests with patterns like this:  
 `http://ip.of.the.gateway/knx/write/group/addr/ess/switch/on` (will switch on the groupaddress),  
@@ -14,29 +15,27 @@ You only need to set up HTTP-Requests with patterns like this:
 `http://ip.of.the.gateway/knx/read/group/addr/ess/value_temp/23,7` (will set the temperature of the groupaddress to 23,7°C)  
 `http://ip.of.the.gateway/knx/read/group/addr/ess/`(will read the value of the groupaddress)  
 
-
-The KNX app allows you to upload your KNX groupaddresses for controlling your KNX installation.
-
 ## Hardware needed
 - [Weinzierl BAOS 777](https://weinzierl.de/en/products/knx-ip-baos-777/?gclid=EAIaIQobChMIq5Kg-oCQ_wIVhdDVCh2ozQqgEAAYASAAEgKotPD_BwE)
-- Linux system with systemd (e.g. Raspberry Pi)
+- Linux system with [systemd](https://en.wikipedia.org/wiki/Systemd) (e.g. Raspberry Pi)
 
 ## Configuring the BAOS 777
-
+(TBD)
 
 ## Installation of the Snom KNX gateway software
 1. Open a terminal in your systemd linux system
 2. Make sure Python 3.10, pip and git is installed
 3. Go to the folder `/usr/local` and clone this repository:  
 
-    `git clone https://gitlab.com/simon.golpe/snom_baos_777`
+    `sudo git clone https://gitlab.com/simon.golpe/snom_baos_777`
 4. Install the python [requirements.txt](https://gitlab.com/simon.golpe/snom_baos_777/-/blob/master/requirements.txt)  
 
-    `sudo pip3 install -r requirements.txt`
-5. Type `sudo crontab -e`, add and save this line at the end of the file:
+    `sudo pip3 install -r snom_baos_777/requirements.txt`
+5. Create a `.env` file like in this [example](https://gitlab.com/simon.golpe/snom_baos_777/-/blob/master/.env.example) adjusting the ip address of the Weinzierl BAOS 777 device and of your Linux systemd device (KNX_GATEWAY)
+6. Type `sudo crontab -e`, add and save this line at the end of the file:
 
     `@reboot /usr/bin/python3 /usr/local/snom_baos_777/runner.py > /usr/local/snom_baos_777/cronlog 2>&1` 
-6. Reboot the device
+7. Reboot the device
 
 Afterwords, your systemd system has 3 new services running:
 - snomiotgui.service
