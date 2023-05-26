@@ -15,19 +15,19 @@ You only need to set up HTTP-Requests with patterns like this:
 `http://ip.of.the.gateway/knx/read/group/addr/ess/value_temp/23,7` (will set the temperature of the groupaddress to 23,7°C)  
 `http://ip.of.the.gateway/knx/read/group/addr/ess/`(will read the value of the groupaddress)  
 
-# **Services**
+## **Services**
 The Snom KNX gateway software has 3 services
 
-## **Snom IoT GUI**
+### **Snom IoT GUI**
 User interface for setting up the interoperability betwen Snom devices and KNX devices.  
 Serves the Snom XML minibrowser.  
 Has a Web User Interface for controlling the KNX devices.
 
-## **KNX monitor**
+### **KNX monitor**
 Monitors the traffic in the KNX installation updating Snom function keys subscriptions.  
 _E.g.: LED color of function key changes if incoming KNX bus event happens_
 
-## **Snom syslog KNX**
+### **Snom syslog KNX**
 Handles incoming syslog messages from a Snom device triggering events in the KNX devices.  
 _E.g.: sends temperature or light sensor values to the KNX bus_
 
