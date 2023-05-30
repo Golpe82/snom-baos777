@@ -17,6 +17,7 @@ urlpatterns = [
         "addresses/<str:maingroup>/<str:subgroup>/", views.addresses, name="addresses"
     ),
     path("minibrowser/", views.minibrowser, name="minibrowser"),
+    path("minibrowser/subscription/<int:subscription_id>/<str:boolean>/", views.minibrowser_led_subscription, name="subscription_xml"),
     path("minibrowser/<str:mainaddress>/", views.minibrowser_middaddresses, name="mb_middaddresses"),
     path("minibrowser/<str:mainaddress>/<str:middaddress>/", views.minibrowser_subaddresses, name="mb_subaddresses"),
     path("minibrowser/<str:mainaddress>/<str:middaddress>/<str:subaddress>/", views.minibrowser_values, name="mb_values"),

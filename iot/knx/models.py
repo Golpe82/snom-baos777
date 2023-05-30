@@ -48,28 +48,15 @@ class FunctionKeyLEDSubscriptions(models.Model):
 
     @property
     def knx_write_url_for_on(self):
-        return f"{settings.KNX_ROOT}write/{self.knx_subscription}/on"
+        return f"{settings.KNX_ROOT}write/{self.knx_subscription}/switch/on"
 
     @property
     def knx_write_url_for_off(self):
-        return f"{settings.KNX_ROOT}write/{self.knx_subscription}/off"
+        return f"{settings.KNX_ROOT}write/{self.knx_subscription}/switch/off"
 
     @property
     def on_change_xml_for_on(self):
-        subscriptions_path = f"/var/www/html/knx_led_subscriptions/{self.mac_address}/"
-
-        if not os.path.exists(subscriptions_path):
-            os.makedirs(subscriptions_path)
-            logging.warning(f"Directory {subscriptions_path} created")
-
-        file_name = f"{self.knx_subscription.replace('/', '_')}_on.xml"
-        led_subscription_file_path = f"{subscriptions_path}{file_name}"
-
-        if os.path.exists(led_subscription_file_path):
-            os.remove(led_subscription_file_path)
-            logging.warning(f"Existing file {led_subscription_file_path} deleted")
-
-        content = f"""
+        return f"""
             <?xml version="1.0" encoding="UTF-8"?>
             <SnomIPPhoneText>
                 <Title>LED subscription</Title>
@@ -80,36 +67,16 @@ class FunctionKeyLEDSubscriptions(models.Model):
             </SnomIPPhoneText>
         """
 
-        with open(led_subscription_file_path, 'w', encoding="UTF-8") as subscription_for_on:
-            subscription_for_on.write(content)
-
-        return content
-
     @property
     def on_change_xml_for_on_url(self):
-        file_name = f"{self.knx_subscription.replace('/', '_')}_on.xml"
-
         if self.phone_model.startswith("D8"):
-            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_led_subscriptions/{self.mac_address}/{file_name}"
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/on/"
 
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_led_subscriptions/{self.mac_address}/{file_name}"
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/on/"
 
     @property
     def on_change_xml_for_off(self):
-        subscriptions_path = f"/var/www/html/knx_led_subscriptions/{self.mac_address}/"
-
-        if not os.path.exists(subscriptions_path):
-            os.makedirs(subscriptions_path)
-            logging.warning(f"Directory {subscriptions_path} created")
-
-        file_name = f"{self.knx_subscription.replace('/', '_')}_off.xml"
-        led_subscription_file_path = f"{subscriptions_path}{file_name}"
-
-        if os.path.exists(led_subscription_file_path):
-            os.remove(led_subscription_file_path)
-            logging.warning(f"Existing file {led_subscription_file_path} deleted")
-
-        content =  f"""
+        return  f"""
         <?xml version="1.0" encoding="UTF-8"?>
         <SnomIPPhoneText>
             <Title>LED subscription</Title>
@@ -120,19 +87,12 @@ class FunctionKeyLEDSubscriptions(models.Model):
         </SnomIPPhoneText>
         """
 
-        with open(led_subscription_file_path, 'w', encoding="UTF-8") as subscription_for_off:
-            subscription_for_off.write(content)
-
-        return content
-
     @property
     def on_change_xml_for_off_url(self):
-        file_name = f"{self.knx_subscription.replace('/', '_')}_off.xml"
-
         if self.phone_model.startswith("D8"):
-            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_led_subscriptions/{self.mac_address}/{file_name}"
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/off/"
 
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx_led_subscriptions/{self.mac_address}/{file_name}"
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/off/"
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Switch groupaddress: {self.knx_subscription}"

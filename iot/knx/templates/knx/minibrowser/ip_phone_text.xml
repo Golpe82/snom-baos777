@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+
+<SnomIPPhoneText>
+    <Text>{{ text }}</Text>
+    <fetch mil=5>snom://mb_exit</fetch>
+</SnomIPPhoneText>
