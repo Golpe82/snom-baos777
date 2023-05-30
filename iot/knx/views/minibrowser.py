@@ -130,11 +130,11 @@ def minibrowser_values(request, mainaddress, middaddress, subaddress):
 
 def minibrowser_led_subscription(request, subscription_id, boolean):
     subscription = FunctionKeyLEDSubscriptions.objects.get(id=subscription_id)
+    led_update_xml = subscription.__getattribute__(f"on_change_xml_for_{boolean}")
+    values = ["on", "off"]
 
-    if boolean == "on":
-        return HttpResponse(subscription.on_change_xml_for_on, content_type="text/xml")
-    elif boolean == "off":
-        return HttpResponse(subscription.on_change_xml_for_off, content_type="text/xml")
-    else:
-        context = {"text": f"Wrong led subscription value {boolean}"}
-        return render(request, context, content_type="text/xml")
+    if boolean in values:
+        return HttpResponse(led_update_xml, content_type="text/xml")
+
+    context = {"text": f"Wrong led subscription value {boolean}"}
+    return render(request, context, content_type="text/xml")
