@@ -17,7 +17,7 @@ USERNAME = "admin"
 PASSWORD = "admin"
 
 
-def index(request):
+def index(request): 
     if "snom" in request.META['HTTP_USER_AGENT']:
         return redirect(f"{settings.KNX_ROOT}minibrowser/")
 
