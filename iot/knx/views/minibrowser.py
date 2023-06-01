@@ -1,4 +1,3 @@
-
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -11,40 +10,28 @@ BAOS_USERNAME = "admin"
 BAOS_PASSWORD = "admin"
 
 DATAPOINTS = {
-    "DPT-1": {
-        "action": "write",
-        "function": "switch",
-        "values": ["on", "off"]
-    },
-    "DPST-1-1": {
-        "action": "write",
-        "function": "switch",
-        "values": ["on", "off"]
-    },
-    "DPST-1-11": {
-        "action": "read",
-        "function": "status",
-        "values": []
-    },
+    "DPT-1": {"action": "write", "function": "switch", "values": ["on", "off"]},
+    "DPST-1-1": {"action": "write", "function": "switch", "values": ["on", "off"]},
+    "DPST-1-11": {"action": "read", "function": "status", "values": []},
     "DPT-3": {
         "action": "write",
         "function": "dimming",
-        "values": ["increase", "decrease"]
+        "values": ["increase", "decrease"],
     },
     "DPST-3-7": {
         "action": "write",
         "function": "dimming",
-        "values": ["increase", "decrease"]
+        "values": ["increase", "decrease"],
     },
     "DPT-5": {
         "action": "write",
         "function": "scaling",
-        "values": ["increase", "decrease"]
+        "values": ["increase", "decrease"],
     },
     "DPST-5-1": {
         "action": "write",
         "function": "scaling",
-        "values": ["increase", "decrease"]
+        "values": ["increase", "decrease"],
     },
 }
 
@@ -54,20 +41,22 @@ def minibrowser(request):
         maingroup[0]
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     ]
-    context =  {
-        "knx_gateway": settings.KNX_ROOT,
-        "mainaddresses": mainaddresses
-    }
+    context = {"knx_gateway": settings.KNX_ROOT, "mainaddresses": mainaddresses}
     template_data = _get_template_data(request, "knx_mainaddresses.xml")
     template = template_data.get("template")
     context["encoding"] = template_data.get("encoding")
 
-    return render(request, f"knx/minibrowser/{template}", context, content_type="text/xml")
+    return render(
+        request, f"knx/minibrowser/{template}", context, content_type="text/xml"
+    )
+
 
 def minibrowser_middaddresses(request, mainaddress):
     middaddresses = [
         middaddress
-        for middaddress in Groupaddress.objects.filter(maingroup=mainaddress).values_list("subgroup", flat=True).distinct()
+        for middaddress in Groupaddress.objects.filter(maingroup=mainaddress)
+        .values_list("subgroup", flat=True)
+        .distinct()
     ]
     context = {
         "knx_gateway": settings.KNX_ROOT,
@@ -78,14 +67,23 @@ def minibrowser_middaddresses(request, mainaddress):
     template = template_data.get("template")
     context["encoding"] = template_data.get("encoding")
 
-    return render(request, f"knx/minibrowser/{template}", context, content_type="text/xml")
+    return render(
+        request, f"knx/minibrowser/{template}", context, content_type="text/xml"
+    )
+
 
 def minibrowser_subaddresses(request, mainaddress, middaddress):
     reader = baos_ws.KNXReadWebsocket(BAOS_USERNAME, BAOS_PASSWORD)
     baos_response = reader.baos_interface.sending_groupaddresses.values()
     subaddresses = {
-        groupaddress.get("name"): {groupaddress.get("address"): reader.baos_interface.read_value(groupaddress.get("address"))}
-        for groupaddress in Groupaddress.objects.filter(address__in=baos_response, maingroup=mainaddress, subgroup=middaddress).values("name", "address")
+        groupaddress.get("name"): {
+            groupaddress.get("address"): reader.baos_interface.read_value(
+                groupaddress.get("address")
+            )
+        }
+        for groupaddress in Groupaddress.objects.filter(
+            address__in=baos_response, maingroup=mainaddress, subgroup=middaddress
+        ).values("name", "address")
     }
 
     context = {
@@ -98,14 +96,17 @@ def minibrowser_subaddresses(request, mainaddress, middaddress):
     template = template_data.get("template")
     context["encoding"] = template_data.get("encoding")
 
-    return render(request, f"knx/minibrowser/{template}", context, content_type="text/xml")
+    return render(
+        request, f"knx/minibrowser/{template}", context, content_type="text/xml"
+    )
+
 
 def minibrowser_values(request, mainaddress, middaddress, subaddress):
     groupaddress = f"{mainaddress}/{middaddress}/{subaddress}"
     groupaddress_data = Groupaddress.objects.get(address=groupaddress)
 
     scaling = ["DPT-5", "DPST-5-1"]
-    
+
     if groupaddress_data.datapoint_type in scaling:
         return HttpResponse(
             f"""
@@ -122,7 +123,7 @@ def minibrowser_values(request, mainaddress, middaddress, subaddress):
         )
 
     datapoint_data = DATAPOINTS.get(groupaddress_data.datapoint_type, {})
-    callback_url =f"{settings.KNX_ROOT}minibrowser/{groupaddress_data.maingroup}/{groupaddress_data.subgroup}/"
+    callback_url = f"{settings.KNX_ROOT}minibrowser/{groupaddress_data.maingroup}/{groupaddress_data.subgroup}/"
     reader = baos_ws.KNXReadWebsocket(BAOS_USERNAME, BAOS_PASSWORD)
     current_status = reader.baos_interface.read_value(groupaddress)
 
@@ -134,14 +135,17 @@ def minibrowser_values(request, mainaddress, middaddress, subaddress):
         "function": datapoint_data.get("function"),
         "values": datapoint_data.get("values"),
         "callback_url": callback_url,
-        "status": current_status
-        }
+        "status": current_status,
+    }
 
     template_data = _get_template_data(request, "knx_values.xml")
     template = template_data.get("template")
     context["encoding"] = template_data.get("encoding")
 
-    return render(request, f"knx/minibrowser/{template}", context, content_type="text/xml")
+    return render(
+        request, f"knx/minibrowser/{template}", context, content_type="text/xml"
+    )
+
 
 def minibrowser_led_subscription(request, subscription_id, boolean):
     subscription = FunctionKeyLEDSubscriptions.objects.get(id=subscription_id)
@@ -154,15 +158,15 @@ def minibrowser_led_subscription(request, subscription_id, boolean):
     template_data = _get_template_data(request)
     context = {
         "text": f"Wrong led subscription value {boolean}",
-        "encoding": template_data.get("encoding")
-        }
+        "encoding": template_data.get("encoding"),
+    }
     return render(request, context, content_type="text/xml")
 
-def _get_template_data(request, base_template= None):
-    http_agent = request.META['HTTP_USER_AGENT']
+
+def _get_template_data(request, base_template=None):
+    http_agent = request.META["HTTP_USER_AGENT"]
 
     return {
         "encoding": "iso-8859-10" if "snomM" in http_agent else "utf-8",
-        "template": f"dect/{base_template}" if "snomM" in http_agent else base_template
-        }
-
+        "template": f"dect/{base_template}" if "snomM" in http_agent else base_template,
+    }

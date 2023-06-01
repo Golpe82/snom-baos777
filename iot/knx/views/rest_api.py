@@ -17,7 +17,7 @@ def knx_read(request, main, midd, sub):
     reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
     value = reader.baos_interface.read_value(groupaddress)
 
-    if "snom" in request.META['HTTP_USER_AGENT']:
+    if "snom" in request.META["HTTP_USER_AGENT"]:
         return HttpResponse(
             f"""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -26,19 +26,20 @@ def knx_read(request, main, midd, sub):
                 <fetch mil=3000>snom://mb_exit</fetch>
                 </SnomIPPhoneText>
             """,
-                content_type="text/xml",
-            )
+            content_type="text/xml",
+        )
     else:
         return HttpResponse(value)
 
+
 def temperature_sensor_relations_ips(request):
-    ips_phone_model = TemperatureRelation.objects.all().values_list("ip_address", "phone_model")
-    data = {
-        ip_phone_model[0]: ip_phone_model[1]
-        for ip_phone_model in ips_phone_model
-    }
+    ips_phone_model = TemperatureRelation.objects.all().values_list(
+        "ip_address", "phone_model"
+    )
+    data = {ip_phone_model[0]: ip_phone_model[1] for ip_phone_model in ips_phone_model}
 
     return JsonResponse(data)
+
 
 def temperature_sensor_relations(request, device_ip):
     relations = TemperatureRelation.objects.get(ip_address=device_ip)
@@ -52,14 +53,15 @@ def temperature_sensor_relations(request, device_ip):
 
     return JsonResponse(data)
 
+
 def ambient_light_sensor_relations_ips(request):
-    ips_phone_model = AmbientLightRelation.objects.all().values_list("ip_address", "phone_model")
-    data = {
-        ip_phone_model[0]: ip_phone_model[1]
-        for ip_phone_model in ips_phone_model
-    }
+    ips_phone_model = AmbientLightRelation.objects.all().values_list(
+        "ip_address", "phone_model"
+    )
+    data = {ip_phone_model[0]: ip_phone_model[1] for ip_phone_model in ips_phone_model}
 
     return JsonResponse(data)
+
 
 def ambient_light_sensor_relations(request, device_ip):
     relations = AmbientLightRelation.objects.get(ip_address=device_ip)
@@ -73,7 +75,7 @@ def ambient_light_sensor_relations(request, device_ip):
         "min lux value": relations.min_lux,
         "max lux value": relations.max_lux,
         "dimm groupaddress": relations.knx_dimm_address,
-        "dimm status groupaddress": relations.knx_dimm_status_address
+        "dimm status groupaddress": relations.knx_dimm_status_address,
     }
 
     return JsonResponse(data)

@@ -20,7 +20,11 @@ class Groupaddress(models.Model):
     def __str__(self) -> str:
         return f"{self.maingroup} | {self.subgroup} | {self.name}"
 
-PHONE_MODEL_CHOICES = [(phone_model, phone_model) for phone_model in FkeyLEDNo.__dataclass_fields__]
+
+PHONE_MODEL_CHOICES = [
+    (phone_model, phone_model) for phone_model in FkeyLEDNo.__dataclass_fields__
+]
+
 
 class FunctionKeyLEDSubscriptions(models.Model):
     mac_address_validator = RegexValidator(
@@ -76,7 +80,7 @@ class FunctionKeyLEDSubscriptions(models.Model):
 
     @property
     def on_change_xml_for_off(self):
-        return  f"""
+        return f"""
         <?xml version="1.0" encoding="UTF-8"?>
         <SnomIPPhoneText>
             <Title>LED subscription</Title>
@@ -96,6 +100,7 @@ class FunctionKeyLEDSubscriptions(models.Model):
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Switch groupaddress: {self.knx_subscription}"
+
 
 class AmbientLightRelation(models.Model):
     mac_address_validator = RegexValidator(
@@ -120,6 +125,7 @@ class AmbientLightRelation(models.Model):
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Lux groupaddress: {self.knx_send_lux_address} | Setpoint: {self.min_lux}...{self.max_lux} Lux"
+
 
 class TemperatureRelation(models.Model):
     mac_address_validator = RegexValidator(
