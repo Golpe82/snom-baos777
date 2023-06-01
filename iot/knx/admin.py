@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from knx.models import Groupaddress, FunctionKeyLEDSubscriptions, AmbientLightRelation, TemperatureRelation
+from knx.models import (
+    Groupaddress,
+    FunctionKeyLEDSubscriptions,
+    AmbientLightRelation,
+    TemperatureRelation,
+)
 
 admin.site.register(AmbientLightRelation)
 admin.site.register(TemperatureRelation)
@@ -17,37 +22,40 @@ class GroupaddressAdmin(admin.ModelAdmin):
         "html_action",
     ]
 
+
 @admin.register(FunctionKeyLEDSubscriptions)
 class FunctionKeyLEDSubscriptionsAdmin(admin.ModelAdmin):
     fieldsets = (
-        ("Phone",
+        (
+            "Phone",
             {
-                "fields":(
+                "fields": (
                     "phone_location",
-                    ("phone_model", "mac_address", "ip_address")
+                    ("phone_model", "mac_address", "ip_address"),
                 )
-            }
+            },
         ),
-        ("Subscription",
+        (
+            "Subscription",
             {
-                "fields":(
+                "fields": (
                     ("knx_subscription", "led_number_for_on", "led_number_for_off"),
-                    "led_number_mapping"
+                    "led_number_mapping",
                 )
-            }
+            },
         ),
-        ("Function keys action URLs",
-            {
-                "fields":(("knx_write_url_for_on", "knx_write_url_for_off"))
-            }
+        (
+            "Function keys action URLs",
+            {"fields": (("knx_write_url_for_on", "knx_write_url_for_off"))},
         ),
-        ("Snom XML",
+        (
+            "Snom XML",
             {
-                "fields":(
+                "fields": (
                     ("on_change_xml_for_on_url", "on_change_xml_for_off_url"),
-                    ("on_change_xml_for_on", "on_change_xml_for_off")
+                    ("on_change_xml_for_on", "on_change_xml_for_off"),
                 )
-            }
+            },
         ),
     )
     readonly_fields = [
@@ -60,4 +68,10 @@ class FunctionKeyLEDSubscriptionsAdmin(admin.ModelAdmin):
         "on_change_xml_for_off",
         "timestamp",
     ]
-    search_fields = ["ip_address", "mac_address", "knx_subscription", "phone_model", "phone_location"]
+    search_fields = [
+        "ip_address",
+        "mac_address",
+        "knx_subscription",
+        "phone_model",
+        "phone_location",
+    ]

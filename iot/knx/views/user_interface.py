@@ -17,8 +17,8 @@ USERNAME = "admin"
 PASSWORD = "admin"
 
 
-def index(request): 
-    if "snom" in request.META['HTTP_USER_AGENT']:
+def index(request):
+    if "snom" in request.META["HTTP_USER_AGENT"]:
         return redirect(f"{settings.KNX_ROOT}minibrowser/")
 
     addresses_groups = {
@@ -28,12 +28,13 @@ def index(request):
         }
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     }
-    context =  {
+    context = {
         "app": APP,
         "addresses_groups": addresses_groups,
     }
 
     return render(request, "knx/addresses_groups.html", context)
+
 
 DATAPOINT_TYPE_NAMES = ["switch", "dimming", "scaling", "value_temp"]
 
@@ -74,7 +75,7 @@ def knx_write(request, main, midd, sub, dpt_name, value):
     address_code = address_info.values_list("code", flat=True).first()
 
     if address_code:
-        if "snom" in request.META['HTTP_USER_AGENT']:
+        if "snom" in request.META["HTTP_USER_AGENT"]:
             return HttpResponse(
                 f"""
                 <SnomIPPhoneInput track=no>
@@ -88,8 +89,10 @@ def knx_write(request, main, midd, sub, dpt_name, value):
             """,
                 content_type="text/xml",
             )
-        
-        return HttpResponse(f"{groupaddress} needs a code. Input only over a snom device possible, not over browser.")
+
+        return HttpResponse(
+            f"{groupaddress} needs a code. Input only over a snom device possible, not over browser."
+        )
 
     else:
         writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
@@ -134,10 +137,13 @@ def update_led_subscriptors(request, main, midd, sub, status):
 
     return HttpResponse()
 
+
 def addresses(request, maingroup, subgroup):
     reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
     baos_response = reader.baos_interface.sending_groupaddresses.values()
-    groupaddresses = Groupaddress.objects.filter(address__in=baos_response, maingroup=maingroup, subgroup=subgroup)
+    groupaddresses = Groupaddress.objects.filter(
+        address__in=baos_response, maingroup=maingroup, subgroup=subgroup
+    )
     context = {
         "app": APP,
         "page": f"{maingroup} {subgroup}",
@@ -146,6 +152,7 @@ def addresses(request, maingroup, subgroup):
 
     return render(request, "knx/groupaddresses.html", context)
 
+
 def upload_file(request):
     context = {
         "app": APP,
@@ -153,6 +160,7 @@ def upload_file(request):
     }
 
     return render(request, "knx/upload.html", context)
+
 
 def render_groupaddresses(request):
     reader = baos_ws.KNXReadWebsocket(USERNAME, PASSWORD)
@@ -165,7 +173,7 @@ def render_groupaddresses(request):
         "app": APP,
         "page": "Groupaddresses data",
         "baos_groupaddresses": baos_sending_groupaddresses,
-        "other_groupaddresses": other_groupaddresses
+        "other_groupaddresses": other_groupaddresses,
     }
 
     return render(request, "knx/groupaddresses_data.html", context)

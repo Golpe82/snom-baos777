@@ -1,0 +1,5 @@
+{% extends "knx/minibrowser/knx_mainaddresses.xml" %}
+
+{% block encoding %}"{{ encoding }}"{% endblock encoding %}
+
+{% block back %}{% endblock back %}

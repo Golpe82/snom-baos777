@@ -1,0 +1,11 @@
+{% extends "knx/minibrowser/knx_values.xml" %}
+
+{% block encoding %}"{{ encoding }}"{% endblock encoding %}
+
+
+{% block back %}
+<MenuItem>
+    <Name>Back</Name>
+    <URL>{{callback_url}}</URL>
+</MenuItem>
+{% endblock back %}

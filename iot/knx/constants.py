@@ -1,6 +1,7 @@
 """Constants for KNX Django app"""
 from dataclasses import dataclass
 
+
 class PhoneModel:
     D335 = "D335"
     D385 = "D385"
@@ -10,6 +11,7 @@ class PhoneModel:
     D785 = "D785"
     D862 = "D862"
     D865 = "D865"
+
 
 @dataclass
 class FkeyLEDNo:

@@ -17,10 +17,26 @@ urlpatterns = [
         "addresses/<str:maingroup>/<str:subgroup>/", views.addresses, name="addresses"
     ),
     path("minibrowser/", views.minibrowser, name="minibrowser"),
-    path("minibrowser/subscription/<int:subscription_id>/<str:boolean>/", views.minibrowser_led_subscription, name="subscription_xml"),
-    path("minibrowser/<str:mainaddress>/", views.minibrowser_middaddresses, name="mb_middaddresses"),
-    path("minibrowser/<str:mainaddress>/<str:middaddress>/", views.minibrowser_subaddresses, name="mb_subaddresses"),
-    path("minibrowser/<str:mainaddress>/<str:middaddress>/<str:subaddress>/", views.minibrowser_values, name="mb_values"),
+    path(
+        "minibrowser/subscription/<int:subscription_id>/<str:boolean>/",
+        views.minibrowser_led_subscription,
+        name="subscription_xml",
+    ),
+    path(
+        "minibrowser/<str:mainaddress>/",
+        views.minibrowser_middaddresses,
+        name="mb_middaddresses",
+    ),
+    path(
+        "minibrowser/<str:mainaddress>/<str:middaddress>/",
+        views.minibrowser_subaddresses,
+        name="mb_subaddresses",
+    ),
+    path(
+        "minibrowser/<str:mainaddress>/<str:middaddress>/<str:subaddress>/",
+        views.minibrowser_values,
+        name="mb_values",
+    ),
     path("upload/", views.upload_file, name="upload_file"),
     path("groupaddresses/", views.render_groupaddresses, name="groupaddresses"),
     # REST API URLs
@@ -35,8 +51,24 @@ urlpatterns = [
         views.check_code,
         name="check_code",
     ),
-    path("relations/temperature/ips/", views.temperature_sensor_relations_ips, name="temp_relations_ips"),
-    path("relations/temperature/<str:device_ip>/", views.temperature_sensor_relations, name="temp_relations"),
-    path("relations/ambient_light/ips/", views.ambient_light_sensor_relations_ips, name="als_relations_ips"),
-    path("relations/ambient_light/<str:device_ip>/", views.ambient_light_sensor_relations, name="als_relations"),
+    path(
+        "relations/temperature/ips/",
+        views.temperature_sensor_relations_ips,
+        name="temp_relations_ips",
+    ),
+    path(
+        "relations/temperature/<str:device_ip>/",
+        views.temperature_sensor_relations,
+        name="temp_relations",
+    ),
+    path(
+        "relations/ambient_light/ips/",
+        views.ambient_light_sensor_relations_ips,
+        name="als_relations_ips",
+    ),
+    path(
+        "relations/ambient_light/<str:device_ip>/",
+        views.ambient_light_sensor_relations,
+        name="als_relations",
+    ),
 ]
