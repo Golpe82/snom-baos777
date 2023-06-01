@@ -1,0 +1,17 @@
+{% extends "knx/minibrowser/knx_subaddresses.xml" %}
+
+{% block encoding %}"{{ encoding }}"{% endblock encoding %}
+
+{% block groupaddress_item %}
+<MenuItem>
+    <Name>{{name}}: {{status}}</Name>
+    <URL>{{knx_gateway}}minibrowser/{{groupaddress}}/</URL>
+</MenuItem>
+{% endblock groupaddress_item %}
+
+{% block back %}
+<MenuItem>
+    <Name>Back</Name>
+    <URL>{{knx_gateway}}minibrowser/{{mainaddress}}/</URL>
+</MenuItem>
+{% endblock back %}

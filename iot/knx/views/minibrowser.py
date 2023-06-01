@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
+import logging
 
 from knx.models import Groupaddress, FunctionKeyLEDSubscriptions
 import baos777.baos_websocket as baos_ws
@@ -47,6 +48,7 @@ DATAPOINTS = {
     },
 }
 
+
 def minibrowser(request):
     mainaddresses = [
         maingroup[0]
@@ -54,10 +56,13 @@ def minibrowser(request):
     ]
     context =  {
         "knx_gateway": settings.KNX_ROOT,
-        "mainaddresses": mainaddresses,
+        "mainaddresses": mainaddresses
     }
+    template_data = _get_template_data(request, "knx_mainaddresses.xml")
+    template = template_data.get("template")
+    context["encoding"] = template_data.get("encoding")
 
-    return render(request, "knx/minibrowser/knx_mainaddresses.xml", context, content_type="text/xml")
+    return render(request, f"knx/minibrowser/{template}", context, content_type="text/xml")
 
 def minibrowser_middaddresses(request, mainaddress):
     middaddresses = [
@@ -67,10 +72,13 @@ def minibrowser_middaddresses(request, mainaddress):
     context = {
         "knx_gateway": settings.KNX_ROOT,
         "mainaddress": mainaddress,
-        "middaddresses": middaddresses
+        "middaddresses": middaddresses,
     }
+    template_data = _get_template_data(request, "knx_middaddresses.xml")
+    template = template_data.get("template")
+    context["encoding"] = template_data.get("encoding")
 
-    return render(request, "knx/minibrowser/knx_middaddresses.xml", context, content_type="text/xml")
+    return render(request, f"knx/minibrowser/{template}", context, content_type="text/xml")
 
 def minibrowser_subaddresses(request, mainaddress, middaddress):
     reader = baos_ws.KNXReadWebsocket(BAOS_USERNAME, BAOS_PASSWORD)
@@ -84,10 +92,13 @@ def minibrowser_subaddresses(request, mainaddress, middaddress):
         "knx_gateway": settings.KNX_ROOT,
         "mainaddress": mainaddress,
         "middaddress": middaddress,
-        "subaddresses": subaddresses
+        "subaddresses": subaddresses,
     }
+    template_data = _get_template_data(request, "knx_subaddresses.xml")
+    template = template_data.get("template")
+    context["encoding"] = template_data.get("encoding")
 
-    return render(request, "knx/minibrowser/knx_subaddresses.xml", context, content_type="text/xml")
+    return render(request, f"knx/minibrowser/{template}", context, content_type="text/xml")
 
 def minibrowser_values(request, mainaddress, middaddress, subaddress):
     groupaddress = f"{mainaddress}/{middaddress}/{subaddress}"
@@ -126,7 +137,11 @@ def minibrowser_values(request, mainaddress, middaddress, subaddress):
         "status": current_status
         }
 
-    return render(request, "knx/minibrowser/knx_values.xml", context, content_type="text/xml")
+    template_data = _get_template_data(request, "knx_values.xml")
+    template = template_data.get("template")
+    context["encoding"] = template_data.get("encoding")
+
+    return render(request, f"knx/minibrowser/{template}", context, content_type="text/xml")
 
 def minibrowser_led_subscription(request, subscription_id, boolean):
     subscription = FunctionKeyLEDSubscriptions.objects.get(id=subscription_id)
@@ -136,5 +151,18 @@ def minibrowser_led_subscription(request, subscription_id, boolean):
     if boolean in values:
         return HttpResponse(led_update_xml, content_type="text/xml")
 
-    context = {"text": f"Wrong led subscription value {boolean}"}
+    template_data = _get_template_data(request)
+    context = {
+        "text": f"Wrong led subscription value {boolean}",
+        "encoding": template_data.get("encoding")
+        }
     return render(request, context, content_type="text/xml")
+
+def _get_template_data(request, base_template= None):
+    http_agent = request.META['HTTP_USER_AGENT']
+
+    return {
+        "encoding": "iso-8859-10" if "snomM" in http_agent else "utf-8",
+        "template": f"dect/{base_template}" if "snomM" in http_agent else base_template
+        }
+

@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding={% block encoding %}"{{ encoding }}"{% endblock encoding %}?>
 
-<SnomIPPhoneMenu document_id='control'>
+<SnomIPPhoneMenu>
 <Title>{{mainaddress}}</Title>
 {% if middaddresses %}
     {% for middaddress in middaddresses %}
@@ -13,8 +13,8 @@
     <MenuItem>
         <Name>no knx middaddresses</Name>
     </MenuItem>
-    <fetch mil='1500'>{{knx_gateway}}minibrowser/</fetch>
 {% endif %}
+{% block back %}
     <SoftKeyItem>
         <Name>F1</Name>
         <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
@@ -22,4 +22,5 @@
         <URL>{{knx_gateway}}minibrowser/</URL>
     </SoftKeyItem>
     <fetch mil='100000'>snom://mb_exit</fetch>
+{% endblock back %}
 </SnomIPPhoneMenu>

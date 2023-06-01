@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding={% block encoding %}"{{ encoding }}"{% endblock encoding %}?>
 
-<SnomIPPhoneMenu document_id='control'>
+<SnomIPPhoneMenu>
 <Title>KNX Snom</Title>
 {% if mainaddresses %}
     {% for mainaddress in mainaddresses %}
@@ -13,8 +13,8 @@
     <MenuItem>
         <Name>no knx mainaddresses</Name>
     </MenuItem>
-    <fetch mil='1500'>snom://mb_exit</fetch>
 {% endif %}
+{% block back %}
     <SoftKeyItem>
         <Name>F1</Name>
         <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
@@ -22,4 +22,5 @@
         <URL>snom://mb_exit</URL>
     </SoftKeyItem>
     <fetch mil='100000'>snom://mb_exit</fetch>
+{% endblock back %}
 </SnomIPPhoneMenu>

@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding={% block encoding %}"{{ encoding }}"{% endblock encoding %}?>
 
-<SnomIPPhoneMenu document_id='control'>
+<SnomIPPhoneMenu>
 <Title>{{groupaddress_name}}. Last value: {{status}}</Title>
 {% if values %}
     {% for value in values %}
@@ -8,14 +8,13 @@
             <Name>{{value}}</Name>
                 <URL>{{ knx_gateway }}{{ action }}/{{ groupaddress }}/{{function}}/{{value}}</URL>
         </MenuItem>
-        <fetch mil='5000'>{{callback_url}}</fetch>
     {% endfor %}
 {% else %}
     <MenuItem>
         <Name>Last value: {{status}}</Name>
     </MenuItem>
-    <fetch mil='1500'>{{callback_url}}</fetch>
 {% endif %}
+{% block back %}
     <SoftKeyItem>
         <Name>F1</Name>
         <Icon>{{knx_gateway}}media/minibrowser/images/back.png</Icon>
@@ -23,4 +22,5 @@
         <URL>{{callback_url}}</URL>
     </SoftKeyItem>
     <fetch mil='100000'>snom://mb_exit</fetch>
+{% endblock back %}
 </SnomIPPhoneMenu>
