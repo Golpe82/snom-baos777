@@ -4,7 +4,7 @@
 
 {% block groupaddress_item %}
 <MenuItem>
-    <Name>{{name}}: {{status}}</Name>
+    <Name>{{alias}}: {{status}}</Name>
     <URL>{{knx_gateway}}minibrowser/{{groupaddress}}/</URL>
 </MenuItem>
 {% endblock groupaddress_item %}
