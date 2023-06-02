@@ -3,13 +3,13 @@
 <SnomIPPhoneMenu>
 <Title>{{mainaddress}}/{{middaddress}}</Title>
 {% if subaddresses %}
-    {% for name, subaddress in subaddresses.items %}
+    {% for alias, subaddress in subaddresses.items %}
         {% for groupaddress, status in subaddress.items %}
             {% block groupaddress_item %}
             <MenuItem>
                 <Image default="file:///bmp/colored/snom_photo_unknown.png">{{knx_gateway}}media/minibrowser/images/{{status}}.png</Image>
                 <extratext>{{status}}</extratext>
-                <Name>{{name}}</Name>
+                <Name>{{alias}}</Name>
                 <URL>{{knx_gateway}}minibrowser/{{groupaddress}}/</URL>
             </MenuItem>
             {% endblock groupaddress_item %}
