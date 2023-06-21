@@ -2,7 +2,7 @@ import socketserver
 
 from syslog_udp_handler import SyslogUDPHandler
 
-HOST, PORT = "0.0.0.0", 514
+HOST, PORT = "0.0.0.0", 515
 
 if __name__ == "__main__":
     try:
