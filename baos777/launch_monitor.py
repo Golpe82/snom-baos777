@@ -4,6 +4,7 @@ import sys
 # add current folder to the system path
 # sys.path.append("/usr/local/snom_baos_777")
 sys.path.append("/knx")
+from baos777 import utils
 from baos777 import baos_websocket as baos_ws
 
 logging.basicConfig(level=logging.INFO)
@@ -12,6 +13,7 @@ USERNAME = "admin"
 PASSWORD = "admin"
 
 if __name__ == "__main__":
+    utils.wait(20) # wait until phone is booted and network is up
     while True:
         monitor = baos_ws.MonitorWebsocket(USERNAME, PASSWORD)
         interface = monitor.baos_interface
