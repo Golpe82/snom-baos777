@@ -1,8 +1,13 @@
 import logging
+import signal
+import os
+from contextlib import suppress
+
+import asyncio
 
 from django.http import JsonResponse, HttpResponse
 
-from knx.models import TemperatureRelation, AmbientLightRelation
+from knx.models import TemperatureRelation, AmbientLightRelation, Groupaddress
 import baos777.baos_websocket as baos_ws
 
 USERNAME = "admin"
@@ -79,3 +84,35 @@ def ambient_light_sensor_relations(request, device_ip):
     }
 
     return JsonResponse(data)
+
+
+def stop_blink(request, main, midd, sub):
+    groupaddress = f"{main}/{midd}/{sub}"
+    groupaddress_data = Groupaddress.objects.get(address=groupaddress)
+    asyncio.run(stop_subprocess())
+
+    return HttpResponse(f"{groupaddress_data.name} stopped to blink")
+
+async def stop_subprocess():
+    subprocess = await asyncio.create_subprocess_exec("kill", "-9", "6119")
+    logging.error("stopped")
+
+def start_blink(request, main, midd, sub, sec_for_true, sec_for_false):
+    groupaddress = f"{main}/{midd}/{sub}"
+    groupaddress_data = Groupaddress.objects.get(address=groupaddress)
+    datapoint_type = groupaddress_data.datapoint_type
+    is_dpt1 = datapoint_type == "DPST-1-1" or "DPT-1"
+
+    if not is_dpt1:
+        message = f"Blinking only possible with dpt1 groupaddresses.\n Groupaddress {groupaddress} is dpt {datapoint_type}"
+        logging.error(message)
+        return HttpResponse(message)
+
+    writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
+    asyncio.run(start_subprocess())
+
+    return HttpResponse(f"{groupaddress_data.name} started to blink")
+
+async def start_subprocess():
+    subprocess = await asyncio.create_subprocess_exec("python3", "iot/knx/views/blink.py")
+    logging.error(subprocess.pid)

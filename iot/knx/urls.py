@@ -47,6 +47,16 @@ urlpatterns = [
         name="knx_write",
     ),
     path(
+        "<int:main>/<int:midd>/<int:sub>/start_blink/<int:sec_for_true>/<int:sec_for_false>",
+        views.start_blink,
+        name="start_blink",
+    ),
+    path(
+        "stop_blink/<int:main>/<int:midd>/<int:sub>",
+        views.stop_blink,
+        name="stop_blink",
+    ),
+    path(
         "check_write/<int:main>/<int:midd>/<int:sub>/<str:value>/<str:code>",
         views.check_code,
         name="check_code",

@@ -122,7 +122,6 @@ def check_code(request, main, midd, sub, value, code):
 
     return HttpResponse()
 
-
 def update_led_subscriptors(request, main, midd, sub, status):
     groupaddress = f"{main}/{midd}/{sub}"
     subscripted_leds = FunctionKeyLEDSubscriptions.objects.filter(
