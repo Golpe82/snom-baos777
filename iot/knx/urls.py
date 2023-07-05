@@ -52,7 +52,7 @@ urlpatterns = [
         name="start_blink",
     ),
     path(
-        "stop_blink/<int:main>/<int:midd>/<int:sub>",
+        "<int:main>/<int:midd>/<int:sub>/stop_blink",
         views.stop_blink,
         name="stop_blink",
     ),

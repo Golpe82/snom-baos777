@@ -1,13 +1,9 @@
 import logging
-import signal
-import os
-from contextlib import suppress
-
 import asyncio
 
 from django.http import JsonResponse, HttpResponse
 
-from knx.models import TemperatureRelation, AmbientLightRelation, Groupaddress
+from knx.models import TemperatureRelation, AmbientLightRelation, Groupaddress, Supbrocess
 import baos777.baos_websocket as baos_ws
 
 USERNAME = "admin"
@@ -87,19 +83,18 @@ def ambient_light_sensor_relations(request, device_ip):
 
 
 def stop_blink(request, main, midd, sub):
-    groupaddress = f"{main}/{midd}/{sub}"
-    groupaddress_data = Groupaddress.objects.get(address=groupaddress)
-    asyncio.run(stop_subprocess())
+    groupaddress_data = Groupaddress.objects.get(address=f"{main}/{midd}/{sub}")
+    subprocess_data = Supbrocess.objects.get(name=f"blink_{groupaddress_data.address}")
+    asyncio.run(kill_subprocess(subprocess_data.pid))
+    logging.error(f"Killed subprocess {subprocess_data.name} with PID {subprocess_data.pid}")
+    Supbrocess.objects.get(name=f"blink_{groupaddress_data.address}").delete()
+    writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
+    writer.baos_interface.send_value(groupaddress_data.address, "off")
 
     return HttpResponse(f"{groupaddress_data.name} stopped to blink")
 
-async def stop_subprocess():
-    subprocess = await asyncio.create_subprocess_exec("kill", "-9", "6119")
-    logging.error("stopped")
-
 def start_blink(request, main, midd, sub, sec_for_true, sec_for_false):
-    groupaddress = f"{main}/{midd}/{sub}"
-    groupaddress_data = Groupaddress.objects.get(address=groupaddress)
+    groupaddress_data = Groupaddress.objects.get(address=f"{main}/{midd}/{sub}")
     datapoint_type = groupaddress_data.datapoint_type
     is_dpt1 = datapoint_type == "DPST-1-1" or "DPT-1"
 
@@ -108,11 +103,25 @@ def start_blink(request, main, midd, sub, sec_for_true, sec_for_false):
         logging.error(message)
         return HttpResponse(message)
 
-    writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
-    asyncio.run(start_subprocess())
+    # kill processes and delete from db
+    subprocesses = Supbrocess.objects.filter(name=f"blink_{groupaddress_data.address}")
+    for subprocess in subprocesses:
+        asyncio.run(kill_subprocess(subprocess.pid)) 
+        subprocess.delete()
+
+    coroutine = get_coroutine("blink", groupaddress_data.address, sec_for_true, sec_for_false, USERNAME, PASSWORD)
+    asyncio.run(coroutine)
 
     return HttpResponse(f"{groupaddress_data.name} started to blink")
 
-async def start_subprocess():
-    subprocess = await asyncio.create_subprocess_exec("python3", "iot/knx/views/blink.py")
-    logging.error(subprocess.pid)
+async def kill_subprocess(pid):
+    await asyncio.create_subprocess_exec("kill", "-9", str(pid))
+
+async def get_coroutine(name, groupaddress, sec_for_on, sec_for_off, user, password):
+    subprocess = await asyncio.create_subprocess_exec(
+        "python3", "iot/knx/views/blink.py", groupaddress,
+        str(sec_for_on), str(sec_for_off), user, password
+    )
+    await Supbrocess.objects.acreate(name=f"{name}_{groupaddress}", pid=subprocess.pid)
+
+    logging.info(f"Started coroutine {name} for groupaddress {groupaddress} with PID {subprocess.pid}")
