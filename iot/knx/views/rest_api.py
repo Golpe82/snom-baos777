@@ -1,7 +1,9 @@
 import logging
 import asyncio
 
+from django.conf import settings
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import redirect
 
 from knx.models import TemperatureRelation, AmbientLightRelation, Groupaddress, Supbrocess
 import baos777.baos_websocket as baos_ws
@@ -85,13 +87,17 @@ def ambient_light_sensor_relations(request, device_ip):
 def stop_blink(request, main, midd, sub):
     groupaddress_data = Groupaddress.objects.get(address=f"{main}/{midd}/{sub}")
     subprocess_data = Supbrocess.objects.get(name=f"blink_{groupaddress_data.address}")
+    # check if there is a running subprocess
     asyncio.run(kill_subprocess(subprocess_data.pid))
     logging.error(f"Killed subprocess {subprocess_data.name} with PID {subprocess_data.pid}")
     Supbrocess.objects.get(name=f"blink_{groupaddress_data.address}").delete()
     writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
     writer.baos_interface.send_value(groupaddress_data.address, "off")
 
-    return HttpResponse(f"{groupaddress_data.name} stopped to blink")
+    if "snom" in request.META["HTTP_USER_AGENT"]:
+        return HttpResponse()
+
+    return redirect(f"{settings.KNX_ROOT}subprocesses/")
 
 def start_blink(request, main, midd, sub, sec_for_true, sec_for_false):
     groupaddress_data = Groupaddress.objects.get(address=f"{main}/{midd}/{sub}")
@@ -112,7 +118,10 @@ def start_blink(request, main, midd, sub, sec_for_true, sec_for_false):
     coroutine = get_coroutine("blink", groupaddress_data.address, sec_for_true, sec_for_false, USERNAME, PASSWORD)
     asyncio.run(coroutine)
 
-    return HttpResponse(f"{groupaddress_data.name} started to blink")
+    if "snom" in request.META["HTTP_USER_AGENT"]:
+        return HttpResponse()
+
+    return redirect(f"{settings.KNX_ROOT}subprocesses/")
 
 async def kill_subprocess(pid):
     await asyncio.create_subprocess_exec("kill", "-9", str(pid))

@@ -7,7 +7,7 @@ from django.http import HttpResponse
 
 from knx import upload
 from knx.http_dispatcher import HTTPKNXDispatcher
-from knx.models import Groupaddress, FunctionKeyLEDSubscriptions
+from knx.models import Groupaddress, FunctionKeyLEDSubscriptions, Supbrocess
 import baos777.baos_websocket as baos_ws
 
 APP = "KNX"
@@ -176,3 +176,12 @@ def render_groupaddresses(request):
     }
 
     return render(request, "knx/groupaddresses_data.html", context)
+
+def subprocesses(request):
+    subprocesses = Supbrocess.objects.all()
+    context = {
+        "app": APP,
+        "subprocesses": subprocesses,
+    }
+
+    return render(request, "knx/subprocesses.html", context)

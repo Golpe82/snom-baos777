@@ -1,0 +1,27 @@
+{% extends "knx/base_knx.html" %}
+
+{% load static %}
+
+{% block title %}{{app}}|Subprocesses{% endblock title %}
+{% block header %}{{app}} - Subprocesses{% endblock header %}
+
+{% block content %}
+<table border='1'>
+    <tr>
+      <th>Subprocess</th>
+      <th>PID</th>
+    </tr>
+    {% if subprocesses %}
+        {% for subprocess in subprocesses %}
+        <tr>
+            <td>{{ subprocess.name }}</td>
+            <td>{{ subprocess.pid }}</td>
+        </tr>
+        {% endfor %}
+    {% else %}
+    <tr>
+        <td colspan="3" >No subprocesses running</td>
+    </tr>
+    {% endif %}
+  </table>
+{% endblock content %}
