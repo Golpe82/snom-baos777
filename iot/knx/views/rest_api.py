@@ -122,7 +122,7 @@ def start_blink(request, main, midd, sub, sec_for_true, sec_for_false):
         return HttpResponse(message)
     
     kill_groupaddress_blink_subprocesses(groupaddress)
-    coroutine = get_coroutine("blink", groupaddress, sec_for_true, sec_for_false, USERNAME, PASSWORD)
+    coroutine = prepare_blink_coroutine(groupaddress, sec_for_true, sec_for_false, USERNAME, PASSWORD)
     asyncio.run(coroutine)
 
     if "snom" in request.META["HTTP_USER_AGENT"]:
@@ -142,11 +142,11 @@ def kill_groupaddress_blink_subprocesses(groupaddress):
 async def kill_subprocess(pid):
     await asyncio.create_subprocess_exec("kill", "-9", str(pid))
 
-async def get_coroutine(name, groupaddress, sec_for_on, sec_for_off, user, password):
+async def prepare_blink_coroutine(groupaddress, sec_for_on, sec_for_off, user, password):
     subprocess = await asyncio.create_subprocess_exec(
         "python3", "iot/knx/views/blink.py", groupaddress,
         str(sec_for_on), str(sec_for_off), user, password
     )
-    await Supbrocess.objects.acreate(name=f"{name}_{groupaddress}", pid=subprocess.pid)
+    await Supbrocess.objects.acreate(type="blink", name=f"blink_{groupaddress}", pid=subprocess.pid)
 
-    logging.info(f"Started coroutine {name} for groupaddress {groupaddress} with PID {subprocess.pid}")
+    logging.info(f"Started blink coroutine for groupaddress {groupaddress} with PID {subprocess.pid}")

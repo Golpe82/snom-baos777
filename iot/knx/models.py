@@ -148,7 +148,8 @@ class TemperatureRelation(models.Model):
 
 class Supbrocess(models.Model):
     pid = models.PositiveIntegerField(default=None, unique=True)
+    type = models.CharField(max_length=10, default=None, editable=False)
     name = models.CharField(max_length=50, default=None, editable=False)
 
     def __str__(self) -> str:
-        return f"{self.pid} | {self.name}"
+        return f"{self.type} | {self.name} | {self.pid}"

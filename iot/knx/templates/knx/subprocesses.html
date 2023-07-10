@@ -9,12 +9,14 @@
 <table border='1'>
     <tr>
       <th>Subprocess</th>
+      <th>Type</th>
       <th>PID</th>
     </tr>
     {% if subprocesses %}
         {% for subprocess in subprocesses %}
         <tr>
             <td>{{ subprocess.name }}</td>
+            <td>{{ subprocess.type }}</td>
             <td>{{ subprocess.pid }}</td>
         </tr>
         {% endfor %}
