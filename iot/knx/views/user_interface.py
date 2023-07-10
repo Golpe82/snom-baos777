@@ -177,7 +177,7 @@ def render_groupaddresses(request):
 
     return render(request, "knx/groupaddresses_data.html", context)
 
-def subprocesses(request):
+def subprocesses(request, message=""):
     subprocesses = Supbrocess.objects.all()
     context = {
         "app": APP,

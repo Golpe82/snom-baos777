@@ -146,19 +146,6 @@ class TemperatureRelation(models.Model):
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Celsius groupaddress: {self.knx_send_celsius_address}"
 
-class Groupaddress(models.Model):
-    maingroup = models.CharField(max_length=50, default=None, editable=False)
-    subgroup = models.CharField(max_length=50, default=None, editable=False)
-    address = models.CharField(max_length=9, default=None, editable=False)
-    name = models.CharField(max_length=50, default=None, editable=False)
-    alias = models.CharField(max_length=50, default=None)
-    datapoint_type = models.CharField(max_length=50, default=None, editable=False)
-    html_action = models.CharField(max_length=500, default=None)
-    code = models.CharField(max_length=4, blank=True)
-
-    def __str__(self) -> str:
-        return f"{self.maingroup} | {self.subgroup} | {self.name}"
-
 class Supbrocess(models.Model):
     pid = models.PositiveIntegerField(default=None, unique=True)
     name = models.CharField(max_length=50, default=None, editable=False)
