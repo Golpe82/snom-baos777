@@ -7,7 +7,7 @@ from django.http import HttpResponse
 
 from knx import upload
 from knx.http_dispatcher import HTTPKNXDispatcher
-from knx.models import Groupaddress, FunctionKeyLEDSubscriptions, Supbrocess
+from knx.models import Groupaddress, FunctionKeyLEDBoolRelation, Supbrocess
 import baos777.baos_websocket as baos_ws
 
 APP = "KNX"
@@ -126,8 +126,8 @@ def check_code(request, main, midd, sub, value, code):
 
 def update_led_subscriptors(request, main, midd, sub, status):
     groupaddress = f"{main}/{midd}/{sub}"
-    subscripted_leds = FunctionKeyLEDSubscriptions.objects.filter(
-        knx_subscription=groupaddress
+    subscripted_leds = FunctionKeyLEDBoolRelation.objects.filter(
+        write_groupaddress=groupaddress
     )
 
     if subscripted_leds:
