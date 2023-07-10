@@ -144,7 +144,7 @@ async def kill_subprocess(pid):
 
 async def prepare_blink_coroutine(groupaddress, sec_for_on, sec_for_off, user, password):
     subprocess = await asyncio.create_subprocess_exec(
-        "python3", "iot/knx/views/blink.py", groupaddress,
+        "python3", f"{settings.BASE_DIR}/knx/blink.py", groupaddress,
         str(sec_for_on), str(sec_for_off), user, password
     )
     await Supbrocess.objects.acreate(type="blink", name=f"blink_{groupaddress}", pid=subprocess.pid)
