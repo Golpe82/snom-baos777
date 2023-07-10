@@ -37,6 +37,7 @@ urlpatterns = [
         views.minibrowser_values,
         name="mb_values",
     ),
+    path("subprocesses/", views.subprocesses, name="subprocesses"),
     path("upload/", views.upload_file, name="upload_file"),
     path("groupaddresses/", views.render_groupaddresses, name="groupaddresses"),
     # REST API URLs
@@ -45,6 +46,16 @@ urlpatterns = [
         "write/<int:main>/<int:midd>/<int:sub>/<str:dpt_name>/<str:value>",
         views.knx_write,
         name="knx_write",
+    ),
+    path(
+        "<int:main>/<int:midd>/<int:sub>/start_blink/<int:sec_for_true>/<int:sec_for_false>",
+        views.start_blink,
+        name="start_blink",
+    ),
+    path(
+        "<int:main>/<int:midd>/<int:sub>/stop_blink",
+        views.stop_blink,
+        name="stop_blink",
     ),
     path(
         "check_write/<int:main>/<int:midd>/<int:sub>/<str:value>/<str:code>",

@@ -1,8 +1,11 @@
 import logging
+import asyncio
 
+from django.conf import settings
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import redirect, render
 
-from knx.models import TemperatureRelation, AmbientLightRelation
+from knx.models import TemperatureRelation, AmbientLightRelation, Groupaddress, Supbrocess
 import baos777.baos_websocket as baos_ws
 
 USERNAME = "admin"
@@ -79,3 +82,71 @@ def ambient_light_sensor_relations(request, device_ip):
     }
 
     return JsonResponse(data)
+
+
+def stop_blink(request, main, midd, sub):
+    groupaddress = f"{main}/{midd}/{sub}"
+
+    try:
+        pid = Supbrocess.objects.get(name=f"blink_{groupaddress}").pid
+    except Supbrocess.DoesNotExist:
+        if "snom" in request.META["HTTP_USER_AGENT"]:
+            context = {"text": f"No running blink subprocess for {groupaddress}"}
+            return render(
+                request, "knx/minibrowser/ip_phone_text.xml", context, content_type="text/xml"
+            )
+        return redirect(f"{settings.KNX_ROOT}subprocesses/")
+
+    asyncio.run(kill_subprocess(pid))
+    logging.error(f"Killed blink subprocess for groupaddress {groupaddress} with PID {pid}")
+    Supbrocess.objects.get(name=f"blink_{groupaddress}").delete()
+    writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
+    writer.baos_interface.send_value(groupaddress, "off")
+
+    if "snom" in request.META["HTTP_USER_AGENT"]:
+        context = {"text": f"{groupaddress} stopped to blink"}
+        return render(
+            request, "knx/minibrowser/ip_phone_text.xml", context, content_type="text/xml"
+        )
+
+    return redirect(f"{settings.KNX_ROOT}subprocesses/")
+
+def start_blink(request, main, midd, sub, sec_for_true, sec_for_false):
+    dpt1 = ("DPST-1-1", "DPT-1")
+    groupaddress = f"{main}/{midd}/{sub}"
+    datapoint_type = Groupaddress.objects.get(address=groupaddress).datapoint_type
+
+    if datapoint_type not in dpt1:
+        message = f"Blinking only possible with dpt1 groupaddresses.\n Groupaddress {groupaddress} is dpt {datapoint_type}"
+        logging.error(message)
+        return HttpResponse(message)
+    
+    kill_groupaddress_blink_subprocesses(groupaddress)
+    coroutine = prepare_blink_coroutine(groupaddress, sec_for_true, sec_for_false, USERNAME, PASSWORD)
+    asyncio.run(coroutine)
+
+    if "snom" in request.META["HTTP_USER_AGENT"]:
+        context = {"text": f"{groupaddress} started to blink"}
+        return render(
+            request, "knx/minibrowser/ip_phone_text.xml", context, content_type="text/xml"
+        )
+
+    return redirect(f"{settings.KNX_ROOT}subprocesses/")
+
+def kill_groupaddress_blink_subprocesses(groupaddress):
+    subprocesses = Supbrocess.objects.filter(name=f"blink_{groupaddress}")
+    for subprocess in subprocesses:
+        asyncio.run(kill_subprocess(subprocess.pid)) 
+        subprocess.delete()
+
+async def kill_subprocess(pid):
+    await asyncio.create_subprocess_exec("kill", "-9", str(pid))
+
+async def prepare_blink_coroutine(groupaddress, sec_for_on, sec_for_off, user, password):
+    subprocess = await asyncio.create_subprocess_exec(
+        "python3", f"{settings.BASE_DIR}/knx/blink.py", groupaddress,
+        str(sec_for_on), str(sec_for_off), user, password
+    )
+    await Supbrocess.objects.acreate(type="blink", name=f"blink_{groupaddress}", pid=subprocess.pid)
+
+    logging.info(f"Started blink coroutine for groupaddress {groupaddress} with PID {subprocess.pid}")

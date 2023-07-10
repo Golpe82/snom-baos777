@@ -145,3 +145,11 @@ class TemperatureRelation(models.Model):
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Celsius groupaddress: {self.knx_send_celsius_address}"
+
+class Supbrocess(models.Model):
+    pid = models.PositiveIntegerField(default=None, unique=True)
+    type = models.CharField(max_length=10, default=None, editable=False)
+    name = models.CharField(max_length=50, default=None, editable=False)
+
+    def __str__(self) -> str:
+        return f"{self.type} | {self.name} | {self.pid}"
