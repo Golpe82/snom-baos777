@@ -1,4 +1,3 @@
-import os
 import logging
 
 from django.core.validators import RegexValidator
@@ -6,6 +5,27 @@ from django.db import models
 from django.conf import settings
 from knx.constants import FkeyLEDNo
 
+class SingletonModel(models.Model):
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(SingletonModel, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+class Setting(SingletonModel):
+    baos777_ip_address = models.GenericIPAddressField()
+
+    def __str__(self) -> str:
+        return f"Settings | BAOS IP {self.baos777_ip_address}"
 
 class Groupaddress(models.Model):
     maingroup = models.CharField(max_length=50, default=None, editable=False)
@@ -107,7 +127,6 @@ class FunctionKeyLEDBoolRelation(models.Model):
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Write groupaddress: {self.write_groupaddress}"
 
-
 class AmbientLightRelation(models.Model):
     mac_address_validator = RegexValidator(
         regex="^[0-9a-fA-F]{12}$", message="Invalid MAC address"
@@ -131,7 +150,6 @@ class AmbientLightRelation(models.Model):
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Lux groupaddress: {self.knx_send_lux_address} | Setpoint: {self.min_lux}...{self.max_lux} Lux"
-
 
 class TemperatureRelation(models.Model):
     mac_address_validator = RegexValidator(

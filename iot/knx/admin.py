@@ -1,12 +1,14 @@
 from django.contrib import admin
 
 from knx.models import (
+    Setting,
     Groupaddress,
     FunctionKeyLEDBoolRelation,
     AmbientLightRelation,
     TemperatureRelation,
 )
 
+admin.site.register(Setting)
 admin.site.register(AmbientLightRelation)
 admin.site.register(TemperatureRelation)
 

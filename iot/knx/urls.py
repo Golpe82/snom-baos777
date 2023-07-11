@@ -8,6 +8,7 @@ app_name = "knx"
 
 urlpatterns = [
     path("", views.index, name="knx_home"),
+    path("settings/", views.knx_settings, name="knx_settings"),
     path(
         "update_led_subscriptors/<int:main>/<int:midd>/<int:sub>/<str:status>",
         views.update_led_subscriptors,

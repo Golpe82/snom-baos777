@@ -4,18 +4,19 @@ from abc import ABC, abstractmethod
 import logging
 import json
 from http import HTTPStatus
-import os
 
 import requests
 import websocket
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 from baos777.http_handler import HTTPHandler
 from baos777.baos777_interface import BAOS777Interface
 from baos777.baos_indication_message import BAOSIndicationsMessage
 from baos777.datapoint_values import DPT1_VALUES
 from baos777 import utils
-load_dotenv()
+
+import helpers
+# load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 
@@ -23,14 +24,15 @@ if logging.getLogger().level == logging.DEBUG:
     websocket.enableTrace(True)
 
 
-KNX_GATEWAY = os.environ.get("KNX_GATEWAY")
-BAOS777_IP = os.environ.get("BAOS777_IP")
+KNX_GATEWAY = helpers.get_local_ip()
 
 class BaseWebsocket(ABC):
     def __init__(self, username, password):
         self.ws = None
         self.user = username
         self.pswd = password
+        _settings = requests.get(f"http://{KNX_GATEWAY}/knx/settings/")
+        self.ip_address = _settings.json().get("baos ip")
         self.token = None
         self.baos_interface = None
         self.incoming_message = None
@@ -38,7 +40,7 @@ class BaseWebsocket(ABC):
         self._connect()
 
     def _login(self):
-        login_url = f"http://{BAOS777_IP}/rest/login"
+        login_url = f"http://{self.ip_address}/rest/login"
         credentials = {"password": self.pswd, "username": self.user}
 
         try:
@@ -69,7 +71,7 @@ class BaseWebsocket(ABC):
         self.token = token
 
     def _connect(self):
-        websocket_host = f"ws://{BAOS777_IP}/websocket"
+        websocket_host = f"ws://{self.ip_address}/websocket"
         websocket_url = f"{websocket_host}?token={self.token}"
 
         try:
@@ -83,7 +85,7 @@ class BaseWebsocket(ABC):
         except Exception:
             logging.exception("BAOS Webservice down, try reconnect")
 
-        self.baos_interface = BAOS777Interface(self.token)
+        self.baos_interface = BAOS777Interface(self.ip_address, self.token)
 
     @abstractmethod
     def on_message(self, ws, message):

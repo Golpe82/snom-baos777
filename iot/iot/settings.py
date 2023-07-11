@@ -5,9 +5,7 @@ Django settings for iot project.
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
-load_dotenv()
+import helpers
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -15,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "-+%-e(6*1_!dcomw3yod)^8iobzhhu9u4yv83izw3@x2in6c)8"
 DEBUG = True
-GATEWAY_IP = os.environ.get("KNX_GATEWAY")
+GATEWAY_IP = helpers.get_local_ip()
 
 ALLOWED_HOSTS = ["localhost", GATEWAY_IP]
 

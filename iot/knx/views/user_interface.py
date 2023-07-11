@@ -3,11 +3,11 @@ import logging
 
 from django.conf import settings
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from knx import upload
 from knx.http_dispatcher import HTTPKNXDispatcher
-from knx.models import Groupaddress, FunctionKeyLEDBoolRelation, Supbrocess
+from knx.models import Groupaddress, FunctionKeyLEDBoolRelation, Supbrocess,Setting
 import baos777.baos_websocket as baos_ws
 
 APP = "KNX"
@@ -187,3 +187,8 @@ def subprocesses(request, message=""):
     }
 
     return render(request, "knx/subprocesses.html", context)
+
+def knx_settings(request):
+    settings = {"baos ip": Setting.objects.all().first().baos777_ip_address}
+    logging.error(settings)
+    return JsonResponse(settings)

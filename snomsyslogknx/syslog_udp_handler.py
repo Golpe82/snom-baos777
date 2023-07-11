@@ -2,15 +2,11 @@ import logging
 import json
 import requests
 import socketserver
-import os
-
-from dotenv import load_dotenv
 
 from baos777 import baos_websocket as baos_ws
-load_dotenv()
 
 USERNAME, PASSWORD = "admin", "admin"
-KNX_GATEWAY = os.environ.get("KNX_GATEWAY")
+KNX_GATEWAY = baos_ws.KNX_GATEWAY
 AMBIENT_LIGHT_RELATIONS_URL = f"http://{KNX_GATEWAY}/admin/knx/ambientlightrelation/"
 TEMPERATURE_RELATIONS_URL = f"http://{KNX_GATEWAY}/admin/knx/temperaturerelation/"
 # TODO: REFACTOR
