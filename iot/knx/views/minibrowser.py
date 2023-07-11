@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import logging
 
-from knx.models import Groupaddress, FunctionKeyLEDSubscriptions
+from knx.models import Groupaddress, FunctionKeyLEDBoolRelation
 import baos777.baos_websocket as baos_ws
 
 BAOS_USERNAME = "admin"
@@ -148,7 +148,7 @@ def minibrowser_values(request, mainaddress, middaddress, subaddress):
 
 
 def minibrowser_led_subscription(request, subscription_id, boolean):
-    subscription = FunctionKeyLEDSubscriptions.objects.get(id=subscription_id)
+    subscription = FunctionKeyLEDBoolRelation.objects.get(id=subscription_id)
     led_update_xml = subscription.__getattribute__(f"on_change_xml_for_{boolean}")
     values = ["on", "off"]
 

@@ -24,9 +24,14 @@ class Groupaddress(models.Model):
 PHONE_MODEL_CHOICES = [
     (phone_model, phone_model) for phone_model in FkeyLEDNo.__dataclass_fields__
 ]
+LED_COLOR_CHOICES = [
+    ("---", "---"),
+    ("green", "green"),
+    ("red", "red"),
+    ("orange", "orange"),
+]
 
-
-class FunctionKeyLEDSubscriptions(models.Model):
+class FunctionKeyLEDBoolRelation(models.Model):
     mac_address_validator = RegexValidator(
         regex="^[0-9a-fA-F]{12}$", message="Invalid MAC address"
     )
@@ -37,9 +42,11 @@ class FunctionKeyLEDSubscriptions(models.Model):
     )
     ip_address = models.GenericIPAddressField()
     phone_model = models.CharField(max_length=4, null=True, choices=PHONE_MODEL_CHOICES)
-    led_number_for_on = models.PositiveSmallIntegerField(null=True)
-    led_number_for_off = models.PositiveSmallIntegerField(default=None)
-    knx_subscription = models.CharField(max_length=8, null=True)
+    write_groupaddress = models.CharField(max_length=8, null=True)
+    status_groupaddress = models.CharField(max_length=8, null=True)
+    led_number = models.PositiveSmallIntegerField(null=True)
+    led_color_for_on = models.CharField(max_length=8, null=True, choices=LED_COLOR_CHOICES)
+    led_color_for_off = models.CharField(max_length=8, null=True, choices=LED_COLOR_CHOICES, default="---")
     phone_location = models.CharField(max_length=30, default=None)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
@@ -51,12 +58,8 @@ class FunctionKeyLEDSubscriptions(models.Model):
         }
 
     @property
-    def knx_write_url_for_on(self):
-        return f"{settings.KNX_ROOT}write/{self.knx_subscription}/switch/on"
-
-    @property
-    def knx_write_url_for_off(self):
-        return f"{settings.KNX_ROOT}write/{self.knx_subscription}/switch/off"
+    def knx_toggle_url(self):
+        return f"{settings.KNX_ROOT}write/{self.write_groupaddress}/switch/toggle"
 
     @property
     def on_change_xml_for_on(self):
@@ -64,9 +67,8 @@ class FunctionKeyLEDSubscriptions(models.Model):
             <?xml version="1.0" encoding="UTF-8"?>
             <SnomIPPhoneText>
                 <Title>LED subscription</Title>
-                <Text>Groupaddress {self.knx_subscription} changed to on</Text>
-                <LED number="{self.led_number_for_on}" color="green">On</LED>
-                <LED number="{self.led_number_for_off}">Off</LED>
+                <Text>Groupaddress {self.status_groupaddress} changed to on</Text>
+                <LED number="{self.led_number}" color="{self.led_color_for_on}">On</LED>
                 <fetch mil=1>snom://mb_exit</fetch>
             </SnomIPPhoneText>
         """
@@ -80,13 +82,17 @@ class FunctionKeyLEDSubscriptions(models.Model):
 
     @property
     def on_change_xml_for_off(self):
+        if self.led_color_for_off == "---":
+            led_tag = f"<LED number='{self.led_number}'>Off</LED>"
+        else:
+            led_tag = f"<LED number='{self.led_number}' color='{self.led_color_for_off}'>On</LED>"
+
         return f"""
         <?xml version="1.0" encoding="UTF-8"?>
         <SnomIPPhoneText>
             <Title>LED subscription</Title>
-            <Text>Groupaddress {self.knx_subscription} changed to off</Text>
-            <LED number="{self.led_number_for_on}">Off</LED>
-            <LED number="{self.led_number_for_off}" color="green">On</LED>
+            <Text>Groupaddress {self.status_groupaddress} changed to off</Text>
+            {led_tag}
             <fetch mil=1>snom://mb_exit</fetch>
         </SnomIPPhoneText>
         """
@@ -99,7 +105,7 @@ class FunctionKeyLEDSubscriptions(models.Model):
         return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/off/"
 
     def __str__(self) -> str:
-        return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Switch groupaddress: {self.knx_subscription}"
+        return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Write groupaddress: {self.write_groupaddress}"
 
 
 class AmbientLightRelation(models.Model):

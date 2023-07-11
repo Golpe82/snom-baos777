@@ -7,7 +7,7 @@ from django.http import HttpResponse
 
 from knx import upload
 from knx.http_dispatcher import HTTPKNXDispatcher
-from knx.models import Groupaddress, FunctionKeyLEDSubscriptions, Supbrocess
+from knx.models import Groupaddress, FunctionKeyLEDBoolRelation, Supbrocess
 import baos777.baos_websocket as baos_ws
 
 APP = "KNX"
@@ -45,32 +45,6 @@ def knx_write(request, main, midd, sub, dpt_name, value):
         return HttpResponse()
 
     groupaddress = f"{main}/{midd}/{sub}"
-
-    if value == "phone_input":
-        return HttpResponse(
-            f"""
-            <SnomIPPhoneInput track=no>
-                <InputItem>
-                    <DisplayName>Enter value in % for groupaddress {groupaddress}</DisplayName>
-                    <InputToken>__Y__</InputToken>
-                    <InputFlags>n</InputFlags>
-                </InputItem>
-                <Url>{settings.KNX_ROOT}write/{main}/{midd}/{sub}/scaling/__Y__</Url>
-            </SnomIPPhoneInput>
-        """,
-            content_type="text/xml",
-        )
-    if dpt_name == "scaling" and int(value) not in range(101):
-        return HttpResponse(
-            """
-                <SnomIPPhoneText>
-                    <Text>Input not in range 0...100</Text>
-                    <fetch mil=1500>snom://mb_exit</fetch>
-                </SnomIPPhoneText>
-            """,
-            content_type="text/xml",
-        )
-
     address_info = Groupaddress.objects.filter(address=groupaddress)
     address_code = address_info.values_list("code", flat=True).first()
 
@@ -94,9 +68,37 @@ def knx_write(request, main, midd, sub, dpt_name, value):
             f"{groupaddress} needs a code. Input only over a snom device possible, not over browser."
         )
 
-    else:
-        writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
-        writer.baos_interface.send_value(groupaddress, value)
+    if dpt_name == "scaling" and value == "phone_input":
+        return HttpResponse(
+            f"""
+            <SnomIPPhoneInput track=no>
+                <InputItem>
+                    <DisplayName>Enter value in % for groupaddress {groupaddress}</DisplayName>
+                    <InputToken>__Y__</InputToken>
+                    <InputFlags>n</InputFlags>
+                </InputItem>
+                <Url>{settings.KNX_ROOT}write/{main}/{midd}/{sub}/scaling/__Y__</Url>
+            </SnomIPPhoneInput>
+        """,
+            content_type="text/xml",
+        )
+    if dpt_name == "scaling" and int(value) not in range(101):
+        return HttpResponse(
+            """
+                <SnomIPPhoneText>
+                    <Text>Input not in range 0...100</Text>
+                    <fetch mil=1500>snom://mb_exit</fetch>
+                </SnomIPPhoneText>
+            """,
+            content_type="text/xml",
+        )
+    if dpt_name == "switch" and value == "toggle":
+        reader = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
+        is_on = reader.baos_interface.read_raw_value(groupaddress)
+        value = "off" if is_on else "on"
+
+    writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
+    writer.baos_interface.send_value(groupaddress, value)
 
     return HttpResponse()
 
@@ -124,8 +126,8 @@ def check_code(request, main, midd, sub, value, code):
 
 def update_led_subscriptors(request, main, midd, sub, status):
     groupaddress = f"{main}/{midd}/{sub}"
-    subscripted_leds = FunctionKeyLEDSubscriptions.objects.filter(
-        knx_subscription=groupaddress
+    subscripted_leds = FunctionKeyLEDBoolRelation.objects.filter(
+        write_groupaddress=groupaddress
     )
 
     if subscripted_leds:
