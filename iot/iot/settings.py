@@ -4,18 +4,16 @@ Django settings for iot project.
 
 import os
 from pathlib import Path
-import logging
-
-import helpers
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 os.environ["PYTHONPATH"] = str(BASE_DIR.parent)
 
+import helpers
+LOCAL_IP = helpers.get_local_ip()
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SECRET_KEY = "-+%-e(6*1_!dcomw3yod)^8iobzhhu9u4yv83izw3@x2in6c)8"
 DEBUG = True
-LOCAL_IP = helpers.get_local_ip()
 
 ALLOWED_HOSTS = ["localhost", LOCAL_IP]
 
