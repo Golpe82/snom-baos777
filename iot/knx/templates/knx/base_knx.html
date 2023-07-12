@@ -21,7 +21,9 @@
             <label for="local ip"><b>Local IP:</b> {{ local_ip }}</label><br>
         
             <input type="hidden" id="baos ip" name="setting" disabled="True">
-            <label for="baos ip"><b>BAOS 777 IP:</b> {{ baos_ip }}</label><br>
+            <label for="baos ip"><b>BAOS 777 IP:</b>
+                {{ baos_ip }} <a href="{% url 'admin:index' %}knx/setting/1/change/">Change</a>
+            </label><br>
         </fieldset>
 
         <fieldset style="display:inline">
