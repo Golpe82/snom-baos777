@@ -4,18 +4,20 @@ Django settings for iot project.
 
 import os
 from pathlib import Path
+import logging
 
 import helpers
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+os.environ["PYTHONPATH"] = str(BASE_DIR.parent)
 
 SECRET_KEY = "-+%-e(6*1_!dcomw3yod)^8iobzhhu9u4yv83izw3@x2in6c)8"
 DEBUG = True
-GATEWAY_IP = helpers.get_local_ip()
+LOCAL_IP = helpers.get_local_ip()
 
-ALLOWED_HOSTS = ["localhost", GATEWAY_IP]
+ALLOWED_HOSTS = ["localhost", LOCAL_IP]
 
 INSTALLED_APPS = [
     "knx.apps.KnxConfig",
@@ -86,12 +88,12 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "../../static"))
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "../static"))
 
 PROJECT_NAME = "IoT"
 MEDIA_URL = "knx/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
-KNX_ROOT = f"http://{GATEWAY_IP}/knx/"
+KNX_ROOT = f"http://{LOCAL_IP}/knx/"
 
 CSV_SOURCE_PATH = f"{MEDIA_ROOT}ga.csv"

@@ -23,6 +23,10 @@ class SingletonModel(models.Model):
 
 class Setting(SingletonModel):
     baos777_ip_address = models.GenericIPAddressField()
+    
+    @property
+    def local_ip_address(self):
+        return settings.LOCAL_IP
 
     def __str__(self) -> str:
         return f"Settings | BAOS IP {self.baos777_ip_address}"
@@ -39,7 +43,6 @@ class Groupaddress(models.Model):
 
     def __str__(self) -> str:
         return f"{self.maingroup} | {self.subgroup} | {self.name}"
-
 
 PHONE_MODEL_CHOICES = [
     (phone_model, phone_model) for phone_model in FkeyLEDNo.__dataclass_fields__
@@ -96,9 +99,9 @@ class FunctionKeyLEDBoolRelation(models.Model):
     @property
     def on_change_xml_for_on_url(self):
         if self.phone_model.startswith("D8"):
-            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/on/"
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.LOCAL_IP}/knx/minibrowser/subscription/{self.id}/on/"
 
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/on/"
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.LOCAL_IP}/knx/minibrowser/subscription/{self.id}/on/"
 
     @property
     def on_change_xml_for_off(self):
@@ -120,9 +123,9 @@ class FunctionKeyLEDBoolRelation(models.Model):
     @property
     def on_change_xml_for_off_url(self):
         if self.phone_model.startswith("D8"):
-            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/off/"
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.LOCAL_IP}/knx/minibrowser/subscription/{self.id}/off/"
 
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/off/"
+        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.LOCAL_IP}/knx/minibrowser/subscription/{self.id}/off/"
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Write groupaddress: {self.write_groupaddress}"

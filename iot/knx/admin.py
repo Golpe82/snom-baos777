@@ -8,10 +8,14 @@ from knx.models import (
     TemperatureRelation,
 )
 
-admin.site.register(Setting)
 admin.site.register(AmbientLightRelation)
 admin.site.register(TemperatureRelation)
 
+@admin.register(Setting)
+class SettingAdmin(admin.ModelAdmin):
+    readonly_fields = [
+        "local_ip_address",
+    ]
 
 @admin.register(Groupaddress)
 class GroupaddressAdmin(admin.ModelAdmin):

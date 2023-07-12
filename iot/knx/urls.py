@@ -38,6 +38,8 @@ urlpatterns = [
         views.minibrowser_values,
         name="mb_values",
     ),
+    path("subprocesses/start/<str:name>", views.start_subprocess, name="start_subprocess"),
+    path("subprocesses/stop/<str:name>", views.stop_subprocess, name="stop_subprocess"),
     path("subprocesses/", views.subprocesses, name="subprocesses"),
     path("upload/", views.upload_file, name="upload_file"),
     path("groupaddresses/", views.render_groupaddresses, name="groupaddresses"),
