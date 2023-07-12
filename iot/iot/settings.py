@@ -3,10 +3,11 @@ Django settings for iot project.
 """
 
 import os
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-os.environ["PYTHONPATH"] = str(BASE_DIR.parent)
+sys.path.append(str(BASE_DIR.parent))
 
 import helpers
 LOCAL_IP = helpers.get_local_ip()
