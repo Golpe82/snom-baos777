@@ -4,6 +4,8 @@ Django settings for iot project.
 
 import os
 import sys
+import logging
+import asyncio
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent

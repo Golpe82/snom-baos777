@@ -8,7 +8,7 @@ from django.http import HttpResponse, JsonResponse
 
 from knx import upload
 from knx.http_dispatcher import HTTPKNXDispatcher
-from knx.models import Groupaddress, FunctionKeyLEDBoolRelation, Supbrocess, Setting
+from knx.models import Groupaddress, FunctionKeyLEDBoolRelation, Subprocess, Setting
 import baos777.baos_websocket as baos_ws
 
 APP = "KNX"
@@ -197,7 +197,7 @@ def render_groupaddresses(request):
     return render(request, "knx/groupaddresses_data.html", context)
 
 def subprocesses(request):
-    subprocesses = Supbrocess.objects.all()
+    subprocesses = Subprocess.objects.all()
     context = {
         "app": APP,
         "baos_ip": get_baos777_ip(),
@@ -209,12 +209,15 @@ def subprocesses(request):
 
     return render(request, "knx/subprocesses.html", context)
 
-SYSTEM_SUBPROCESSES = ["monitor", "syslog"]
+SYSTEM_SUBPROCESSES = {
+    "monitor": "baos777/launch_monitor.py",
+    "syslog": "snomsyslogknx/main.py"
+    }
 
 def start_subprocess(request, name):
-    if name not in SYSTEM_SUBPROCESSES:
-        logging.error(f"System supbrocess {name} does not exist")
-        return HttpResponse(f"System supbrocess {name} does not exist")
+    if name not in SYSTEM_SUBPROCESSES.keys():
+        logging.error(f"System Subprocess {name} does not exist")
+        return HttpResponse(f"System Subprocess {name} does not exist")
 
     kill_subprocesses(name)
     coroutine = prepare_system_coroutine(name)
@@ -223,26 +226,27 @@ def start_subprocess(request, name):
     return redirect(f"{settings.KNX_ROOT}subprocesses/")
 
 def kill_subprocesses(name):
-    subprocesses = Supbrocess.objects.filter(name=name)
+    subprocesses = Subprocess.objects.filter(name=name)
     for subprocess in subprocesses:
         asyncio.run(kill_subprocess(subprocess.pid)) 
         subprocess.delete()
 
 async def prepare_system_coroutine(name):
-    subprocess = await asyncio.create_subprocess_exec("python3", f"{str(settings.BASE_DIR.parent)}/baos777/launch_monitor.py")
-    await Supbrocess.objects.acreate(type="system", name=name, pid=subprocess.pid)
+    path = f"{str(settings.BASE_DIR.parent)}/{SYSTEM_SUBPROCESSES.get(name)}"
+    subprocess = await asyncio.create_subprocess_exec("python3", path)
+    await Subprocess.objects.acreate(type="system", name=name, pid=subprocess.pid)
 
     logging.info(f"Started system coroutine {name} with PID {subprocess.pid}")
 
 def stop_subprocess(request, name):
     try:
-        pid = Supbrocess.objects.get(name=name).pid
-    except Supbrocess.DoesNotExist:
+        pid = Subprocess.objects.get(name=name).pid
+    except Subprocess.DoesNotExist:
         return HttpResponse(f"No running system subprocess {name}")
 
     asyncio.run(kill_subprocess(pid))
     logging.error(f"Killed system subprocess {name} with PID {pid}")
-    Supbrocess.objects.get(name=name).delete()
+    Subprocess.objects.get(name=name).delete()
 
     return redirect(f"{settings.KNX_ROOT}subprocesses/")
 
@@ -252,8 +256,8 @@ async def kill_subprocess(pid):
 
 def get_subprocess(name):
     try:
-        subprocess = Supbrocess.objects.get(name=name)
-    except Supbrocess.DoesNotExist:
+        subprocess = Subprocess.objects.get(name=name)
+    except Subprocess.DoesNotExist:
         return None
 
     return subprocess

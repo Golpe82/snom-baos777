@@ -5,7 +5,7 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 
-from knx.models import TemperatureRelation, AmbientLightRelation, Groupaddress, Supbrocess
+from knx.models import TemperatureRelation, AmbientLightRelation, Groupaddress, Subprocess
 import baos777.baos_websocket as baos_ws
 
 USERNAME = "admin"
@@ -88,8 +88,8 @@ def stop_blink(request, main, midd, sub):
     groupaddress = f"{main}/{midd}/{sub}"
 
     try:
-        pid = Supbrocess.objects.get(name=f"blink_{groupaddress}").pid
-    except Supbrocess.DoesNotExist:
+        pid = Subprocess.objects.get(name=f"blink_{groupaddress}").pid
+    except Subprocess.DoesNotExist:
         if "snom" in request.META["HTTP_USER_AGENT"]:
             context = {"text": f"No running blink subprocess for {groupaddress}"}
             return render(
@@ -99,7 +99,7 @@ def stop_blink(request, main, midd, sub):
 
     asyncio.run(kill_subprocess(pid))
     logging.error(f"Killed blink subprocess for groupaddress {groupaddress} with PID {pid}")
-    Supbrocess.objects.get(name=f"blink_{groupaddress}").delete()
+    Subprocess.objects.get(name=f"blink_{groupaddress}").delete()
     writer = baos_ws.KNXWriteWebsocket(USERNAME, PASSWORD)
     writer.baos_interface.send_value(groupaddress, "off")
 
@@ -134,7 +134,7 @@ def start_blink(request, main, midd, sub, sec_for_true, sec_for_false):
     return redirect(f"{settings.KNX_ROOT}subprocesses/")
 
 def kill_groupaddress_blink_subprocesses(groupaddress):
-    subprocesses = Supbrocess.objects.filter(name=f"blink_{groupaddress}")
+    subprocesses = Subprocess.objects.filter(name=f"blink_{groupaddress}")
     for subprocess in subprocesses:
         asyncio.run(kill_subprocess(subprocess.pid)) 
         subprocess.delete()
@@ -147,6 +147,6 @@ async def prepare_blink_coroutine(groupaddress, sec_for_on, sec_for_off, user, p
         "python3", f"{settings.BASE_DIR}/knx/blink.py", groupaddress,
         str(sec_for_on), str(sec_for_off), user, password
     )
-    await Supbrocess.objects.acreate(type="blink", name=f"blink_{groupaddress}", pid=subprocess.pid)
+    await Subprocess.objects.acreate(type="blink", name=f"blink_{groupaddress}", pid=subprocess.pid)
 
     logging.info(f"Started blink coroutine for groupaddress {groupaddress} with PID {subprocess.pid}")
