@@ -99,9 +99,9 @@ class FunctionKeyLEDBoolRelation(models.Model):
     @property
     def on_change_xml_for_on_url(self):
         if self.phone_model.startswith("D8"):
-            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.LOCAL_IP}/knx/minibrowser/subscription/{self.id}/on/"
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url={settings.KNX_ROOT}minibrowser/subscription/{self.id}/on/"
 
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.LOCAL_IP}/knx/minibrowser/subscription/{self.id}/on/"
+        return f"http://{self.ip_address}/minibrowser.htm?url={settings.KNX_ROOT}minibrowser/subscription/{self.id}/on/"
 
     @property
     def on_change_xml_for_off(self):
@@ -123,9 +123,9 @@ class FunctionKeyLEDBoolRelation(models.Model):
     @property
     def on_change_xml_for_off_url(self):
         if self.phone_model.startswith("D8"):
-            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.LOCAL_IP}/knx/minibrowser/subscription/{self.id}/off/"
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url={settings.KNX_ROOT}minibrowser/subscription/{self.id}/off/"
 
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.LOCAL_IP}/knx/minibrowser/subscription/{self.id}/off/"
+        return f"http://{self.ip_address}/minibrowser.htm?url={settings.KNX_ROOT}minibrowser/subscription/{self.id}/off/"
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Write groupaddress: {self.write_groupaddress}"
