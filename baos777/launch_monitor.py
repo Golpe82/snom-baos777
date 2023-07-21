@@ -13,7 +13,6 @@ USERNAME = "admin"
 PASSWORD = "admin"
 
 if __name__ == "__main__":
-    utils.wait(20) # wait until phone is booted and network is up
     while True:
         monitor = baos_ws.MonitorWebsocket(USERNAME, PASSWORD)
         interface = monitor.baos_interface
