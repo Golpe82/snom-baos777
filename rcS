@@ -1029,24 +1029,7 @@ function startUpDaemons () {
             startUpSWUpdate
             echo "Start syslogd"
             /etc/init.d/S01Syslog start
-
-            # start knx
-            # echo "Setting PYTHONPATH environment variable"
-            # export PYTHONPATH="$PYTHONPATH:/knx"
-
-            # echo "Starting KNX Django server..."
-            # /usr/bin/python3 /knx/iot/manage.py runserver 0:8000 &
-
-            # echo "Restarting KNX Django subprocesses..."
-            # sleep 10 && /usr/bin/python3 /knx/iot/manage.py restart_subprocesses &
-
-            # echo "Starting KNX monitor..."
-            # /usr/bin/python3 /knx/baos777/launch_monitor.py &
-
-            # echo "Starting KNX snomsyslog..."
-            # /usr/bin/python3 /knx/snomsyslogknx/main.py &
             echo "Start obuspa"
-
             /etc/init.d/S99obuspa start
             ;;
         "snomD865" | "snomD892")
@@ -1737,15 +1720,21 @@ function startUpProductionMode () {
     esac
 }
 
+function startUpKNX () {
+    echo "Setting PYTHONPATH environment variable"
+    export PYTHONPATH="$PYTHONPATH:/snom/knx"
+
+    echo "Starting KNX Django server..."
+    # waits for a phone IP Address
+    (sleep 20; /usr/bin/python3 /snom/knx/iot/manage.py runserver 0:8000) &
+    # waits that Django server is up for restarting active Django subprocesses
+    # saved in the db before rebooting the device
+    echo "Restarting KNX Django subprocesses..."
+    (sleep 30; /usr/bin/python3 /snom/knx/iot/manage.py restart_subprocesses) &
+}
+
 # Starts up the Application
 function startUpApplication () {
-    # start knx
-    echo "Starting KNX Django server..."
-    ( sleep 20; /usr/bin/python3 /knx/iot/manage.py runserver 0:8000) &
-
-    echo "Restarting KNX Django subprocesses..."
-    ( sleep 30; /usr/bin/python3 /knx/iot/manage.py restart_subprocesses) &
-
     while true; do
         display "" "    "
 
@@ -1753,10 +1742,18 @@ function startUpApplication () {
             "snom720")
                 /bin/bash -i -c /snom/start.sh >/dev/null 2>&1
                 ;;
-            "snomD862" | "snomD865" | "snomD892" | "snomD895" | "snomSP800")
+            "snomD862" | "snomD865" | "snomD892" | "snomD895")
                 # Init bluetooth device and start connectivity daemon
                 # This is not already done in startUpDaemons as it would break the production test
                 /etc/init.d/S10Connectivityd start
+                # Start application
+                /snom/start.sh
+                ;;
+            "snomSP800")
+                # Init bluetooth device and start connectivity daemon
+                # This is not already done in startUpDaemons as it would break the production test
+                /etc/init.d/S10Connectivityd start
+                startUpKNX
                 # Start application
                 /snom/start.sh
                 ;;
