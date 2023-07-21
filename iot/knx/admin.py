@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from knx.models import (
+    Setting,
     Groupaddress,
     FunctionKeyLEDBoolRelation,
     AmbientLightRelation,
@@ -10,6 +11,11 @@ from knx.models import (
 admin.site.register(AmbientLightRelation)
 admin.site.register(TemperatureRelation)
 
+@admin.register(Setting)
+class SettingAdmin(admin.ModelAdmin):
+    readonly_fields = [
+        "local_ip_address",
+    ]
 
 @admin.register(Groupaddress)
 class GroupaddressAdmin(admin.ModelAdmin):

@@ -1,4 +1,3 @@
-import os
 import logging
 
 from django.core.validators import RegexValidator
@@ -6,6 +5,31 @@ from django.db import models
 from django.conf import settings
 from knx.constants import FkeyLEDNo
 
+class SingletonModel(models.Model):
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(SingletonModel, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+class Setting(SingletonModel):
+    baos777_ip_address = models.GenericIPAddressField()
+    
+    @property
+    def local_ip_address(self):
+        return settings.LOCAL_IP
+
+    def __str__(self) -> str:
+        return f"Settings | BAOS IP {self.baos777_ip_address}"
 
 class Groupaddress(models.Model):
     maingroup = models.CharField(max_length=50, default=None, editable=False)
@@ -19,7 +43,6 @@ class Groupaddress(models.Model):
 
     def __str__(self) -> str:
         return f"{self.maingroup} | {self.subgroup} | {self.name}"
-
 
 PHONE_MODEL_CHOICES = [
     (phone_model, phone_model) for phone_model in FkeyLEDNo.__dataclass_fields__
@@ -76,9 +99,9 @@ class FunctionKeyLEDBoolRelation(models.Model):
     @property
     def on_change_xml_for_on_url(self):
         if self.phone_model.startswith("D8"):
-            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/on/"
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url={settings.KNX_ROOT}minibrowser/subscription/{self.id}/on/"
 
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/on/"
+        return f"http://{self.ip_address}/minibrowser.htm?url={settings.KNX_ROOT}minibrowser/subscription/{self.id}/on/"
 
     @property
     def on_change_xml_for_off(self):
@@ -100,15 +123,15 @@ class FunctionKeyLEDBoolRelation(models.Model):
     @property
     def on_change_xml_for_off_url(self):
         if self.phone_model.startswith("D8"):
-            return f"http://{self.ip_address}:3112/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/off/"
+            return f"http://{self.ip_address}:3112/minibrowser.htm?url={settings.KNX_ROOT}minibrowser/subscription/{self.id}/off/"
 
-        return f"http://{self.ip_address}/minibrowser.htm?url=http://{settings.GATEWAY_IP}/knx/minibrowser/subscription/{self.id}/off/"
+        return f"http://{self.ip_address}/minibrowser.htm?url={settings.KNX_ROOT}minibrowser/subscription/{self.id}/off/"
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Write groupaddress: {self.write_groupaddress}"
 
-
 class AmbientLightRelation(models.Model):
+    phone_location = models.CharField(max_length=30, default=None)
     mac_address_validator = RegexValidator(
         regex="^[0-9a-fA-F]{12}$", message="Invalid MAC address"
     )
@@ -126,14 +149,13 @@ class AmbientLightRelation(models.Model):
     max_lux = models.PositiveSmallIntegerField(default=500)
     knx_dimm_address = models.CharField(max_length=8, null=True)
     knx_dimm_status_address = models.CharField(max_length=8, null=True)
-    phone_location = models.CharField(max_length=30, default=None)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Lux groupaddress: {self.knx_send_lux_address} | Setpoint: {self.min_lux}...{self.max_lux} Lux"
 
-
 class TemperatureRelation(models.Model):
+    phone_location = models.CharField(max_length=30, default=None)
     mac_address_validator = RegexValidator(
         regex="^[0-9a-fA-F]{12}$", message="Invalid MAC address"
     )
@@ -146,13 +168,15 @@ class TemperatureRelation(models.Model):
     phone_model = models.CharField(max_length=4, null=True, choices=PHONE_MODEL_CHOICES)
     knx_send_celsius_address = models.CharField(max_length=8, null=True)
     celsius_delta = models.FloatField(default=1)
-    phone_location = models.CharField(max_length=30, default=None)
+    min_celsius = models.PositiveSmallIntegerField(default=16)
+    max_celsius = models.PositiveSmallIntegerField(default=28)
+    action_groupaddress = models.CharField(max_length=8, null=True)
     timestamp = models.DateTimeField(null=True, auto_now_add=True)
 
     def __str__(self) -> str:
         return f"{self.phone_location} | {self.phone_model}: {self.ip_address} | Celsius groupaddress: {self.knx_send_celsius_address}"
 
-class Supbrocess(models.Model):
+class Subprocess(models.Model):
     pid = models.PositiveIntegerField(default=None, unique=True)
     type = models.CharField(max_length=10, default=None, editable=False)
     name = models.CharField(max_length=50, default=None, editable=False)

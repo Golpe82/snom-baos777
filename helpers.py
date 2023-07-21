@@ -3,13 +3,6 @@ import socket
 import os
 import shutil
 import logging
-from enum import Enum
-
-
-class StringEnum(Enum):
-    def __repr__(self):
-        return f"<{ self.__class__.__name__ }.{ self.name }>"
-
 
 def get_local_ip():
     local_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

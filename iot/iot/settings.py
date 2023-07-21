@@ -3,21 +3,21 @@ Django settings for iot project.
 """
 
 import os
+import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR.parent))
+os.environ["PYTHONPATH"] = str(BASE_DIR.parent)
 
-load_dotenv()
+import helpers
+LOCAL_IP = helpers.get_local_ip()
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 SECRET_KEY = "-+%-e(6*1_!dcomw3yod)^8iobzhhu9u4yv83izw3@x2in6c)8"
 DEBUG = True
-GATEWAY_IP = os.environ.get("KNX_GATEWAY")
 
-ALLOWED_HOSTS = ["localhost", GATEWAY_IP]
+ALLOWED_HOSTS = ["localhost", LOCAL_IP]
 
 INSTALLED_APPS = [
     "knx.apps.KnxConfig",
@@ -81,19 +81,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+USE_TZ = False
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "../../static"))
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "../static"))
 
 PROJECT_NAME = "IoT"
 MEDIA_URL = "knx/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
-KNX_ROOT = f"http://{GATEWAY_IP}/knx/"
+KNX_PORT = "8000"
+KNX_ROOT = f"http://{LOCAL_IP}:{KNX_PORT}/knx/"
 
 CSV_SOURCE_PATH = f"{MEDIA_ROOT}ga.csv"

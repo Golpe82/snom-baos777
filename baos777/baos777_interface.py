@@ -1,18 +1,11 @@
 import requests
 import logging
 import json
-import os
 from http import HTTPStatus
-
-from dotenv import load_dotenv
 
 from baos777.constants import BAOS777Commands as cmd
 from baos777.datapoint_values import DatapointValue
 
-load_dotenv()
-
-BAOS777_IP = os.environ.get("BAOS777_IP")
-SERVER_URL = f"http://{BAOS777_IP}/"
 WEBSOCKET_PATH = "websocket/"
 REST_API_PATH = "rest/"
 DATAPOINTS_PATH = f"{REST_API_PATH}datapoints/"
@@ -22,7 +15,8 @@ SENDING_GROUPADDRESS = 0
 
 
 class BAOS777Interface:
-    def __init__(self, token, baos_message=None):
+    def __init__(self, ip_address, token, baos_message=None):
+        self.server_url = f"http://{ip_address}/"
         self.token = token
         self.auth_header = {"Authorization": f"Token token={self.token}"}
         self.datapoints = self._get_datapoints()
@@ -35,7 +29,7 @@ class BAOS777Interface:
     def _get_datapoints(self):
         try:
             response = requests.get(
-                f"{SERVER_URL}{DATAPOINTS_PATH}", headers=self.auth_header
+                f"{self.server_url}{DATAPOINTS_PATH}", headers=self.auth_header
             )
 
             if response.status_code != HTTPStatus.OK:
@@ -84,7 +78,7 @@ class BAOS777Interface:
     def _set_datapoints_groupaddresses(self):
         try:
             response = requests.get(
-                f"{SERVER_URL}{GROUPADDRESSES_PATH}", headers=self.auth_header
+                f"{self.server_url}{GROUPADDRESSES_PATH}", headers=self.auth_header
             )
             if response.status_code != HTTPStatus.OK:
                 response.raise_for_status()
@@ -152,7 +146,7 @@ class BAOS777Interface:
     def read_raw_value(self, groupaddress):
         if groupaddress in self.sending_groupaddresses.values():
             datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
-            url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
+            url = f"{self.server_url}{DATAPOINTS_PATH}{datapoint_id}"
             response_raw = requests.get(url, headers=self.auth_header)
             response = json.loads(response_raw.text)
 
@@ -188,7 +182,7 @@ class BAOS777Interface:
             datapoint_id = self._get_datapoint_id_by_groupaddress(groupaddress)
             datapoint_information = self.datapoints_information.get(datapoint_id)
             datapoint_format = datapoint_information.get("datapoint format")
-            url = f"{SERVER_URL}{DATAPOINTS_PATH}{datapoint_id}"
+            url = f"{self.server_url}{DATAPOINTS_PATH}{datapoint_id}"
             payload = {
                 "command": cmd.SET_VALUE_AND_SEND_ON_BUS,
                 "value": self._get_datapoint_raw_value(datapoint_format, value),

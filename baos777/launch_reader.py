@@ -1,8 +1,5 @@
 import logging
-import sys
 
-# add current folder to the system path
-sys.path.append("/usr/local/gateway")
 from baos777 import baos_websocket as baos_ws
 
 logging.basicConfig(level=logging.INFO)

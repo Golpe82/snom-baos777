@@ -1,13 +1,14 @@
 """Views for app knx"""
 import logging
+import asyncio
 
 from django.conf import settings
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from knx import upload
 from knx.http_dispatcher import HTTPKNXDispatcher
-from knx.models import Groupaddress, FunctionKeyLEDBoolRelation, Supbrocess
+from knx.models import Groupaddress, FunctionKeyLEDBoolRelation, Subprocess, Setting
 import baos777.baos_websocket as baos_ws
 
 APP = "KNX"
@@ -30,6 +31,10 @@ def index(request):
     }
     context = {
         "app": APP,
+        "baos_ip": get_baos777_ip(),
+        "local_ip": get_local_ip(),
+        "knx_monitor": get_subprocess("monitor"),
+        "knx_syslog": get_subprocess("syslog"),
         "addresses_groups": addresses_groups,
     }
 
@@ -147,6 +152,10 @@ def addresses(request, maingroup, subgroup):
     )
     context = {
         "app": APP,
+        "baos_ip": get_baos777_ip(),
+        "local_ip": get_local_ip(),
+        "knx_monitor": get_subprocess("monitor"),
+        "knx_syslog": get_subprocess("syslog"),
         "page": f"{maingroup} {subgroup}",
         "groupaddresses": groupaddresses,
     }
@@ -157,6 +166,10 @@ def addresses(request, maingroup, subgroup):
 def upload_file(request):
     context = {
         "app": APP,
+        "baos_ip": get_baos777_ip(),
+        "local_ip": get_local_ip(),
+        "knx_monitor": get_subprocess("monitor"),
+        "knx_syslog": get_subprocess("syslog"),
         "message": upload.process_file(request),
     }
 
@@ -172,6 +185,10 @@ def render_groupaddresses(request):
     context = {
         "project": settings.PROJECT_NAME,
         "app": APP,
+        "baos_ip": get_baos777_ip(),
+        "local_ip": get_local_ip(),
+        "knx_monitor": get_subprocess("monitor"),
+        "knx_syslog": get_subprocess("syslog"),
         "page": "Groupaddresses data",
         "baos_groupaddresses": baos_sending_groupaddresses,
         "other_groupaddresses": other_groupaddresses,
@@ -179,11 +196,82 @@ def render_groupaddresses(request):
 
     return render(request, "knx/groupaddresses_data.html", context)
 
-def subprocesses(request, message=""):
-    subprocesses = Supbrocess.objects.all()
+def subprocesses(request):
+    subprocesses = Subprocess.objects.all()
     context = {
         "app": APP,
+        "baos_ip": get_baos777_ip(),
+        "local_ip": get_local_ip(),
+        "knx_monitor": get_subprocess("monitor"),
+        "knx_syslog": get_subprocess("syslog"),
         "subprocesses": subprocesses,
     }
 
     return render(request, "knx/subprocesses.html", context)
+
+SYSTEM_SUBPROCESSES = {
+    "monitor": "baos777/launch_monitor.py",
+    "syslog": "snomsyslogknx/main.py"
+    }
+
+def start_subprocess(request, name):
+    if name not in SYSTEM_SUBPROCESSES.keys():
+        logging.error(f"System Subprocess {name} does not exist")
+        return HttpResponse(f"System Subprocess {name} does not exist")
+
+    kill_subprocesses(name)
+    coroutine = prepare_system_coroutine(name)
+    asyncio.run(coroutine)
+
+    return redirect(f"{settings.KNX_ROOT}subprocesses/")
+
+def kill_subprocesses(name):
+    subprocesses = Subprocess.objects.filter(name=name)
+    for subprocess in subprocesses:
+        asyncio.run(kill_subprocess(subprocess.pid)) 
+        subprocess.delete()
+
+async def prepare_system_coroutine(name):
+    path = f"{str(settings.BASE_DIR.parent)}/{SYSTEM_SUBPROCESSES.get(name)}"
+    subprocess = await asyncio.create_subprocess_exec("python3", path)
+    await Subprocess.objects.acreate(type="system", name=name, pid=subprocess.pid)
+
+    logging.info(f"Started system coroutine {name} with PID {subprocess.pid}")
+
+def stop_subprocess(request, name):
+    try:
+        pid = Subprocess.objects.get(name=name).pid
+    except Subprocess.DoesNotExist:
+        return HttpResponse(f"No running system subprocess {name}")
+
+    asyncio.run(kill_subprocess(pid))
+    logging.error(f"Killed system subprocess {name} with PID {pid}")
+    Subprocess.objects.get(name=name).delete()
+
+    return redirect(f"{settings.KNX_ROOT}subprocesses/")
+
+
+async def kill_subprocess(pid):
+    await asyncio.create_subprocess_exec("kill", "-9", str(pid))
+
+def get_subprocess(name):
+    try:
+        subprocess = Subprocess.objects.get(name=name)
+    except Subprocess.DoesNotExist:
+        return None
+
+    return subprocess
+
+def knx_settings(request):
+    _knx_settings = Setting.objects.all().first()
+    knx_settings = {
+        "baos ip": _knx_settings.baos777_ip_address,
+        "local ip": _knx_settings.local_ip_address
+    }
+    return JsonResponse(knx_settings)
+
+def get_baos777_ip():
+    return Setting.objects.all().first().baos777_ip_address
+
+def get_local_ip():
+    return Setting.objects.all().first().local_ip_address

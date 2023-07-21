@@ -41,7 +41,10 @@ def minibrowser(request):
         maingroup[0]
         for maingroup in Groupaddress.objects.values_list("maingroup").distinct()
     ]
-    context = {"knx_gateway": settings.KNX_ROOT, "mainaddresses": mainaddresses}
+    context = {
+        "knx_gateway": settings.KNX_ROOT,
+        "mainaddresses": mainaddresses
+    }
     template_data = _get_template_data(request, "knx_mainaddresses.xml")
     template = template_data.get("template")
     context["encoding"] = template_data.get("encoding")

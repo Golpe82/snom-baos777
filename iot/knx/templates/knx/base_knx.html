@@ -13,6 +13,41 @@
         <a href="{% url 'knx:subprocesses' %}">Subprocesses </a>|
         <a href="{% url 'knx:upload_file' %}">Upload </a>|
     </h3>
+    <form>
+        <fieldset style="display:inline">
+            <legend>Settings</legend>
+        
+            <input type="hidden" id="local ip" name="setting" disabled="True">
+            <label for="local ip"><b>Local IP:</b> {{ local_ip }}</label><br>
+        
+            <input type="hidden" id="baos ip" name="setting" disabled="True">
+            <label for="baos ip"><b>BAOS 777 IP:</b>
+                {{ baos_ip }} <a href="{% url 'admin:index' %}knx/setting/1/change/">Change</a>
+            </label><br>
+        </fieldset>
+
+        <fieldset style="display:inline">
+            <legend>System subprocesses</legend>
+
+            <input type="hidden" id="knx monitor" name="system subprocess" disabled="True">
+            <label for="knx monitor"><b>KNX monitor</b>
+                {% if knx_monitor %}
+                    <a href="{% url 'knx:stop_subprocess' 'monitor' %}">Stop</a>
+                {% else %}
+                    <a href="{% url 'knx:start_subprocess' 'monitor' %}">Start</a>
+                {% endif %}
+            </label><br>
+        
+            <input type="hidden" id="knx syslog" name="system subprocess" disabled="True">
+            <label for="knx syslog"><b>KNX syslog</b>
+                {% if knx_syslog %}
+                    <a href="{% url 'knx:stop_subprocess' 'syslog' %}">Stop</a>
+                {% else %}
+                    <a href="{% url 'knx:start_subprocess' 'syslog' %}">Start</a>
+                {% endif %}
+            </label><br>
+        </fieldset>
+    </form>
 {% endblock app_nav %}
 
 {% block content %}{% endblock content %}
