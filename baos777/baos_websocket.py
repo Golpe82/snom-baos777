@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 if logging.getLogger().level == logging.DEBUG:
     websocket.enableTrace(True)
 
-
+KNX_PORT = "8000"
 KNX_GATEWAY = helpers.get_local_ip()
 
 class BaseWebsocket(ABC):
@@ -29,7 +29,7 @@ class BaseWebsocket(ABC):
         self.ws = None
         self.user = username
         self.pswd = password
-        _settings = requests.get(f"http://{KNX_GATEWAY}/knx/settings/")
+        _settings = requests.get(f"http://{KNX_GATEWAY}:{KNX_PORT}/knx/settings/")
         self.ip_address = _settings.json().get("baos ip")
         self.token = None
         self.baos_interface = None
@@ -137,7 +137,7 @@ class MonitorWebsocket(BaseWebsocket):
             logging.info("No urls to send after BAOS 777 incoming message")
 
     def _get_led_update_url(self, datapoint_id, datapoint_value):
-        led_update_url = f"http://{KNX_GATEWAY}/knx/update_led_subscriptors/"
+        led_update_url = f"http://{KNX_GATEWAY}:{KNX_PORT}/knx/update_led_subscriptors/"
         datapoint_sending_groupaddress = self.baos_interface.get_sending_groupaddress(
             datapoint_id
         )

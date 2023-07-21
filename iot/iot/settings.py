@@ -4,8 +4,6 @@ Django settings for iot project.
 
 import os
 import sys
-import logging
-import asyncio
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -96,6 +94,7 @@ PROJECT_NAME = "IoT"
 MEDIA_URL = "knx/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
-KNX_ROOT = f"http://{LOCAL_IP}/knx/"
+KNX_PORT = "8000"
+KNX_ROOT = f"http://{LOCAL_IP}:{KNX_PORT}/knx/"
 
 CSV_SOURCE_PATH = f"{MEDIA_ROOT}ga.csv"
