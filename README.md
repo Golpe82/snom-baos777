@@ -15,6 +15,8 @@ You only need to set up HTTP-Requests with patterns like this:
 `http://ip.of.the.gateway:8000/knx/write/group/addr/ess/value_temp/23,7` (will set the temperature of the groupaddress to 23,7°C)  
 `http://ip.of.the.gateway:8000/knx/read/group/addr/ess/`(will read the current value of the groupaddress)  
 
+See the full [API](#snom-knx-api) below
+
 ## **Services**
 The Snom KNX gateway software has 3 services
 
@@ -63,11 +65,11 @@ _E.g.: sends temperature or light sensor values to the KNX bus_
 8. Reboot the device
 
 ## **Usage**
-1. Click on "Change" for setting the BAOS IP address. You can find the ip in the display of your BAOS 777.  
+1. From the webbrowser of a device in the same network as your I100KNX or Linux machine, call:  
+    `http://ip.of.the.gateway:8000/knx/`, where `ip.of.the.gateway` is the ip address of your I100KNX or of the Linux device where the Snom KNX software was installed
+2. Click on "Change" for setting the BAOS IP address. You can find the ip in the display of your BAOS 777.  
 The default credentials for the administration are:  
 User = admin, Password = admin
-2. From the webbrowser of a device in the same network, call:  
-    `http://ip.of.the.gateway:8000/knx/`, where `ip.of.the.gateway` is the ip address of your I100KNX or of the Linux device where the Snom KNX software was installed
 3. Navigate to KNX->Upload and upload the .csv file with your KNX groupaddresses exported from the ETS  
 
 Under KNX->Groupaddresses you can see now the groupaddresses you can control with the Snom phones (BAOS sending groupaddresses) and the rest of the groupaddresses available in the knx installation.  
@@ -174,16 +176,22 @@ Below is used the groupaddress 1/2/3 as example.
 
 | URL path | Function |
 |:-------------|:-------------|
-| `knx/` | opens the Snom KNX minibrowser |
+| `knx/minibrowser/` | opens the Snom KNX minibrowser |
 | `knx/read/1/2/3/` | reads the groupaddress status |
 | `knx/write/1/2/3/switch/on` | switches on a DPT1 groupaddress |
 | `knx/write/1/2/3/switch/off` | switches off a DPT1 groupaddress |
 | `knx/write/1/2/3/switch/toggle` | toggles a DPT1 groupaddress |
 | `knx/write/1/2/3/dimming/increase` | dimms up a DPT3 groupaddress (step code=5) |
 | `knx/write/1/2/3/dimming/decrease` | dimms down a DPT3 groupaddress (step code=5) |
-| `knx/write/1/2/3/scaling/50` | sets a DPT5 groupaddress to the given value in % (0...100%) |
+| `knx/write/1/2/3/scaling/50` | sets a DPT5 groupaddress to the given value in % (50% in this example) |
 | `knx/write/1/2/3/scaling/phone_input` | sets a DPT5 groupaddress to the typed value in the phone keyboard (0...100%) |
-| `knx/write/1/2/3/value_temp/23,7` | sets a DPT9 groupaddress to the given float value in °C |
+| `knx/write/1/2/3/value_temp/23,7` | sets a DPT9 groupaddress to the given float value in °C (23,7°C in this example)|
+| `knx/1/2/3/start_blink/3/2` | the given DPT1 groupaddress starts blinking (3 seconds for on and 2 seconds for off in this example)  |
+| `knx/1/2/3/stop_blink` | the given DPT1 groupaddress stops blinking |
+| `knx/subprocesses/start/monitor` | starts the knx monitor |
+| `knx/subprocesses/stop/monitor` | stops the knx monitor subprocess|
+| `knx/subprocesses/start/syslog` | starts the knx syslog subprocess|
+| `knx/subprocesses/stop/syslog` | stops the knx syslog subprocess |
 
 ---
 
