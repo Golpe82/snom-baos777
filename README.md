@@ -10,38 +10,43 @@ For example, using a [Snom IP phone](https://www.snom.com/en/), you can assign a
 You can also trigger an action in a KNX device, e.g., when a call comes in.
 
 You only need to set up HTTP-Requests with patterns like this:  
-`http://ip.of.the.gateway/knx/write/group/addr/ess/switch/on` (will switch on the groupaddress),  
-`http://ip.of.the.gateway/knx/write/group/addr/ess/dimming/increase` (will dimm the groupaddress up)   
-`http://ip.of.the.gateway/knx/read/group/addr/ess/value_temp/23,7` (will set the temperature of the groupaddress to 23,7°C)  
-`http://ip.of.the.gateway/knx/read/group/addr/ess/`(will read the value of the groupaddress)  
+`http://ip.of.the.gateway:8000/knx/write/group/addr/ess/switch/on` (will switch on the groupaddress),  
+`http://ip.of.the.gateway:8000/knx/write/group/addr/ess/dimming/increase` (will dimm the groupaddress up)   
+`http://ip.of.the.gateway:8000/knx/write/group/addr/ess/value_temp/23,7` (will set the temperature of the groupaddress to 23,7°C)  
+`http://ip.of.the.gateway:8000/knx/read/group/addr/ess/`(will read the current value of the groupaddress)  
 
 ## **Services**
 The Snom KNX gateway software has 3 services
 
-### **Snom IoT GUI**
-User interface for setting up the interoperability betwen Snom devices and KNX devices.  
+### **Snom IoT WUI**
+Web User Interface for setting up the interoperability betwen Snom devices and KNX devices.  
 Serves the Snom XML minibrowser.  
-Has a Web User Interface for controlling the KNX devices.
+The KNX devices can be controlled from here.
+This service starts when the device is booted.
+The other two services can be started or stopped from the WUI.
 
 ### **KNX monitor**
-Monitors the traffic in the KNX installation updating Snom function keys subscriptions.  
+It can be started/stopped from the Snom IoT WUI.
+This service is needed for the Function keys relations functionality.
+It monitors the traffic in the KNX installation updating Snom function keys subscriptions.  
 _E.g.: LED color of function key changes if incoming KNX bus event happens_
 
 ### **Snom syslog KNX**
+It can be started/stopped from the Snom IoT WUI.
+This service is needed for the Ambientlight relations and the Temperature relations functionalities.
 Handles incoming syslog messages from a Snom device triggering events in the KNX devices.  
 _E.g.: sends temperature or light sensor values to the KNX bus_
 
 ## **Hardware needed**
 - [Weinzierl BAOS 777](https://weinzierl.de/en/products/knx-ip-baos-777/?gclid=EAIaIQobChMIq5Kg-oCQ_wIVhdDVCh2ozQqgEAAYASAAEgKotPD_BwE)
-- Linux device with [systemd](https://en.wikipedia.org/wiki/Systemd) (e.g. Raspberry Pi)
+- Linux device (e.g. Raspberry Pi) or Snom I100KNX
 
 ## **Configuring the BAOS 777**
-(WIP)
 1. With the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool, integrate the BAOS 777 in your KNX system. 
 2. Only he parametrized sending groupaddresses will be writable/readable with the Snom KNX gateway
-3. Export the KNX groupaddresses of your KNX project from the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool as .csv file or ask your KNX integrator for it
+3. Export all the KNX groupaddresses of your KNX project from the [ETS](https://www.knx.org/knx-en/for-professionals/software/ets-5-professional/) tool as .csv file or ask your KNX integrator for it
 
-## **Installation of the Snom KNX gateway software**
+## **Installation of the Snom KNX gateway software in a Linux device**
 1. Open a terminal in your systemd linux device
 2. Make sure [Python 3.10](https://realpython.com/installing-python/#how-to-build-python-from-source-code) is installed and [is the default version](https://www.baeldung.com/linux/default-python3) for the command `python3`
 3. Make sure pip and git are installed
@@ -51,30 +56,28 @@ _E.g.: sends temperature or light sensor values to the KNX bus_
 5. Install the python [requirements.txt](https://gitlab.com/simon.golpe/snom_baos_777/-/blob/master/requirements.txt)  
 
     `sudo pip3 install -r snom_baos_777/requirements.txt`
-6. Create a `.env` file like in this [example](https://gitlab.com/simon.golpe/snom_baos_777/-/blob/master/.env.example) adjusting the ip address of the Weinzierl BAOS 777 device and of your Linux systemd device (KNX_GATEWAY)
 7. Type `sudo crontab -e`, add and save this line at the end of the file:
 
-    `@reboot /usr/bin/python3 /usr/local/snom_baos_777/runner.py > /usr/local/snom_baos_777/cronlog 2>&1` 
+    `@reboot /usr/bin/python3 /usr/local/snom_baos_777/iot/manage.py runserver 0:8000 > /usr/local/snom_baos_777/cronlogRunserver 2>&1`  
+    `@reboot sleep 10 && /usr/bin/python3 /usr/local/snom_baos_777/iot/manage.py restart_subprocesses > /usr/local/snom_baos_777/cronlogSubprocesses 2>&1` 
 8. Reboot the device
 
-After the reboot, your systemd system has 3 new [services](#services):
-- [snomiotgui.service](#snom-iot-gui)
-- [knxmonitor.service](#knx-monitor)
-- [snomsyslog.service](#snom-syslog-knx)
-
-Check that all 3 are running executing:  
-`sudo systemctl status snomiotgui.service knxmonitor.service snomsyslog.service`
-
 ## **Usage**
-1. From the webbrowser of a device in the same network, call:  
-    `http://ip.of.the.gateway/knx/`
-2. Upload the .csv file with your KNX groupaddresses
+1. Click on "Change" for setting the BAOS IP address. You can find the ip in the display of your BAOS 777.  
+The default credentials for the administration are:  
+User = admin, Password = admin
+2. From the webbrowser of a device in the same network, call:  
+    `http://ip.of.the.gateway:8000/knx/`, where `ip.of.the.gateway` is the ip address of your I100KNX or of the Linux device where the Snom KNX software was installed
+3. Navigate to KNX->Upload and upload the .csv file with your KNX groupaddresses exported from the ETS  
+
+Under KNX->Groupaddresses you can see now the groupaddresses you can control with the Snom phones (BAOS sending groupaddresses) and the rest of the groupaddresses available in the knx installation.  
+If you want to control a new groupaddress with the Snom phone, you must set via ETS a new datapoint in the BAOS 777 for this groupaddress, export the groupaddresses as csv again and upload the new .csv file in the Snom IoT WUI.
    
 ### **Using a Snom Deskphone**
 Ways for control/monitoring the KNX installation:
 
 #### **_Snom minibrowser_**
-1. [Configure a function key](https://service.snom.com/display/wiki/Function+keys) of your Snom phone as an action-URL and assign it the value `http://ip.of.the.gateway/knx/`
+1. [Configure a function key](https://service.snom.com/display/wiki/Function+keys) of your Snom phone as an action-URL and assign it the value `http://ip.of.the.gateway:8000/knx/`
 2. Pressing this function key, you can now read/write the sending groupaddresses of the BAOS 777 device  
 
 #### **_Function keys_**
@@ -85,38 +88,37 @@ This way each function key can be used as KNX switch.
 2. Navigate to `function keys` -> `Line Keys`
 3. Set up one line key as `action url`
 4. Set the url for controlling the KNX groupaddress.  
-_E.g. `http://ip.of.the.gateway/knx/write/2/1/21/scaling/phone_input`_
+_E.g. `http://ip.of.the.gateway:8000/knx/write/2/1/21/scaling/phone_input`_
 5. Set a label for the line key and save.  
 _E.g. `Ceiling light %`_
 
 If you press now in the configured line key, you will be asked for typing a value between 0...100% for dimming the groupaddress.  
 If you assign a groupaddress of boolean datapoint type, you have the possibility to signalize the status of the groupaddress through the line key LED color.  
-You can setup this functionality with a [function key subscription](#function-keys-subscriptions).
+You can setup this functionality with a [function key led bool relation](#function-keys-led-bool-relations).
 
-#### **_Function keys subscriptions_**  
-It subscribes a phone function key to a KNX groupaddress.  
-After configuring the subscription, pressing the function key will control the groupaddress (only boolean KNX datapoint types).  
-The color of the function key LED will change showing the status of the KNX groupaddress if the groupaddress value is changed from any phone or from any KNX device.
+#### **_Function keys led bool relations_**  
+It generates the url for the function key and subscribes the led of the function key for showing the current status of a KNX groupaddress.  
+For this functionality, the service knx monitor must be started in the Snom IoT WUI.  
+After configuring the relation, pressing the function key will control the groupaddress.  
+The color of the function key LED will change showing the status of the status KNX groupaddress if its value is changed from any phone or from any KNX device.
 
-1. Navigate to `http://ip.of.the.gateway/admin/` and login (default user/password: admin/admin)
-2. Click on `Function key led subscriptionss` 
+1. Navigate to `http://ip.of.the.gateway:8000/admin/` and login (default user/password: admin/admin)
+2. Click on `Function key led bool relations` 
 3. Click on the top right `Add function key led subscriptions`
 4. Fill in the needed information
-5. Save and click in the new created LED subscription
-6. Copy the urls of `Knx write url for on:` and `Knx write url for off:` and configure the to the LED corresponding function keys as action url over the phone WUI (paste the copied values)
+5. Click "Save and continue editing"
+6. Copy the url displayed in `Knx toggle url:` and configure it as action url for the chosen function key over the phone WUI (paste the copied values)
 
-Now you can switch on the subscripted groupaddress with one function key and switch off with the other one.  
-The LEDs will light on or off depending on the current groupaddress value.  
-If another device changes the value of the groupaddress, the LEDs will update its status.
+Now you can toggle the groupaddress with the configured function key.  
+The LED will change the color depending on the status of the configured status groupaddress.  
+If another device changes the value of the groupaddress, the LEDs will update its status. 
 
-You can configure so much subscriptions like you want. 
-
-#### **_Setting a code to allow controlling a specific KNX groupaddress_**
+#### **_Setting a code/PIN to allow controlling a specific KNX groupaddress_**
 On some cases, you don´t want that anyone controls a groupaddress (e.g. open/close a door or switch on/off an alarm system).  
-In this case you can set up this groupaddress with a code, so that the user is asked to type it on the phone keyboard.
+In this case you can set up this groupaddress with a code/PIN, so that the user is asked to type it on the phone keyboard.
    
-The groupaddress will only switch if the typed code is correct.
-1. Navigate to `http://ip.of.the.gateway/admin/` and login (default user/password: admin/admin)
+The groupaddress will only switch if the typed code/PIN is correct.
+1. Navigate to `http://ip.of.the.gateway:8000/admin/` and login (default user/password: admin/admin)
 2. Click on `Groupaddresss`
 3. Click on the groupaddress you want to safe with a code
 4. Fill in the code and save
@@ -124,35 +126,39 @@ The groupaddress will only switch if the typed code is correct.
 Now if you try to control this groupaddress over a function key or minibrowser, you will be asked for the code.
 
 #### **_Ambient light sensor_**  
-With Snom D735 phones and its built-in ambientlight sensor, you can control your KNX dimm actuators.  
-For this, you can define between which Lux range the brightness of your workplace must be.  
+With Snom D735 phones and its built-in ambientlight sensor, you can control your KNX dimm actuators or send the measured value to the KNX bus.  
+For this, you can define in which Lux range the brightness of your workplace must be.  
 
 You can also configure the ambientlight relation so that the measured Lux value is sent to the KNX bus if the configured Lux delta is exceeded.  
 You can use this value as input for other KNX devices.
 
-1. Navigate to `http://ip.of.the.gateway/admin/` and login (default user/password: admin/admin)
+For this functionality, the service "syslog" must be started in the Snom IoT WUI.
+
+1. Navigate to `http://ip.of.the.gateway:8000/admin/` and login (default user/password: admin/admin)
 2. Click on `Ambient light relations`
 3. Click on the top right `Add ambient light relation`
 4. Fill in the needed information
 5. Save and click in the new created LED subscription
 6. Navigate to `http://ip.address.of.phone`
 7. Navigate to `Advanced` -> `Debug`
-8. Set as syslog server IP address `ip.of.the.gateway:514` 
+8. Set as syslog server IP address `ip.of.the.gateway:515` 
 
 Now the phone will keep the brightness of the workplace in the configured Lux range (e.g. 100...500 Lux).  
 The sensor of the phone will also send the current measured Lux value to the KNX  if the configured Lux delta is exceeded.
 
 #### **_Temperature sensor_**  
 With any Snom deskphone and [an usb temperature sensor](https://www.tindie.com/products/kel/usb-thermometer/) plugged in it, you can send the current temperature of your workplace to the KNX bus.  
-This way you can , e.g., control the KNX heating actuators or open/close windows automatically depending on the current temperature.  
+This way you can , e.g., control the KNX heating actuators or open/close windows automatically depending on the current temperature.
 
-1. Navigate to `http://ip.of.the.gateway/admin/` and login (default user/password: admin/admin)
+For this functionality, the service "syslog" must be started in the Snom IoT WUI.
+
+1. Navigate to `http://ip.of.the.gateway:8000/admin/` and login (default user/password: admin/admin)
 2. Click on `Temperature relations`
 3. Click on the top right `Add temperature relation`
 4. Fill in the needed information and save
 6. Navigate to `http://ip.address.of.phone`
 7. Navigate to `Advanced` -> `Debug`
-8. Set as syslog server IP address `ip.of.the.gateway:514` 
+8. Set as syslog server IP address `ip.of.the.gateway:515` 
 
 Now the phone will send the measured temperature to the KNX bus if the configured Celsius delta is exceeded.
    
@@ -161,6 +167,9 @@ Now the phone will send the measured temperature to the KNX bus if the configure
 
 ## **Developing the Internet of Things gateway in your local machine**
 (TBD)
+
+## Snom KNX API
+
 
 ---
 
