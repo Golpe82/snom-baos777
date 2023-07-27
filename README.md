@@ -188,7 +188,7 @@ Below is used the groupaddress 1/2/3 as example.
 | `knx/write/1/2/3/value_temp/23,7` | sets a DPT9 groupaddress to the given float value in °C (23,7°C in this example)|
 | `knx/1/2/3/start_blink/3/2` | the given DPT1 groupaddress starts blinking (3 seconds for on and 2 seconds for off in this example)  |
 | `knx/1/2/3/stop_blink` | the given DPT1 groupaddress stops blinking |
-| `knx/subprocesses/start/monitor` | starts the knx monitor |
+| `knx/subprocesses/start/monitor` | starts the knx monitor subprocess|
 | `knx/subprocesses/stop/monitor` | stops the knx monitor subprocess|
 | `knx/subprocesses/start/syslog` | starts the knx syslog subprocess|
 | `knx/subprocesses/stop/syslog` | stops the knx syslog subprocess |
