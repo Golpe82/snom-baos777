@@ -170,6 +170,7 @@ Now the phone will send the measured temperature to the KNX bus if the configure
 
 ## **Snom KNX API**
 `http://ip.of.the.gateway:8000/` is the url base, where  `ip.of.the.gateway` is the IP address of the I100KNX or the Linux machine where the Snom KNX software runs.  
+Below is used the groupaddress 1/2/3 as example.  
 
 | URL path | Function |
 |:-------------|:-------------|
