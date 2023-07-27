@@ -168,8 +168,21 @@ Now the phone will send the measured temperature to the KNX bus if the configure
 ## **Developing the Internet of Things gateway in your local machine**
 (TBD)
 
-## Snom KNX API
+## **Snom KNX API**
+`http://ip.of.the.gateway:8000/` is the url base, where  `ip.of.the.gateway` is the IP address of the I100KNX or the Linux machine where the Snom KNX software runs.  
 
+| URL path | Function |
+|:-------------|:-------------|
+| `knx/` | opens the Snom KNX minibrowser |
+| `knx/read/1/2/3/` | reads the groupaddress status |
+| `knx/write/1/2/3/switch/on` | switches on a DPT1 groupaddress |
+| `knx/write/1/2/3/switch/off` | switches off a DPT1 groupaddress |
+| `knx/write/1/2/3/switch/toggle` | toggles a DPT1 groupaddress |
+| `knx/write/1/2/3/dimming/increase` | dimms up a DPT3 groupaddress (step code=5) |
+| `knx/write/1/2/3/dimming/decrease` | dimms down a DPT3 groupaddress (step code=5) |
+| `knx/write/1/2/3/scaling/50` | sets a DPT5 groupaddress to the given value in % (0...100%) |
+| `knx/write/1/2/3/scaling/phone_input` | sets a DPT5 groupaddress to the typed value in the phone keyboard (0...100%) |
+| `knx/write/1/2/3/value_temp/23,7` | sets a DPT9 groupaddress to the given float value in °C |
 
 ---
 
