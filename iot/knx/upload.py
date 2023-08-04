@@ -1,10 +1,9 @@
 import os
 
+from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
 from knx.groupaddresses import update_groupaddresses
-from django.conf import settings
-
 
 def process_file(request):
     if request.method != "POST":

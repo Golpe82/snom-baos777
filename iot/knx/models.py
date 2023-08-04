@@ -3,6 +3,7 @@ import logging
 from django.core.validators import RegexValidator
 from django.db import models
 from django.conf import settings
+
 from knx.constants import FkeyLEDNo
 
 class SingletonModel(models.Model):

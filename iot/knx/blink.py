@@ -1,6 +1,7 @@
 import logging
 import argparse
 import time
+
 import baos777.baos_websocket as baos_ws
 
 parser = argparse.ArgumentParser(description='Blink KNX groupaddress (DPT1)')

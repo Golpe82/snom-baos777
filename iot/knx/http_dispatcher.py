@@ -1,7 +1,8 @@
 import asyncio
+import logging
+
 import requests
 from requests.auth import HTTPDigestAuth, HTTPBasicAuth
-import logging
 from concurrent.futures import ThreadPoolExecutor
 
 VALUES = ["on", "off"]
